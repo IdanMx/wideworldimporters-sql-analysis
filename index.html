@@ -280,6 +280,11 @@
   #mapsvg .mpin { cursor: pointer; }
   #mapsvg .mpin circle.hit { fill: transparent; }
   #mapsvg .mpin.dim { opacity: .38; }
+  #mapsvg.sat .schem { display: none; }
+  #mapsvg.sat .mlabel, #mapsvg.sat .mnote {
+    fill: #fff; opacity: .95;
+    paint-order: stroke; stroke: rgba(10, 16, 26, .65); stroke-width: 3px;
+  }
   #mapsvg .mpin .ring { fill: none; stroke: var(--ink); stroke-width: 1.6; opacity: 0; }
   #mapsvg .mpin.sel .ring { opacity: 1; }
   .maplegend {
@@ -406,6 +411,7 @@
         <button class="chip" data-map="tokyo" aria-pressed="true">Tokyo</button>
         <button class="chip" data-map="osaka" aria-pressed="false">Osaka</button>
         <button class="chip" data-map="trip" aria-pressed="false">Kyoto &amp; Nara</button>
+        <button class="chip" id="satBtn" aria-pressed="false">🛰️ Satellite</button>
       </div>
       <div class="mapzoom">
         <button id="locBtn" aria-label="Show my location">📍</button>
@@ -423,7 +429,8 @@
       <span><span class="dot" style="background:var(--gold)"></span>Book ahead</span>
       <span><span class="dot" style="background:var(--noren)"></span>Good stop</span>
       <span>★ Home base</span>
-      <span style="flex-basis:100%">Schematic map — positions are real, everything else is simplified. Drag to pan, pinch or ＋/－ to zoom, tap a pin.</span>
+      <span style="flex-basis:100%">Pin positions are real; the schematic ground is simplified — flip on 🛰️ Satellite for real imagery under the pins. Drag to pan, pinch or ＋/－ to zoom, tap a pin.</span>
+      <span id="satCredit" hidden>Imagery © Esri — Maxar, Earthstar Geographics &amp; the GIS community</span>
     </div>
     <div class="mapdetail" id="mapDetail"><p class="hint">Tap a pin to see the details — faded pins are ones you've already eaten at.</p></div>
   </section>
@@ -1108,18 +1115,25 @@ let curMap = "tokyo", selSpot = null, mapP = null;
 const svg = document.getElementById("mapsvg");
 const W = 800, H = 880;
 
+/* Web-Mercator projection so satellite tiles line up exactly with the pins */
+const mercX = lo => (lo + 180) / 360;
+const mercY = la => {
+  const s = Math.sin(la * Math.PI / 180);
+  return 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI);
+};
+let mapMerc = null;   // {s, x0, y0, ox, oy} for the current map
 function projector(city) {
   const pts = mapSpots(city).map(f => COORDS[f.name]).slice();
   if (MAPS[city].base) pts.push(MAPS[city].base.ll);
-  const lats = pts.map(p => p[0]), lngs = pts.map(p => p[1]);
-  const la0 = Math.min(...lats), la1 = Math.max(...lats);
-  const lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
-  const cos = Math.cos((la0 + la1) / 2 * Math.PI / 180);
+  const xs = pts.map(p => mercX(p[1])), ys = pts.map(p => mercY(p[0]));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
   const pad = 0.12;
-  const wDeg = (lo1 - lo0) * cos || 1e-6, hDeg = (la1 - la0) || 1e-6;
-  const s = Math.min(W * (1 - pad * 2) / wDeg, H * (1 - pad * 2) / hDeg);
-  const ox = (W - wDeg * s) / 2, oy = (H - hDeg * s) / 2;
-  return ([la, lo]) => [ox + (lo - lo0) * cos * s, oy + (la1 - la) * s];
+  const wSpan = (x1 - x0) || 1e-9, hSpan = (y1 - y0) || 1e-9;
+  const s = Math.min(W * (1 - pad * 2) / wSpan, H * (1 - pad * 2) / hSpan);
+  const ox = (W - wSpan * s) / 2, oy = (H - hSpan * s) / 2;
+  mapMerc = { s, x0, y0, ox, oy };
+  return ([la, lo]) => [ox + (mercX(lo) - x0) * s, oy + (mercY(la) - y0) * s];
 }
 
 function pinColor(f) {
@@ -1163,11 +1177,12 @@ function buildMap(city) {
       <circle class="hit" r="15"/>
     </g>`;
   });
-  svg.innerHTML = `<g id="gWorld">${bg}${fg}</g>`;
+  svg.innerHTML = `<g id="gWorld"><g id="gTiles"></g><g class="schem">${bg}</g>${fg}</g>`;
   mapP = P;
   drawUserDot();
   if (!VIEW[city]) VIEW[city] = { k: 1, tx: 0, ty: 0 };
   applyView();
+  updateTiles();
 }
 
 function drawUserDot() {
@@ -1188,10 +1203,69 @@ function drawUserDot() {
 
 function applyView() {
   const v = VIEW[curMap];
-  v.k = Math.min(9, Math.max(0.7, v.k));
+  v.k = Math.min(24, Math.max(0.7, v.k));
   document.getElementById("gWorld").setAttribute("transform", `translate(${v.tx},${v.ty}) scale(${v.k})`);
   svg.querySelectorAll(".cs").forEach(el =>
     el.setAttribute("transform", `translate(${el.dataset.x},${el.dataset.y}) scale(${1 / v.k})`));
+  if (satMode && !tileRaf) tileRaf = requestAnimationFrame(() => { tileRaf = 0; updateTiles(); });
+}
+
+/* ---- satellite tile layer (needs a host that allows outside images) ---- */
+let satMode = false, tileRaf = 0, tileOK = 0, tileErr = 0, satWarned = false;
+const TILE_URL = (z, x, y) =>
+  `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+function updateTiles() {
+  const gt = document.getElementById("gTiles");
+  if (!gt) return;
+  if (!satMode || !mapMerc) { gt.innerHTML = ""; return; }
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width) return;
+  const v = VIEW[curMap], m = mapMerc;
+  const pxPerWorld = m.s * v.k * (rect.width / W);
+  const Z = Math.max(3, Math.min(19, Math.round(Math.log2(pxPerWorld / 256))));
+  const n = 1 << Z;
+  const wx = vx => ((vx - v.tx) / v.k - m.ox) / m.s + m.x0;
+  const wy = vy => ((vy - v.ty) / v.k - m.oy) / m.s + m.y0;
+  const tx0 = Math.max(0, Math.floor(wx(0) * n)), tx1 = Math.min(n - 1, Math.floor(wx(W) * n));
+  const ty0 = Math.max(0, Math.floor(wy(0) * n)), ty1 = Math.min(n - 1, Math.floor(wy(H) * n));
+  if (tx1 < tx0 || ty1 < ty0 || (tx1 - tx0 + 1) * (ty1 - ty0 + 1) > 60) return;
+  const want = new Set();
+  for (let x = tx0; x <= tx1; x++) for (let y = ty0; y <= ty1; y++) want.add(`${Z}/${x}/${y}`);
+  [...gt.children].forEach(c => {
+    if (want.has(c.dataset.key)) want.delete(c.dataset.key); else c.remove();
+  });
+  const ts = m.s / n;
+  want.forEach(key => {
+    const [z, x, y] = key.split("/").map(Number);
+    const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    img.dataset.key = key;
+    img.setAttribute("href", TILE_URL(z, x, y));
+    img.setAttribute("x", m.ox + (x / n - m.x0) * m.s);
+    img.setAttribute("y", m.oy + (y / n - m.y0) * m.s);
+    img.setAttribute("width", ts); img.setAttribute("height", ts);
+    img.setAttribute("preserveAspectRatio", "none");
+    img.addEventListener("load", () => { tileOK++; });
+    img.addEventListener("error", () => {
+      tileErr++;
+      if (!tileOK && tileErr >= 3 && !satWarned) {
+        satWarned = true;
+        setSat(false);
+        const msg = document.getElementById("mapMsg");
+        msg.textContent = "Satellite imagery can't load on this page — the private artifact blocks images from outside hosts. It works when the app is hosted normally (e.g. GitHub Pages); meanwhile the schematic map and each spot's “Satellite ↗” link have you covered.";
+        msg.hidden = false;
+      }
+    });
+    gt.appendChild(img);
+  });
+}
+function setSat(on) {
+  satMode = on;
+  const b = document.getElementById("satBtn");
+  b.setAttribute("aria-pressed", String(on));
+  svg.classList.toggle("sat", on);
+  document.getElementById("satCredit").hidden = !on;
+  if (on) { document.getElementById("mapMsg").hidden = true; }
+  updateTiles();
 }
 
 function showDetail(f) {
@@ -1207,7 +1281,10 @@ function showDetail(f) {
     <p class="rdesc">${f.desc}</p>
     <div class="rfoot">
       <span class="yen">${f.price}</span>
-      <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+      <span>
+        <a class="maplink" href="https://maps.google.com/?q=${encodeURIComponent(f.maps)}&t=k" target="_blank" rel="noopener">Satellite ↗</a> ·
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Google Maps ↗</a>
+      </span>
     </div>`;
 }
 
@@ -1243,7 +1320,7 @@ svg.addEventListener("pointermove", e => {
     const mid = toVB((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
     const dist = Math.hypot(a[0] - b[0], a[1] - b[1]);
     if (lastDist) {
-      const f = dist / lastDist, k2 = Math.min(9, Math.max(0.7, v.k * f)), real = k2 / v.k;
+      const f = dist / lastDist, k2 = Math.min(24, Math.max(0.7, v.k * f)), real = k2 / v.k;
       v.tx = mid[0] - (mid[0] - v.tx) * real; v.ty = mid[1] - (mid[1] - v.ty) * real; v.k = k2;
     }
     if (lastMid) { v.tx += mid[0] - lastMid[0]; v.ty += mid[1] - lastMid[1]; }
@@ -1269,22 +1346,23 @@ svg.addEventListener("pointercancel", e => { endPtr(e); downPin = null; });
 svg.addEventListener("wheel", e => {
   e.preventDefault();
   const v = VIEW[curMap], [vx, vy] = toVB(e.clientX, e.clientY);
-  const k2 = Math.min(9, Math.max(0.7, v.k * Math.pow(1.0015, -e.deltaY))), real = k2 / v.k;
+  const k2 = Math.min(24, Math.max(0.7, v.k * Math.pow(1.0015, -e.deltaY))), real = k2 / v.k;
   v.tx = vx - (vx - v.tx) * real; v.ty = vy - (vy - v.ty) * real; v.k = k2;
   applyView();
 }, { passive: false });
 const zoomBy = f => {
-  const v = VIEW[curMap], k2 = Math.min(9, Math.max(0.7, v.k * f)), real = k2 / v.k;
+  const v = VIEW[curMap], k2 = Math.min(24, Math.max(0.7, v.k * f)), real = k2 / v.k;
   v.tx = W / 2 - (W / 2 - v.tx) * real; v.ty = H / 2 - (H / 2 - v.ty) * real; v.k = k2;
   applyView();
 };
 document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.45));
 document.getElementById("zoomOut").addEventListener("click", () => zoomBy(1 / 1.45));
-document.getElementById("zoomReset").addEventListener("click", () => { VIEW[curMap] = { k: 1, tx: 0, ty: 0 }; applyView(); });
+document.getElementById("zoomReset").addEventListener("click", () => { VIEW[curMap] = { k: 1, tx: 0, ty: 0 }; applyView(); updateTiles(); });
+document.getElementById("satBtn").addEventListener("click", () => setSat(!satMode));
 
 document.getElementById("mapChips").addEventListener("click", e => {
-  const c = e.target.closest(".chip"); if (!c) return;
-  document.querySelectorAll("#mapChips .chip").forEach(x =>
+  const c = e.target.closest(".chip[data-map]"); if (!c) return;
+  document.querySelectorAll("#mapChips .chip[data-map]").forEach(x =>
     x.setAttribute("aria-pressed", x === c ? "true" : "false"));
   selSpot = null; showDetail(null);
   buildMap(c.dataset.map);
