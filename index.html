@@ -186,6 +186,7 @@
   .b-book  { background: var(--gold-soft);  color: var(--gold); }
   .b-queue { background: var(--noren-soft); color: var(--noren); }
   .b-kid   { background: var(--green-soft); color: var(--green); }
+  .b-meat  { background: rgba(150, 95, 55, .16); color: #A9714B; }
   .b-plain { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
   .rdesc { font-size: 13.5px; color: var(--ink-soft); margin: 0; flex: 1; }
   .rdesc b { color: var(--ink); font-weight: 600; }
@@ -388,6 +389,7 @@
       <div class="chiprow" id="tagChips" role="group" aria-label="Filter by tag">
         <button class="chip tag" data-tag="must" aria-pressed="false">🔴 Must-eat</button>
         <button class="chip tag" data-tag="kid" aria-pressed="false">🧒 Little-brother pick</button>
+        <button class="chip tag" data-tag="meat" aria-pressed="false">🥩 Dad picks</button>
         <button class="chip tag" data-tag="street" aria-pressed="false">🥢 Street food</button>
         <button class="chip tag" data-tag="book" aria-pressed="false">📌 Book ahead</button>
         <button class="chip tag" data-tag="sweet" aria-pressed="false">🍦 Sweets</button>
@@ -611,6 +613,11 @@
       <span class="bw">Famous tonkatsu in a converted 1930s bathhouse, 10 min from Harajuku (Block 3). Reservable via Tabelog/TableCheck — or walk in off-peak (~14:30).</span>
     </div>
     <div class="bookcard">
+      <span class="bn">Han no Daidokoro — Dogenzaka, Shibuya</span>
+      <span class="lead">Book 3–4 days ahead</span>
+      <span class="bw">Wagyu yakiniku near Shibuya station — the meat dinner for Dad on the Block 3 day. Reservable via TableCheck/Tabelog; evening slots for 4 go quickly.</span>
+    </div>
+    <div class="bookcard">
       <span class="bn">Monja Kondō Honten — Tsukishima, Tokyo</span>
       <span class="lead">Book 1–2 days ahead (or queue)</span>
       <span class="bw">Cook-it-yourself monjayaki one metro stop from the hotel — perfect first-night dinner. Ask the hotel desk to phone (+81 3-3533-4555), or just queue on Monja Street and take any shop with a line.</span>
@@ -681,7 +688,7 @@ const FOOD = [
   { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥",
     desc:"The classic hits as you wander: fresh <b>tamagoyaki skewers at Yamachō</b> (¥200), <b>strawberry daifuku</b>, grilled scallops, tuna skewers. Go 8:00–10:00, before the heat and the crowds.",
     book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo" },
-  { area:"Tsukiji", name:"Kitsuneya", jp:"きつねや", tags:["street"], price:"¥",
+  { area:"Tsukiji", name:"Kitsuneya", jp:"きつねや", tags:["street","meat"], price:"¥",
     desc:"Standing counter, 70+ years old. Order the <b>gyudon</b> (beef bowl) — or the famous horumon-don if someone's brave. Open ~6:30–13:30.",
     book:"Queue a little · breakfast", maps:"Kitsuneya Tsukiji" },
   { area:"Tsukiji", name:"Sushizanmai Honten", jp:"すしざんまい 本店", tags:["kid"], price:"¥¥",
@@ -707,7 +714,7 @@ const FOOD = [
   { area:"Asakusa", name:"Kagetsudo", jp:"花月堂", tags:["street","sweet","kid"], price:"¥",
     desc:"<b>Jumbo melon-pan</b> — crackly-sweet giant bun, best eaten warm. Get the ice-cream-stuffed one in the August heat.",
     book:"Walk up", maps:"Kagetsudo melon pan Asakusa" },
-  { area:"Asakusa", name:"Asakusa Menchi", jp:"浅草メンチ", tags:["street"], price:"¥",
+  { area:"Asakusa", name:"Asakusa Menchi", jp:"浅草メンチ", tags:["street","meat"], price:"¥",
     desc:"Crispy-outside, juicy-inside <b>menchi-katsu</b> (minced pork cutlet) on a stick — the best ¥350 on the street.",
     book:"Short queue", maps:"Asakusa Menchi" },
   { area:"Asakusa", name:"Suzukien Nanaya", jp:"壽々喜園 × ななや", tags:["street","sweet","must","kid"], price:"¥",
@@ -715,15 +722,18 @@ const FOOD = [
     book:"Queue ~20 min", maps:"Suzukien Nanaya matcha gelato Asakusa" },
 
   /* --- Akihabara / Ikebukuro --- */
-  { area:"Akihabara", name:"Tonkatsu Marugo", jp:"とんかつ丸五", tags:["must"], price:"¥¥",
+  { area:"Akihabara", name:"Tonkatsu Marugo", jp:"とんかつ丸五", tags:["must","meat"], price:"¥¥",
     desc:"Quietly one of Tokyo's best <b>tonkatsu</b> — thick, blush-pink pork, 2 minutes from the arcades. Opens 11:30; be there 15 min early.",
     book:"Queue · closed Mon", maps:"Tonkatsu Marugo Akihabara" },
   { area:"Akihabara", name:"Kyushu Jangara", jp:"九州じゃんがら", tags:[], price:"¥",
     desc:"Rich Kyushu <b>tonkotsu ramen</b> right on the main Akiba drag — fast, cheap, English menu, kid-sized appetites welcome.",
     book:"Short queue", maps:"Kyushu Jangara Ramen Akihabara" },
-  { area:"Akihabara", name:"Go!Go!Curry", jp:"ゴーゴーカレー", tags:["kid"], price:"¥",
+  { area:"Akihabara", name:"Go!Go!Curry", jp:"ゴーゴーカレー", tags:["kid","meat"], price:"¥",
     desc:"Thick, dark Kanazawa-style <b>katsu curry</b> served on a steel plate — gamer fuel between Yodobashi and Super Potato. Portions named after baseball.",
     book:"Walk in", maps:"Go Go Curry Akihabara" },
+  { area:"Akihabara", name:"Yakiniku Like", jp:"焼肉ライク 秋葉原", tags:["meat","kid"], price:"¥",
+    desc:"Fast-casual <b>yakiniku</b> where every seat gets its own personal grill — order a wagyu or karubi set on the tablet and cook it yourself in minutes. Dad gets beef, the little brother gets fire (supervised), everyone's out in 40 minutes.",
+    book:"Walk in · short queue", maps:"Yakiniku Like Akihabara" },
   { area:"Akihabara", name:"Mutekiya", jp:"無敵家", tags:["must"], price:"¥",
     desc:"Ikebukuro's famous <b>tonkotsu ramen</b> — the queue outside is the landmark. Pairs with the Pokémon Center / Namja Town afternoon.",
     book:"Queue 30–60 min", maps:"Mutekiya Ikebukuro" },
@@ -732,12 +742,15 @@ const FOOD = [
     book:"Inside the park", maps:"Namja Town Sunshine City Ikebukuro" },
 
   /* --- Harajuku / Shibuya --- */
-  { area:"Shibuya", name:"Gyukatsu Motomura", jp:"牛かつもと村", tags:["must"], price:"¥¥",
+  { area:"Shibuya", name:"Gyukatsu Motomura", jp:"牛かつもと村", tags:["must","meat"], price:"¥¥",
     desc:"<b>Beef katsu</b> served rare — you finish each slice yourself on a little stone grill. Interactive, delicious, very Shibuya. Everyone's trip highlight.",
     book:"Queue 45+ min — go off-peak", maps:"Gyukatsu Motomura Shibuya" },
   { area:"Shibuya", name:"Uobei", jp:"魚べい 渋谷道玄坂", tags:["kid","must"], price:"¥",
     desc:"Order on a screen and your sushi <b>shoots to you on a bullet-train rail</b>. ¥110–330 a plate. The little-brother pick of the whole trip.",
     book:"Queue moves fast", maps:"Uobei Shibuya Dogenzaka" },
+  { area:"Shibuya", name:"Han no Daidokoro", jp:"韓の台所 道玄坂", tags:["meat","book"], price:"¥¥¥",
+    desc:"Proper sit-down <b>wagyu yakiniku</b> near Shibuya station — thick-cut A4/A5 beef, harami, tongue, grilled at the table. The Dad-headliner dinner for the Shibuya day.",
+    book:"Book 3–4 days ahead", maps:"Han no Daidokoro Dogenzaka Shibuya" },
   { area:"Shibuya", name:"Ichiran", jp:"一蘭", tags:["kid"], price:"¥",
     desc:"Tonkotsu ramen in <b>solo booths</b> — order by ticket machine, customize on paper, the bowl appears through a curtain. The ritual is half the fun.",
     book:"Queue · open late", maps:"Ichiran Shibuya" },
@@ -750,7 +763,7 @@ const FOOD = [
   { area:"Shibuya", name:"Gyoza Lou", jp:"餃子楼", tags:[], price:"¥",
     desc:"Just <b>gyoza</b> (grilled or steamed), rice, beans and beer — ¥370 a plate, always a line, always worth it. Backstreet Omotesando.",
     book:"Queue ~20–30 min · cash", maps:"Gyoza Lou Harajuku" },
-  { area:"Shibuya", name:"Tonkatsu Maisen", jp:"とんかつ まい泉 青山本店", tags:["book"], price:"¥¥¥",
+  { area:"Shibuya", name:"Tonkatsu Maisen", jp:"とんかつ まい泉 青山本店", tags:["book","meat"], price:"¥¥¥",
     desc:"Famous <b>tonkatsu</b> in a converted pre-war bathhouse — the elegant sit-down option after Meiji Shrine. Kurobuta pork is the move.",
     book:"Reservable · or off-peak walk-in", maps:"Tonkatsu Maisen Aoyama Honten" },
 
@@ -777,22 +790,22 @@ const FOOD = [
   { area:"Dotonbori", name:"Wanaka Honten", jp:"わなか 千日前本店", tags:["must","street","kid"], price:"¥",
     desc:"Osaka's best-loved <b>takoyaki</b> — crisp outside, molten inside. Get the 8-pack with everything on it and eat standing like locals.",
     book:"Short queue", maps:"Takoyaki Wanaka Sennichimae Honten" },
-  { area:"Dotonbori", name:"Daruma", jp:"だるま 道頓堀店", tags:[], price:"¥¥",
+  { area:"Dotonbori", name:"Daruma", jp:"だるま 道頓堀店", tags:["meat"], price:"¥¥",
     desc:"<b>Kushikatsu</b> — everything breaded, fried, on sticks. House rule the kids will enforce: <b>no double-dipping</b> in the communal sauce.",
     book:"Queue ~20–30 min", maps:"Kushikatsu Daruma Dotonbori" },
   { area:"Dotonbori", name:"Kani Doraku Honten", jp:"かに道楽 本店", tags:["book"], price:"¥¥¥¥",
     desc:"Under the giant moving crab: a full <b>crab dinner</b> — sashimi, grilled, hotpot. The one fancy family dinner of the Osaka week.",
     book:"Book 3–5 days ahead", maps:"Kani Doraku Honten Dotonbori" },
-  { area:"Dotonbori", name:"Matsusakagyu Yakiniku M", jp:"松阪牛焼肉M 法善寺横丁", tags:["book","must"], price:"¥¥¥¥",
+  { area:"Dotonbori", name:"Matsusakagyu Yakiniku M", jp:"松阪牛焼肉M 法善寺横丁", tags:["book","must","meat"], price:"¥¥¥¥",
     desc:"Grill-your-own <b>Matsusaka wagyu</b> in the lantern-lit Hozenji alley — the beef splurge. Book about a week out.",
     book:"Book ~1 week ahead (TableCheck)", maps:"Matsusakagyu Yakiniku M Hozenji Yokocho" },
-  { area:"Dotonbori", name:"551 Horai", jp:"551蓬莱 戎橋本店", tags:["street","kid","must"], price:"¥",
+  { area:"Dotonbori", name:"551 Horai", jp:"551蓬莱 戎橋本店", tags:["street","kid","must","meat"], price:"¥",
     desc:"Steamed <b>butaman</b> (pork buns) Osakans carry home by the box — follow the smell near Namba station. Two each, minimum.",
     book:"Fast-moving line", maps:"551 Horai Ebisubashi Honten" },
   { area:"Dotonbori", name:"Rikuro's Cheesecake", jp:"りくろーおじさんの店", tags:["sweet","kid","must"], price:"¥",
     desc:"The <b>jiggly cheesecake</b>, rung out of the oven with a bell — a whole fresh cake is ~¥1,000. Buy one, four forks, hotel picnic.",
     book:"Queue for fresh-from-oven", maps:"Rikuro Ojisan Namba Honten" },
-  { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must"], price:"¥¥",
+  { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must","meat"], price:"¥¥",
     desc:"Namba's covered market, 10 min from Dotonbori: <b>wagyu skewers, grilled scallops, uni, fresh fruit</b>. Best as a grazing breakfast/brunch before a day trip.",
     book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka" },
   { area:"Dotonbori", name:"Harukoma", jp:"春駒 本店", tags:[], price:"¥¥",
@@ -828,7 +841,7 @@ const FOOD = [
   { area:"Kyoto", name:"% Arabica Arashiyama", jp:"アラビカ京都 嵐山", tags:["street","sweet"], price:"¥",
     desc:"Cult <b>latte</b> with a riverside view — the queue moves. Grab dango or a croquette from the main-street stalls while you wait.",
     book:"Queue ~20 min", maps:"%25 Arabica Kyoto Arashiyama" },
-  { area:"Kyoto", name:"Katsukura", jp:"名代とんかつ かつくら", tags:["kid"], price:"¥¥",
+  { area:"Kyoto", name:"Katsukura", jp:"名代とんかつ かつくら", tags:["kid","meat"], price:"¥¥",
     desc:"Kyoto's <b>tonkatsu</b> chain done right — grind your own sesame for the sauce, free rice/cabbage refills. In Kyoto Station: zero-effort dinner before the train back.",
     book:"Short queue", maps:"Katsukura Kyoto Station" },
 
@@ -881,6 +894,7 @@ function badge(f) {
   if (f.tags.includes("must")) out.push('<span class="badge b-must">Must-eat</span>');
   if (f.tags.includes("book")) out.push('<span class="badge b-book">Book ahead</span>');
   if (f.tags.includes("kid"))  out.push('<span class="badge b-kid">Little-brother pick</span>');
+  if (f.tags.includes("meat")) out.push('<span class="badge b-meat">Dad pick</span>');
   if (f.book && !f.tags.includes("book")) out.push(`<span class="badge b-queue">${f.book}</span>`);
   else if (f.book) out.push(`<span class="badge b-plain">${f.book}</span>`);
   return out.join("");
@@ -994,6 +1008,7 @@ const COORDS = {
   "Suzukien Nanaya":[35.7121,139.7996], "Tonkatsu Marugo":[35.6999,139.7718],
   "Kyushu Jangara":[35.7012,139.7717], "Go!Go!Curry":[35.6988,139.7712],
   "Mutekiya":[35.7273,139.7150], "Gyoza Stadium (Namja Town)":[35.7290,139.7190],
+  "Yakiniku Like":[35.6990,139.7708], "Han no Daidokoro":[35.6582,139.6982],
   "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
   "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
   "Marion Crêpes":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
