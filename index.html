@@ -1,0 +1,849 @@
+<title>Japan Food Atlas · Aug 2–13</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --paper: #F6F4EF;
+    --card: #FFFFFF;
+    --ink: #20283A;
+    --ink-soft: #5A6275;
+    --line: #E3DFD5;
+    --shu: #C93A40;          /* must-eat red */
+    --shu-soft: #F7E3E2;
+    --noren: #33567F;        /* interactive indigo */
+    --noren-soft: #E4EAF2;
+    --gold: #A8802F;         /* book-ahead */
+    --gold-soft: #F3EBD8;
+    --green: #3E7C52;
+    --green-soft: #E2EEE5;
+    --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #161B26;
+      --card: #1F2634;
+      --ink: #E9E5DB;
+      --ink-soft: #9BA3B4;
+      --line: #313A4C;
+      --shu: #E8646B;
+      --shu-soft: #43262C;
+      --noren: #8FB0D8;
+      --noren-soft: #263447;
+      --gold: #D4A94E;
+      --gold-soft: #3B3222;
+      --green: #7CB98F;
+      --green-soft: #24362B;
+      --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F6F4EF; --card: #FFFFFF; --ink: #20283A; --ink-soft: #5A6275;
+    --line: #E3DFD5; --shu: #C93A40; --shu-soft: #F7E3E2; --noren: #33567F;
+    --noren-soft: #E4EAF2; --gold: #A8802F; --gold-soft: #F3EBD8;
+    --green: #3E7C52; --green-soft: #E2EEE5;
+    --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
+  }
+  :root[data-theme="dark"] {
+    --paper: #161B26; --card: #1F2634; --ink: #E9E5DB; --ink-soft: #9BA3B4;
+    --line: #313A4C; --shu: #E8646B; --shu-soft: #43262C; --noren: #8FB0D8;
+    --noren-soft: #263447; --gold: #D4A94E; --gold-soft: #3B3222;
+    --green: #7CB98F; --green-soft: #24362B;
+    --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif; }
+
+  a { color: var(--noren); }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid var(--noren); outline-offset: 2px; border-radius: 4px;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    padding: 26px 18px 14px;
+    max-width: 980px; margin: 0 auto;
+  }
+  .kicker {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--shu); font-weight: 600; margin-bottom: 6px;
+  }
+  h1 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: clamp(26px, 5.5vw, 38px); font-weight: 600;
+    margin: 0 0 4px; line-height: 1.2; text-wrap: balance;
+  }
+  h1 .jp { color: var(--ink-soft); font-size: .55em; font-weight: 400; margin-left: .5em; }
+  .sub { color: var(--ink-soft); font-size: 14px; margin: 0; }
+  #today-banner {
+    display: none; margin-top: 12px; padding: 8px 14px; border-radius: 8px;
+    background: var(--noren-soft); color: var(--noren); font-weight: 600; font-size: 13px;
+    width: fit-content;
+  }
+
+  /* ---------- date strip ---------- */
+  .datestrip {
+    display: flex; gap: 4px; overflow-x: auto; padding: 14px 18px 4px;
+    max-width: 980px; margin: 0 auto; scrollbar-width: none;
+  }
+  .datestrip::-webkit-scrollbar { display: none; }
+  .day {
+    flex: 0 0 auto; text-align: center; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--card); min-width: 46px;
+    font-variant-numeric: tabular-nums;
+  }
+  .day .num { font-weight: 700; font-size: 15px; display: block; }
+  .day .city { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  .day.tokyo .city { color: var(--noren); }
+  .day.osaka .city { color: var(--shu); }
+  .day.travel { border-style: dashed; }
+  .day.is-today { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu); }
+
+  /* ---------- tabs ---------- */
+  nav.tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    margin-top: 10px;
+  }
+  .tabs-inner { max-width: 980px; margin: 0 auto; display: flex; gap: 2px; padding: 0 12px; }
+  .tab {
+    padding: 12px 14px 10px; font-weight: 600; font-size: 14px; color: var(--ink-soft);
+    border-bottom: 2px solid transparent; border-radius: 0;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--shu); }
+
+  main { max-width: 980px; margin: 0 auto; padding: 18px 18px 80px; }
+  section[hidden] { display: none; }
+
+  /* ---------- filters ---------- */
+  .filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); font-size: 13px; font-weight: 500; color: var(--ink-soft);
+  }
+  .chip[aria-pressed="true"] { background: var(--noren); border-color: var(--noren); color: #fff; }
+  .chip.tag[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  #search {
+    width: 100%; max-width: 420px; padding: 9px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px;
+  }
+  #search::placeholder { color: var(--ink-soft); }
+  .progress { font-size: 13px; color: var(--ink-soft); }
+  .progress b { color: var(--shu); font-variant-numeric: tabular-nums; }
+
+  /* ---------- food cards ---------- */
+  .area-head {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 19px; font-weight: 600; margin: 30px 0 4px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .area-head:first-child { margin-top: 4px; }
+  .area-head .pairs { font-family: inherit; }
+  .area-sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 14px; max-width: 62ch; }
+  .pairs {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--noren); background: var(--noren-soft); padding: 3px 9px; border-radius: 6px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .rcard {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 16px 14px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; position: relative;
+  }
+  .rcard.must { border-top: 3px solid var(--shu); }
+  .rcard.eaten { opacity: .55; }
+  .rcard.eaten .rname { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .rtop { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .rname {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 17px; font-weight: 600; line-height: 1.3; margin: 0;
+  }
+  .rjp { display: block; font-size: 12.5px; color: var(--ink-soft); font-weight: 400; margin-top: 1px; }
+  .eatbtn {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid var(--line); font-size: 15px; line-height: 1;
+    display: grid; place-items: center; color: var(--ink-soft);
+  }
+  .rcard.eaten .eatbtn { background: var(--green); border-color: var(--green); color: #fff; }
+  .rmeta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; }
+  .badge { padding: 2px 8px; border-radius: 5px; font-weight: 600; letter-spacing: .02em; }
+  .b-must  { background: var(--shu-soft);   color: var(--shu); }
+  .b-book  { background: var(--gold-soft);  color: var(--gold); }
+  .b-queue { background: var(--noren-soft); color: var(--noren); }
+  .b-kid   { background: var(--green-soft); color: var(--green); }
+  .b-plain { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .rdesc { font-size: 13.5px; color: var(--ink-soft); margin: 0; flex: 1; }
+  .rdesc b { color: var(--ink); font-weight: 600; }
+  .rfoot {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--line); padding-top: 9px; font-size: 13px;
+  }
+  .yen { color: var(--ink-soft); font-variant-numeric: tabular-nums; letter-spacing: .05em; }
+  .maplink { font-weight: 600; text-decoration: none; }
+  .maplink:hover { text-decoration: underline; }
+
+  /* ---------- itinerary ---------- */
+  .cityhead {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 22px; margin: 34px 0 14px; font-weight: 600;
+  }
+  .cityhead:first-child { margin-top: 4px; }
+  .block {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+  }
+  .block > summary {
+    list-style: none; cursor: pointer; padding: 15px 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .block > summary::-webkit-details-marker { display: none; }
+  .block > summary::after {
+    content: "▾"; margin-left: auto; color: var(--ink-soft); transition: transform .15s;
+  }
+  .block[open] > summary::after { transform: rotate(180deg); }
+  .bemoji { font-size: 22px; }
+  .btitle { font-weight: 600; font-size: 15.5px; line-height: 1.3; }
+  .bweather { font-size: 12px; color: var(--ink-soft); display: block; margin-top: 2px; }
+  .bbody { padding: 0 18px 16px; border-top: 1px solid var(--line); }
+  .bbody h4 {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-soft); margin: 16px 0 6px;
+  }
+  .bbody ul { margin: 0; padding-left: 20px; }
+  .bbody li { margin: 4px 0; font-size: 14px; }
+  .bbody li .t { color: var(--ink-soft); font-size: 12.5px; }
+  .foodjump {
+    display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 600;
+    color: var(--noren); background: var(--noren-soft);
+    padding: 7px 13px; border-radius: 8px; text-decoration: none;
+  }
+
+  /* ---------- book ahead ---------- */
+  .book-intro { max-width: 65ch; color: var(--ink-soft); font-size: 14px; }
+  .bookcard {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline;
+  }
+  .bookcard .bn { font-weight: 700; }
+  .bookcard .bw { color: var(--ink-soft); font-size: 13.5px; flex: 1 1 100%; }
+  .bookcard .lead { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+  .booksec {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 18px; font-weight: 600; margin: 28px 0 12px;
+  }
+  .booksec:first-of-type { margin-top: 18px; }
+
+  .empty { color: var(--ink-soft); text-align: center; padding: 40px 0; font-size: 14px; }
+  footer {
+    max-width: 980px; margin: 0 auto; padding: 0 18px 40px;
+    color: var(--ink-soft); font-size: 12.5px;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header>
+  <div class="kicker">Maxin family · Aug 2 – 13, 2026</div>
+  <h1>Japan Food Atlas<span class="jp serif">日本たべもの帳</span></h1>
+  <p class="sub">Tokyo → Osaka (+ Kyoto &amp; Nara day trips) → Tokyo. Built around Mom's itinerary — every eating spot is matched to one of her blocks.</p>
+  <div id="today-banner"></div>
+</header>
+
+<div class="datestrip" id="datestrip"></div>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-inner" role="tablist">
+    <button class="tab" role="tab" id="tab-food" aria-selected="true" data-panel="panel-food">🍜 Food guide</button>
+    <button class="tab" role="tab" id="tab-plan" aria-selected="false" data-panel="panel-plan">📅 Itinerary</button>
+    <button class="tab" role="tab" id="tab-book" aria-selected="false" data-panel="panel-book">📌 Book ahead</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ============ FOOD ============ -->
+  <section id="panel-food" role="tabpanel" aria-labelledby="tab-food">
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search a dish, place, or area…" aria-label="Search restaurants">
+      <div class="chiprow" id="cityChips" role="group" aria-label="Filter by city">
+        <button class="chip" data-city="all" aria-pressed="true">All</button>
+        <button class="chip" data-city="tokyo" aria-pressed="false">Tokyo</button>
+        <button class="chip" data-city="osaka" aria-pressed="false">Osaka</button>
+        <button class="chip" data-city="kyoto" aria-pressed="false">Kyoto</button>
+        <button class="chip" data-city="nara" aria-pressed="false">Nara</button>
+      </div>
+      <div class="chiprow" id="tagChips" role="group" aria-label="Filter by tag">
+        <button class="chip tag" data-tag="must" aria-pressed="false">🔴 Must-eat</button>
+        <button class="chip tag" data-tag="kid" aria-pressed="false">🧒 Little-brother pick</button>
+        <button class="chip tag" data-tag="street" aria-pressed="false">🥢 Street food</button>
+        <button class="chip tag" data-tag="book" aria-pressed="false">📌 Book ahead</button>
+        <button class="chip tag" data-tag="sweet" aria-pressed="false">🍦 Sweets</button>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+    <div id="foodList"></div>
+  </section>
+
+  <!-- ============ ITINERARY ============ -->
+  <section id="panel-plan" role="tabpanel" aria-labelledby="tab-plan" hidden>
+    <h2 class="cityhead">Part A · Tokyo &amp; around <span style="font-size:13px;color:var(--ink-soft);font-weight:400">(hotel: Tsukiji · Aug 2–5 and 11–13)</span></h2>
+
+    <details class="block">
+      <summary><span class="bemoji">🎮</span><span><span class="btitle">Block 1 · Gaming, retro &amp; pop culture — Akihabara &amp; Ikebukuro</span><span class="bweather">Best on very hot or rainy days — nearly everything is indoors and air-conditioned</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Super Potato — legendary retro-gaming store <span class="t">· 1–1.5 h</span></li>
+          <li>Mandarake &amp; Radio Kaikan — whole floors of collectibles and pop culture <span class="t">· 1.5–2.5 h</span></li>
+          <li>Yodobashi Akiba — giant tech &amp; gaming mall <span class="t">· 1–2 h</span></li>
+          <li>Pokémon Center, Sunshine City (Ikebukuro) <span class="t">· 1 h</span></li>
+          <li>Namja Town — Namco indoor amusement park <span class="t">· 1.5–2 h</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Akihabara: Hibiya line → Ginza, transfer to Ginza line → Suehirocho (exit 1) <span class="t">· ~20–25 min</span></li>
+          <li>Ikebukuro: Yurakucho line west → Higashi-Ikebukuro <span class="t">· ~30 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Akihabara">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🤖</span><span><span class="btitle">Block 2 · Arcades, sport &amp; the future — Odaiba</span><span class="bweather">Ideal for extremely hot or rainy days — parks and sport halls fully indoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Joypolis — SEGA indoor park, VR &amp; simulators <span class="t">· 3–4 h</span></li>
+          <li>Spocha (inside Round 1) — indoor sports &amp; arcade hall <span class="t">· 2–3 h</span></li>
+          <li>Giant Gundam statue — light &amp; movement shows <span class="t">· 20–30 min</span></li>
+          <li>Yurikamome line — panoramic driverless train over the bay <span class="t">· 25–30 min</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Hibiya line → Higashi-Ginza, Asakusa line → Shimbashi, then Yurikamome (toward Toyosu) → Daiba <span class="t">· ~30–40 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Odaiba">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🛍️</span><span><span class="btitle">Block 3 · Street fashion &amp; youth culture — Harajuku, Shibuya, Yoyogi</span><span class="bweather">For sunny/pleasant or partly-cloudy days — mostly outdoor walking</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Yoyogi Park &amp; Meiji Shrine — huge calm green park <span class="t">· 1.5–2 h</span></li>
+          <li>Takeshita Street (Harajuku) — street fashion, pop culture, crêpe stands <span class="t">· 1.5 h</span></li>
+          <li>Kiddy Land — 5 floors of toys &amp; characters <span class="t">· 1 h</span></li>
+          <li>Shibuya — Scramble crossing, Hachikō, Center Gai <span class="t">· 2–3 h</span></li>
+          <li>Shibuya Sky observation deck <span class="t">· 1–1.5 h · book tickets ahead</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Harajuku: Hibiya line → Hibiya, Chiyoda line → Meiji-Jingumae (exit 3) <span class="t">· ~25–30 min</span></li>
+          <li>On to Shibuya: Fukutoshin line from Meiji-Jingumae → Shibuya <span class="t">· ~3 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Shibuya">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🥢</span><span><span class="btitle">Block 4 · Tradition, markets &amp; street food — Asakusa &amp; Tsukiji</span><span class="bweather">Clear, dry days — start early morning to beat the heat</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Tsukiji Outer Market — food crawl <span class="t">· 1.5–2 h, morning</span></li>
+          <li>Asakusa — Sensō-ji temple &amp; Nakamise shopping street <span class="t">· 2–3 h</span></li>
+        </ul>
+        <h4>Getting there</h4>
+        <ul>
+          <li>Tsukiji market: walk from hotel <span class="t">· 5–10 min</span></li>
+          <li>To Asakusa: Hibiya line north → Ningyocho, Asakusa line → Asakusa (exit 1A) <span class="t">· ~20 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Tsukiji">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🌌</span><span><span class="btitle">Half day · teamLab Borderless — Azabudai Hills</span><span class="bweather">Any weather — dark, indoor, fully air-conditioned. Pre-booked, fixed time slot</span></span></summary>
+      <div class="bbody">
+        <h4>Plan</h4>
+        <ul>
+          <li>Interactive digital art experience <span class="t">· 2.5–3 h</span></li>
+          <li>Hibiya line from Tsukiji direct → Kamiyacho (exit 5), straight into Azabudai Hills <span class="t">· ~15–20 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Azabudai">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🎡</span><span><span class="btitle">Full day · Tokyo DisneySea / Disneyland</span><span class="bweather">Any weather — use indoor rides &amp; shows on hot or rainy days. Pre-booked</span></span></summary>
+      <div class="bbody">
+        <h4>Plan</h4>
+        <ul>
+          <li>Full park day <span class="t">· 8–10 h</span></li>
+          <li>Hibiya line → Hatchobori, JR Keiyo line → Maihama (park entrance) <span class="t">· ~30–35 min</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <h2 class="cityhead">Part B · Osaka &amp; around <span style="font-size:13px;color:var(--ink-soft);font-weight:400">(base: Namba · Aug 5–11)</span></h2>
+
+    <details class="block">
+      <summary><span class="bemoji">🎢</span><span><span class="btitle">Block 6 · Universal Studios &amp; Dotonbori neon</span><span class="bweather">USJ: sunny or partly cloudy. Dotonbori &amp; Shinsaibashi: any evening, great in rain (covered arcades)</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Universal Studios Japan — Super Nintendo World, Harry Potter, coasters <span class="t">· full day, 7–9 h</span></li>
+          <li>Dotonbori &amp; Shinsaibashi — Glico sign, river cruise, street food <span class="t">· 2–3 h, evening</span></li>
+        </ul>
+        <h4>Getting there from Namba</h4>
+        <ul>
+          <li>USJ: Hanshin-Namba line → Nishikujo, JR Yumesaki line → Universal-City <span class="t">· ~25–30 min</span></li>
+          <li>Dotonbori: walk from Namba, or one stop on Midosuji line → Shinsaibashi</li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Dotonbori">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">⛩️</span><span><span class="btitle">Block 7 · Temples, bamboo &amp; deer — Kyoto &amp; Nara day trip</span><span class="bweather">Sunny/clear days, start early — it's all outdoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Nara Park &amp; Tōdai-ji — free-roaming deer, Great Buddha <span class="t">· 2.5–3.5 h</span></li>
+          <li>Fushimi Inari (Kyoto) — thousands of vermilion torii gates <span class="t">· 2–2.5 h</span></li>
+          <li>Arashiyama bamboo grove &amp; Togetsukyō bridge <span class="t">· 2–3 h</span></li>
+        </ul>
+        <h4>Getting there from Osaka</h4>
+        <ul>
+          <li>Nara: Kintetsu-Nara line direct from Osaka-Namba → Kintetsu-Nara <span class="t">· ~40 min</span></li>
+          <li>Fushimi Inari: JR Kyoto line or Keihan main line from Osaka/Umeda → Fushimi-Inari <span class="t">· ~45–50 min</span></li>
+          <li>Fushimi Inari ↔ Arashiyama: JR Nara line → Kyoto Stn, JR San-in line → Saga-Arashiyama <span class="t">· ~40 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Kyoto">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🌊</span><span><span class="btitle">Block 8 · Aquarium, bay &amp; skyline views — Osaka Bay &amp; Umeda</span><span class="bweather">Great for hot or rainy days — aquarium, malls and observation deck all indoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Kaiyukan Aquarium — one of the world's largest, whale sharks <span class="t">· 2–3 h</span></li>
+          <li>Tempozan giant ferris wheel — panoramic bay views <span class="t">· 30 min</span></li>
+          <li>Umeda Sky Building — futuristic open-air observation deck <span class="t">· 1–1.5 h</span></li>
+        </ul>
+        <h4>Getting there</h4>
+        <ul>
+          <li>Kaiyukan: Chuo line (metro) → Osakako (exit 1), 5-min walk <span class="t">· ~20–25 min</span></li>
+          <li>Umeda Sky Building: Midosuji line → Umeda, 10-min walk via the underpass <span class="t">· ~15 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Umeda">→ Food near this block</a>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ BOOK AHEAD ============ -->
+  <section id="panel-book" role="tabpanel" aria-labelledby="tab-book" hidden>
+    <p class="book-intro">Only a handful of places actually need reserving — most great food in Japan is walk-in or a queue. These are the ones worth locking in <b>now</b>, roughly in order of urgency. Book on the restaurant's site or TableCheck / Tabelog; your hotel front desk can also phone for you.</p>
+
+    <h3 class="booksec">Restaurants</h3>
+    <div class="bookcard">
+      <span class="bn">Matsusakagyu Yakiniku M — Hozenji Yokocho, Osaka</span>
+      <span class="lead">Book ~1 week ahead</span>
+      <span class="bw">Grill-your-own Matsusaka wagyu — the one big beef splurge of the trip, and slots for 4 go fast in August. Book via <a href="https://www.tablecheck.com/en/shops/yakinikum-hozenji/reserve" rel="noopener">TableCheck</a>. Aim for an Osaka evening (Aug 6–10).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Kani Doraku Honten — Dotonbori, Osaka</span>
+      <span class="lead">Book 3–5 days ahead</span>
+      <span class="bw">The famous moving-crab sign — full crab dinner, kid-friendly, tables with a Dotonbori view. Reserve on the <a href="https://douraku.co.jp/reservation/" rel="noopener">official site</a> (English available).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">bills — Odaiba, Tokyo</span>
+      <span class="lead">Book 2–3 days ahead</span>
+      <span class="bw">Ricotta pancakes with a bay view — the easy sit-down anchor for the Odaiba day (Block 2). Reserve on the <a href="https://billsjapan.com/en" rel="noopener">official site</a>.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Tonkatsu Maisen — Aoyama, Tokyo</span>
+      <span class="lead">Book 2–3 days ahead</span>
+      <span class="bw">Famous tonkatsu in a converted 1930s bathhouse, 10 min from Harajuku (Block 3). Reservable via Tabelog/TableCheck — or walk in off-peak (~14:30).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Monja Kondō Honten — Tsukishima, Tokyo</span>
+      <span class="lead">Book 1–2 days ahead (or queue)</span>
+      <span class="bw">Cook-it-yourself monjayaki one metro stop from the hotel — perfect first-night dinner. Ask the hotel desk to phone (+81 3-3533-4555), or just queue on Monja Street and take any shop with a line.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Kura Sushi — Ginza, Tokyo</span>
+      <span class="lead">Same day, via app</span>
+      <span class="bw">Conveyor-belt sushi with the prize-capsule game (Bikkura-Pon) — grab a queue ticket on the Kura Sushi app an hour before you go.</span>
+    </div>
+
+    <h3 class="booksec">Attractions with fixed slots (from Mom's plan)</h3>
+    <div class="bookcard">
+      <span class="bn">Universal Studios Japan — Super Nintendo World</span>
+      <span class="lead">Book now</span>
+      <span class="bw">Buy park tickets + <b>Express Pass with Nintendo-area entry</b> for an August date — they sell out. Kinopio's Cafe (inside) doesn't take bookings; go at an off-hour. Free timed-entry to the Nintendo area is also drawn in the USJ app the morning of.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">teamLab Borderless — Azabudai Hills</span>
+      <span class="lead">Already planned — confirm slot</span>
+      <span class="bw">Timed tickets; afterwards eat downstairs at Azabudai Hills Market.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Tokyo Disney / DisneySea</span>
+      <span class="lead">Already planned — confirm date</span>
+      <span class="bw">Buy dated tickets in the official app; Premier Access for big rides opens in-app on the day.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Shibuya Sky</span>
+      <span class="lead">Book 1–2 weeks ahead for sunset</span>
+      <span class="bw">Sunset slots (~18:00–18:40 in August) sell out first — book online for the Block 3 day; any clear evening works.</span>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>🔴 red-topped cards = must-eats · tap ✓ on a card once you've eaten there — progress is saved on this device. Map links open Google Maps; the Japanese name on each card is what to show a local or paste into Maps.</p>
+</footer>
+
+<script>
+/* ================= DATA ================= */
+const AREAS = [
+  { id:"Tsukiji",  city:"tokyo", name:"Tsukiji, Tsukishima & Ginza — home base", pairs:"Block 4 + every morning",
+    sub:"You sleep 5 minutes from Japan's best breakfast. Do the market crawl early (most stalls 6:00–14:00, many closed Wed/Sun)." },
+  { id:"Asakusa",  city:"tokyo", name:"Asakusa", pairs:"Block 4",
+    sub:"Eat your way down Nakamise street between the gate and the temple." },
+  { id:"Akihabara", city:"tokyo", name:"Akihabara & Ikebukuro", pairs:"Block 1",
+    sub:"Gamer fuel: fast, cheap, loud and great." },
+  { id:"Shibuya",  city:"tokyo", name:"Harajuku, Omotesando & Shibuya", pairs:"Block 3",
+    sub:"Crêpes on Takeshita, then a proper sit-down around Shibuya." },
+  { id:"Odaiba",   city:"tokyo", name:"Odaiba", pairs:"Block 2",
+    sub:"Mall food done right — takoyaki floor at Decks, pancakes on the bay." },
+  { id:"Azabudai", city:"tokyo", name:"Azabudai & Tokyo Station", pairs:"teamLab + Disney travel days",
+    sub:"For the pre-booked days: food halls and ramen right on your route." },
+  { id:"Dotonbori", city:"osaka", name:"Dotonbori, Namba & Kuromon Market", pairs:"Block 6 + every Osaka evening",
+    sub:"The nation's kitchen. Come hungry, graze standing up, repeat nightly." },
+  { id:"Umeda",    city:"osaka", name:"Umeda & Osaka Bay", pairs:"Block 8",
+    sub:"Okonomiyaki in the Sky Building basement, retro food alley by the aquarium." },
+  { id:"USJ",      city:"osaka", name:"Universal Studios", pairs:"Block 6",
+    sub:"Themed food is the ride here — budget time for it." },
+  { id:"Kyoto",    city:"kyoto", name:"Kyoto — Fushimi Inari & Arashiyama", pairs:"Block 7",
+    sub:"Snack between shrines; save the sit-down for Kyoto Station before the train home." },
+  { id:"Nara",     city:"nara",  name:"Nara", pairs:"Block 7",
+    sub:"One legendary mochi stand and one proper lunch — the deer will try to join." },
+];
+
+const FOOD = [
+  /* --- Tsukiji / Ginza --- */
+  { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥",
+    desc:"The classic hits as you wander: fresh <b>tamagoyaki skewers at Yamachō</b> (¥200), <b>strawberry daifuku</b>, grilled scallops, tuna skewers. Go 8:00–10:00, before the heat and the crowds.",
+    book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo" },
+  { area:"Tsukiji", name:"Kitsuneya", jp:"きつねや", tags:["street"], price:"¥",
+    desc:"Standing counter, 70+ years old. Order the <b>gyudon</b> (beef bowl) — or the famous horumon-don if someone's brave. Open ~6:30–13:30.",
+    book:"Queue a little · breakfast", maps:"Kitsuneya Tsukiji" },
+  { area:"Tsukiji", name:"Sushizanmai Honten", jp:"すしざんまい 本店", tags:["kid"], price:"¥¥",
+    desc:"The 24/7 sushi flagship — big menu with pictures, great fatty tuna (<b>otoro</b>), zero stress with kids. Perfect jet-lag dinner on night one.",
+    book:"Walk in · open 24 h", maps:"Sushizanmai Honten Tsukiji" },
+  { area:"Tsukiji", name:"Monja Street, Tsukishima", jp:"月島もんじゃストリート", tags:["must","kid"], price:"¥¥",
+    desc:"70 shops of <b>monjayaki</b> — Tokyo's gooey cousin of okonomiyaki that you cook yourselves on the table grill. Kids love the little spatulas. Try Kondō (近どう), the oldest. One stop on the Yurakucho line.",
+    book:"Book 1–2 days ahead or queue", maps:"Monja Street Tsukishima" },
+  { area:"Tsukiji", name:"Ginza Kagari", jp:"銀座 篝", tags:["must"], price:"¥¥",
+    desc:"Michelin-listed <b>tori-paitan ramen</b> — silky chicken broth that even non-ramen people rave about. 15 min walk from the hotel.",
+    book:"Queue ~30–60 min", maps:"Ginza Kagari ramen" },
+  { area:"Tsukiji", name:"Kura Sushi Ginza", jp:"くら寿司 銀座", tags:["kid","book"], price:"¥",
+    desc:"Conveyor sushi where every 5 plates plays the <b>Bikkura-Pon capsule game</b> — little-brother heaven, ¥115 a plate, order by tablet in English.",
+    book:"Queue ticket via app, same day", maps:"Kura Sushi Ginza" },
+  { area:"Tsukiji", name:"Turret Coffee", jp:"ターレットコーヒー", tags:["sweet"], price:"¥",
+    desc:"Tiny specialty espresso bar named after the market's turret trucks — the parents' morning stop. Try the <b>turret latte</b>.",
+    book:"Walk in", maps:"Turret Coffee Tsukiji" },
+
+  /* --- Asakusa --- */
+  { area:"Asakusa", name:"Daikokuya Tempura", jp:"大黒家天麩羅", tags:["must"], price:"¥¥",
+    desc:"Frying <b>tendon</b> (tempura on rice, dark sweet sauce) since 1887, in a beautiful old building near the temple. The one sit-down worth the Asakusa queue.",
+    book:"Queue ~30 min · lunch", maps:"Daikokuya Tempura Asakusa" },
+  { area:"Asakusa", name:"Kagetsudo", jp:"花月堂", tags:["street","sweet","kid"], price:"¥",
+    desc:"<b>Jumbo melon-pan</b> — crackly-sweet giant bun, best eaten warm. Get the ice-cream-stuffed one in the August heat.",
+    book:"Walk up", maps:"Kagetsudo melon pan Asakusa" },
+  { area:"Asakusa", name:"Asakusa Menchi", jp:"浅草メンチ", tags:["street"], price:"¥",
+    desc:"Crispy-outside, juicy-inside <b>menchi-katsu</b> (minced pork cutlet) on a stick — the best ¥350 on the street.",
+    book:"Short queue", maps:"Asakusa Menchi" },
+  { area:"Asakusa", name:"Suzukien Nanaya", jp:"壽々喜園 × ななや", tags:["street","sweet","must","kid"], price:"¥",
+    desc:"Matcha gelato in <b>7 intensity levels</b> — No.7 is officially the world's strongest. Get one No.7 for the table and watch faces.",
+    book:"Queue ~20 min", maps:"Suzukien Nanaya matcha gelato Asakusa" },
+
+  /* --- Akihabara / Ikebukuro --- */
+  { area:"Akihabara", name:"Tonkatsu Marugo", jp:"とんかつ丸五", tags:["must"], price:"¥¥",
+    desc:"Quietly one of Tokyo's best <b>tonkatsu</b> — thick, blush-pink pork, 2 minutes from the arcades. Opens 11:30; be there 15 min early.",
+    book:"Queue · closed Mon", maps:"Tonkatsu Marugo Akihabara" },
+  { area:"Akihabara", name:"Kyushu Jangara", jp:"九州じゃんがら", tags:[], price:"¥",
+    desc:"Rich Kyushu <b>tonkotsu ramen</b> right on the main Akiba drag — fast, cheap, English menu, kid-sized appetites welcome.",
+    book:"Short queue", maps:"Kyushu Jangara Ramen Akihabara" },
+  { area:"Akihabara", name:"Go!Go!Curry", jp:"ゴーゴーカレー", tags:["kid"], price:"¥",
+    desc:"Thick, dark Kanazawa-style <b>katsu curry</b> served on a steel plate — gamer fuel between Yodobashi and Super Potato. Portions named after baseball.",
+    book:"Walk in", maps:"Go Go Curry Akihabara" },
+  { area:"Akihabara", name:"Mutekiya", jp:"無敵家", tags:["must"], price:"¥",
+    desc:"Ikebukuro's famous <b>tonkotsu ramen</b> — the queue outside is the landmark. Pairs with the Pokémon Center / Namja Town afternoon.",
+    book:"Queue 30–60 min", maps:"Mutekiya Ikebukuro" },
+  { area:"Akihabara", name:"Gyoza Stadium (Namja Town)", jp:"ナンジャ餃子スタジアム", tags:["kid"], price:"¥",
+    desc:"Inside Namja Town: famous <b>gyoza</b> shops from all over Japan in a retro-Showa alley, plus deliberately weird desserts.",
+    book:"Inside the park", maps:"Namja Town Sunshine City Ikebukuro" },
+
+  /* --- Harajuku / Shibuya --- */
+  { area:"Shibuya", name:"Gyukatsu Motomura", jp:"牛かつもと村", tags:["must"], price:"¥¥",
+    desc:"<b>Beef katsu</b> served rare — you finish each slice yourself on a little stone grill. Interactive, delicious, very Shibuya. Everyone's trip highlight.",
+    book:"Queue 45+ min — go off-peak", maps:"Gyukatsu Motomura Shibuya" },
+  { area:"Shibuya", name:"Uobei", jp:"魚べい 渋谷道玄坂", tags:["kid","must"], price:"¥",
+    desc:"Order on a screen and your sushi <b>shoots to you on a bullet-train rail</b>. ¥110–330 a plate. The little-brother pick of the whole trip.",
+    book:"Queue moves fast", maps:"Uobei Shibuya Dogenzaka" },
+  { area:"Shibuya", name:"Ichiran", jp:"一蘭", tags:["kid"], price:"¥",
+    desc:"Tonkotsu ramen in <b>solo booths</b> — order by ticket machine, customize on paper, the bowl appears through a curtain. The ritual is half the fun.",
+    book:"Queue · open late", maps:"Ichiran Shibuya" },
+  { area:"Shibuya", name:"Afuri", jp:"阿夫利", tags:[], price:"¥",
+    desc:"Light, citrusy <b>yuzu shio ramen</b> — the right bowl for a 35° day, right by Harajuku station.",
+    book:"Short queue", maps:"Afuri Harajuku" },
+  { area:"Shibuya", name:"Marion Crêpes", jp:"マリオンクレープ", tags:["street","sweet","kid"], price:"¥",
+    desc:"The original Takeshita Street <b>crêpe stand</b> since 1976 — 80+ flavors, eaten walking. Non-negotiable Harajuku ritual.",
+    book:"Queue is part of it", maps:"Marion Crepes Takeshita Street" },
+  { area:"Shibuya", name:"Gyoza Lou", jp:"餃子楼", tags:[], price:"¥",
+    desc:"Just <b>gyoza</b> (grilled or steamed), rice, beans and beer — ¥370 a plate, always a line, always worth it. Backstreet Omotesando.",
+    book:"Queue ~20–30 min · cash", maps:"Gyoza Lou Harajuku" },
+  { area:"Shibuya", name:"Tonkatsu Maisen", jp:"とんかつ まい泉 青山本店", tags:["book"], price:"¥¥¥",
+    desc:"Famous <b>tonkatsu</b> in a converted pre-war bathhouse — the elegant sit-down option after Meiji Shrine. Kurobuta pork is the move.",
+    book:"Reservable · or off-peak walk-in", maps:"Tonkatsu Maisen Aoyama Honten" },
+
+  /* --- Odaiba --- */
+  { area:"Odaiba", name:"Odaiba Takoyaki Museum", jp:"お台場たこ焼きミュージアム", tags:["street","kid"], price:"¥",
+    desc:"Five famous Osaka <b>takoyaki</b> shops on one floor of Decks — a warm-up for Dotonbori. Same building as Joypolis.",
+    book:"Walk in", maps:"Odaiba Takoyaki Museum Decks" },
+  { area:"Odaiba", name:"bills Odaiba", jp:"ビルズ お台場", tags:["book","sweet"], price:"¥¥¥",
+    desc:"The famous <b>ricotta pancakes</b> with a Rainbow Bridge view — proper sit-down break in the middle of the arcade day.",
+    book:"Book online 2–3 days ahead", maps:"bills Odaiba Decks Tokyo Beach" },
+
+  /* --- Azabudai / Tokyo Station --- */
+  { area:"Azabudai", name:"Azabudai Hills Market", jp:"麻布台ヒルズ マーケット", tags:[], price:"¥¥",
+    desc:"Polished <b>food hall</b> in the same complex as teamLab — sushi, wagyu sandos, bakeries. Eat here right after your slot.",
+    book:"Walk in", maps:"Azabudai Hills Market" },
+  { area:"Azabudai", name:"Rokurinsha", jp:"六厘舎", tags:["must"], price:"¥",
+    desc:"The shop that made <b>tsukemen</b> (dipping ramen) famous — thick chewy noodles, intense broth. On Tokyo Station's Ramen Street; pair with Character Street on the last-day shinkansen shuffle.",
+    book:"Queue 30–45 min", maps:"Rokurinsha Tokyo Station Ramen Street" },
+
+  /* --- Dotonbori / Namba --- */
+  { area:"Dotonbori", name:"Mizuno", jp:"美津の", tags:["must"], price:"¥¥",
+    desc:"Michelin Bib Gourmand <b>okonomiyaki</b> since 1945 — get the yamaimo-yaki. The queue is real: line up ~30 min before opening or at 21:00.",
+    book:"Queue up to 1 h", maps:"Mizuno Okonomiyaki Dotonbori" },
+  { area:"Dotonbori", name:"Wanaka Honten", jp:"わなか 千日前本店", tags:["must","street","kid"], price:"¥",
+    desc:"Osaka's best-loved <b>takoyaki</b> — crisp outside, molten inside. Get the 8-pack with everything on it and eat standing like locals.",
+    book:"Short queue", maps:"Takoyaki Wanaka Sennichimae Honten" },
+  { area:"Dotonbori", name:"Daruma", jp:"だるま 道頓堀店", tags:[], price:"¥¥",
+    desc:"<b>Kushikatsu</b> — everything breaded, fried, on sticks. House rule the kids will enforce: <b>no double-dipping</b> in the communal sauce.",
+    book:"Queue ~20–30 min", maps:"Kushikatsu Daruma Dotonbori" },
+  { area:"Dotonbori", name:"Kani Doraku Honten", jp:"かに道楽 本店", tags:["book"], price:"¥¥¥¥",
+    desc:"Under the giant moving crab: a full <b>crab dinner</b> — sashimi, grilled, hotpot. The one fancy family dinner of the Osaka week.",
+    book:"Book 3–5 days ahead", maps:"Kani Doraku Honten Dotonbori" },
+  { area:"Dotonbori", name:"Matsusakagyu Yakiniku M", jp:"松阪牛焼肉M 法善寺横丁", tags:["book","must"], price:"¥¥¥¥",
+    desc:"Grill-your-own <b>Matsusaka wagyu</b> in the lantern-lit Hozenji alley — the beef splurge. Book about a week out.",
+    book:"Book ~1 week ahead (TableCheck)", maps:"Matsusakagyu Yakiniku M Hozenji Yokocho" },
+  { area:"Dotonbori", name:"551 Horai", jp:"551蓬莱 戎橋本店", tags:["street","kid","must"], price:"¥",
+    desc:"Steamed <b>butaman</b> (pork buns) Osakans carry home by the box — follow the smell near Namba station. Two each, minimum.",
+    book:"Fast-moving line", maps:"551 Horai Ebisubashi Honten" },
+  { area:"Dotonbori", name:"Rikuro's Cheesecake", jp:"りくろーおじさんの店", tags:["sweet","kid","must"], price:"¥",
+    desc:"The <b>jiggly cheesecake</b>, rung out of the oven with a bell — a whole fresh cake is ~¥1,000. Buy one, four forks, hotel picnic.",
+    book:"Queue for fresh-from-oven", maps:"Rikuro Ojisan Namba Honten" },
+  { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must"], price:"¥¥",
+    desc:"Namba's covered market, 10 min from Dotonbori: <b>wagyu skewers, grilled scallops, uni, fresh fruit</b>. Best as a grazing breakfast/brunch before a day trip.",
+    book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka" },
+  { area:"Dotonbori", name:"Harukoma", jp:"春駒 本店", tags:[], price:"¥¥",
+    desc:"Legendary neighborhood <b>sushi counter</b> on Tenjinbashisuji — enormous nigiri at half Tokyo prices. Worth pairing with an Umeda afternoon.",
+    book:"Queue ~30 min · closed Tue", maps:"Harukoma Sushi Tenjinbashisuji" },
+
+  /* --- Umeda / Bay --- */
+  { area:"Umeda", name:"Kiji", jp:"きじ 滝見小路店", tags:["must"], price:"¥",
+    desc:"Beloved <b>okonomiyaki</b> in the retro Takimi-koji alley in the Umeda Sky Building basement — literally under Mom's observation deck. Get the modan-yaki.",
+    book:"Queue · closed Thu", maps:"Kiji Okonomiyaki Umeda Sky Building" },
+  { area:"Umeda", name:"Hanadako", jp:"はなだこ", tags:["street"], price:"¥",
+    desc:"Umeda's standing-room <b>takoyaki</b> champion — order the <b>negi-mayo</b> (buried in green onion). Steps from Osaka station.",
+    book:"Short queue", maps:"Hanadako Umeda" },
+  { area:"Umeda", name:"Naniwa Kuishinbo Yokocho", jp:"なにわ食いしんぼ横丁", tags:["street","kid"], price:"¥",
+    desc:"Retro 1960s <b>food alley</b> inside Tempozan Marketplace, right next to the aquarium — takoyaki, omurice, kushikatsu without leaving the building.",
+    book:"Walk in", maps:"Naniwa Kuishinbo Yokocho Tempozan" },
+
+  /* --- USJ --- */
+  { area:"USJ", name:"Kinopio's Cafe", jp:"キノピオ・カフェ", tags:["kid","must"], price:"¥¥",
+    desc:"Toad's cafe inside <b>Super Nintendo World</b> — Mario-shaped everything, Piranha Plant caprese. Needs Nintendo-area entry; eat at an off-hour (11:00 or 15:00).",
+    book:"Queue inside the area", maps:"Kinopio's Cafe Universal Studios Japan" },
+  { area:"USJ", name:"Three Broomsticks + Butterbeer", jp:"三本の箒", tags:["kid"], price:"¥¥",
+    desc:"Hogsmeade's great hall — fish &amp; chips, roast plates, and a frozen <b>Butterbeer</b> each (frozen beats regular in August).",
+    book:"Walk in, lunch rush is real", maps:"Three Broomsticks Universal Studios Japan" },
+
+  /* --- Kyoto --- */
+  { area:"Kyoto", name:"Fushimi Inari street stalls", jp:"伏見稲荷 参道グルメ", tags:["street"], price:"¥",
+    desc:"Before the torii climb: <b>inari-zushi</b> (sweet fried-tofu sushi, the fox's favorite), yakitori, and taiyaki along the approach road.",
+    book:"Morning graze", maps:"Fushimi Inari Sando street food" },
+  { area:"Kyoto", name:"Yoshimura", jp:"嵐山よしむら", tags:["must"], price:"¥¥",
+    desc:"Handmade <b>soba</b> with a window view of Togetsukyō bridge — the civilized Arashiyama lunch. Tempura-soba sets ~¥1,600.",
+    book:"Queue at lunch — arrive by 11:30", maps:"Arashiyama Yoshimura soba" },
+  { area:"Kyoto", name:"% Arabica Arashiyama", jp:"アラビカ京都 嵐山", tags:["street","sweet"], price:"¥",
+    desc:"Cult <b>latte</b> with a riverside view — the queue moves. Grab dango or a croquette from the main-street stalls while you wait.",
+    book:"Queue ~20 min", maps:"%25 Arabica Kyoto Arashiyama" },
+  { area:"Kyoto", name:"Katsukura", jp:"名代とんかつ かつくら", tags:["kid"], price:"¥¥",
+    desc:"Kyoto's <b>tonkatsu</b> chain done right — grind your own sesame for the sauce, free rice/cabbage refills. In Kyoto Station: zero-effort dinner before the train back.",
+    book:"Short queue", maps:"Katsukura Kyoto Station" },
+
+  /* --- Nara --- */
+  { area:"Nara", name:"Nakatanidou", jp:"中谷堂", tags:["must","street","sweet","kid"], price:"¥",
+    desc:"The famous <b>high-speed mochi pounding</b> show — then eat the yomogi mochi still warm, dusted in kinako. ¥200 of pure theater.",
+    book:"Catch a pounding round", maps:"Nakatanidou Nara" },
+  { area:"Nara", name:"Kamameshi Shizuka", jp:"志津香 公園店", tags:[], price:"¥¥",
+    desc:"<b>Kamameshi</b> — rice, seven ingredients, cooked to order in its own iron kettle. Calm sit-down lunch right by the deer park.",
+    book:"Queue ~30 min · closed Tue", maps:"Kamameshi Shizuka Nara" },
+];
+
+/* ================= DATES ================= */
+const TRIP = [
+  ["2","tokyo","✈️ land"],["3","tokyo"],["4","tokyo"],["5","travel","→ Osaka"],
+  ["6","osaka"],["7","osaka"],["8","osaka"],["9","osaka"],["10","osaka"],
+  ["11","travel","→ Tokyo"],["12","tokyo"],["13","tokyo","✈️ home"],
+];
+const strip = document.getElementById("datestrip");
+const today = new Date();
+const isTripMonth = today.getFullYear() === 2026 && today.getMonth() === 7;
+TRIP.forEach(([d, city, note]) => {
+  const el = document.createElement("div");
+  const isToday = isTripMonth && today.getDate() === +d;
+  el.className = `day ${city}${isToday ? " is-today" : ""}`;
+  el.innerHTML = `<span class="num">${d}</span><span class="city">${note || city}</span>`;
+  strip.appendChild(el);
+  if (isToday) {
+    const b = document.getElementById("today-banner");
+    b.style.display = "block";
+    const where = city === "travel" ? (note || "travel day") : city[0].toUpperCase() + city.slice(1);
+    b.textContent = `Today · Aug ${d} · ${where} — itadakimasu!`;
+  }
+});
+
+/* ================= STATE ================= */
+const eaten = new Set(JSON.parse(localStorage.getItem("jp-eaten") || "[]"));
+let cityFilter = "all";
+const tagFilters = new Set();
+let query = "";
+
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+FOOD.forEach(f => f.id = slug(f.name));
+
+/* ================= RENDER ================= */
+const list = document.getElementById("foodList");
+function badge(f) {
+  const out = [];
+  if (f.tags.includes("must")) out.push('<span class="badge b-must">Must-eat</span>');
+  if (f.tags.includes("book")) out.push('<span class="badge b-book">Book ahead</span>');
+  if (f.tags.includes("kid"))  out.push('<span class="badge b-kid">Little-brother pick</span>');
+  if (f.book && !f.tags.includes("book")) out.push(`<span class="badge b-queue">${f.book}</span>`);
+  else if (f.book) out.push(`<span class="badge b-plain">${f.book}</span>`);
+  return out.join("");
+}
+function matches(f, areaCity) {
+  if (cityFilter !== "all" && areaCity !== cityFilter) return false;
+  for (const t of tagFilters) if (!f.tags.includes(t)) return false;
+  if (query) {
+    const hay = (f.name + " " + f.jp + " " + f.desc + " " + f.area).toLowerCase();
+    if (!hay.includes(query)) return false;
+  }
+  return true;
+}
+function render() {
+  let html = "", shown = 0;
+  for (const a of AREAS) {
+    const items = FOOD.filter(f => f.area === a.id && matches(f, a.city));
+    if (!items.length) continue;
+    shown += items.length;
+    html += `<h3 class="area-head" id="area-${a.id}">${a.name} <span class="pairs">${a.pairs}</span></h3>
+             <p class="area-sub">${a.sub}</p><div class="grid">`;
+    for (const f of items) {
+      const done = eaten.has(f.id);
+      html += `<article class="rcard${f.tags.includes("must") ? " must" : ""}${done ? " eaten" : ""}" data-id="${f.id}">
+        <div class="rtop">
+          <h4 class="rname">${f.name}<span class="rjp">${f.jp}</span></h4>
+          <button class="eatbtn" data-eat="${f.id}" aria-pressed="${done}" title="Mark as eaten">✓</button>
+        </div>
+        <div class="rmeta">${badge(f)}</div>
+        <p class="rdesc">${f.desc}</p>
+        <div class="rfoot">
+          <span class="yen">${f.price}</span>
+          <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a>
+        </div>
+      </article>`;
+    }
+    html += `</div>`;
+  }
+  list.innerHTML = html || `<div class="empty">Nothing matches — clear a filter or two.</div>`;
+  const musts = FOOD.filter(f => f.tags.includes("must"));
+  const done = musts.filter(f => eaten.has(f.id)).length;
+  document.getElementById("progress").innerHTML =
+    `Showing ${shown} of ${FOOD.length} spots · must-eats conquered: <b>${done} / ${musts.length}</b>`;
+}
+render();
+
+/* ================= EVENTS ================= */
+list.addEventListener("click", e => {
+  const btn = e.target.closest("[data-eat]");
+  if (!btn) return;
+  const id = btn.dataset.eat;
+  eaten.has(id) ? eaten.delete(id) : eaten.add(id);
+  localStorage.setItem("jp-eaten", JSON.stringify([...eaten]));
+  render();
+});
+document.getElementById("cityChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  cityFilter = c.dataset.city;
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  render();
+});
+document.getElementById("tagChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  const t = c.dataset.tag;
+  const on = !tagFilters.has(t);
+  on ? tagFilters.add(t) : tagFilters.delete(t);
+  c.setAttribute("aria-pressed", String(on));
+  render();
+});
+document.getElementById("search").addEventListener("input", e => {
+  query = e.target.value.trim().toLowerCase();
+  render();
+});
+
+/* tabs */
+const tabs = document.querySelectorAll(".tab");
+tabs.forEach(t => t.addEventListener("click", () => {
+  tabs.forEach(x => {
+    const on = x === t;
+    x.setAttribute("aria-selected", String(on));
+    document.getElementById(x.dataset.panel).hidden = !on;
+  });
+  window.scrollTo({ top: 0 });
+}));
+
+/* itinerary → food jumps */
+document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => {
+  e.preventDefault();
+  const target = a.dataset.jump;
+  document.getElementById("tab-food").click();
+  cityFilter = "all"; tagFilters.clear(); query = "";
+  document.getElementById("search").value = "";
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x.dataset.city === "all" ? "true" : "false"));
+  document.querySelectorAll("#tagChips .chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+  render();
+  const el = document.getElementById("area-" + target);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}));
+</script>
