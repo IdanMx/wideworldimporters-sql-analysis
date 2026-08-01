@@ -296,6 +296,52 @@
   }
   .mapdetail .hint { color: var(--ink-soft); font-size: 13.5px; margin: 0; }
 
+  /* ---------- hotel + near-me ---------- */
+  .locmsg { font-size: 12.5px; color: var(--shu); align-self: center; margin-bottom: 8px; }
+  .hblock {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--noren);
+    border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden;
+  }
+  .hblock > summary {
+    list-style: none; cursor: pointer; padding: 13px 16px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .hblock > summary::-webkit-details-marker { display: none; }
+  .hblock .htitle {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-weight: 600; font-size: 15.5px;
+  }
+  .hblock .hdate {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--noren); background: var(--noren-soft); padding: 3px 9px; border-radius: 6px;
+  }
+  .hblock .hbody { padding: 0 16px 14px; font-size: 13.5px; color: var(--ink-soft); }
+  .hblock .hbody p { margin: 10px 0 0; max-width: 68ch; }
+  .hblock .hbody b { color: var(--ink); }
+  .hchips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .hchip {
+    font-size: 12.5px; background: var(--noren-soft); color: var(--noren);
+    padding: 5px 12px; border-radius: 999px; font-weight: 600; border: none;
+  }
+  .hchip .wmin { font-weight: 400; opacity: .85; }
+  .hmaps { font-size: 12.5px; font-weight: 600; }
+  .nearwrap { margin-bottom: 26px; }
+  .nearrow {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 11px 15px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 8px; box-shadow: var(--shadow);
+  }
+  .nearrow .nname { font-weight: 600; }
+  .nearrow .njp { color: var(--ink-soft); font-size: 12.5px; }
+  .nearrow .ndist {
+    margin-left: auto; font-variant-numeric: tabular-nums; font-size: 13px;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+  .nearrow .ndist b { color: var(--noren); }
+  #mapsvg #udot .halo { fill: #2E7CD6; opacity: .35; animation: upulse 1.8s ease-out infinite; }
+  @keyframes upulse { 0% { r: 8; opacity: .4; } 100% { r: 24; opacity: 0; } }
+  .rcard.flash { outline: 2px solid var(--noren); outline-offset: 2px; }
+
   .empty { color: var(--ink-soft); text-align: center; padding: 40px 0; font-size: 14px; }
   footer {
     max-width: 980px; margin: 0 auto; padding: 0 18px 40px;
@@ -325,7 +371,12 @@
 <main>
   <!-- ============ FOOD ============ -->
   <section id="panel-food" role="tabpanel" aria-labelledby="tab-food">
+    <div id="hotelBox"></div>
     <div class="filters">
+      <div class="chiprow">
+        <button class="chip" id="nearBtn" aria-pressed="false">📍 Food near me</button>
+        <span class="locmsg" id="nearMsg" hidden></span>
+      </div>
       <input id="search" type="search" placeholder="Search a dish, place, or area…" aria-label="Search restaurants">
       <div class="chiprow" id="cityChips" role="group" aria-label="Filter by city">
         <button class="chip" data-city="all" aria-pressed="true">All</button>
@@ -355,11 +406,13 @@
         <button class="chip" data-map="trip" aria-pressed="false">Kyoto &amp; Nara</button>
       </div>
       <div class="mapzoom">
+        <button id="locBtn" aria-label="Show my location">📍</button>
         <button id="zoomIn" aria-label="Zoom in">＋</button>
         <button id="zoomOut" aria-label="Zoom out">－</button>
         <button id="zoomReset" aria-label="Reset view">⌂</button>
       </div>
     </div>
+    <div class="locmsg" id="mapMsg" hidden></div>
     <div class="mapframe">
       <svg id="mapsvg" viewBox="0 0 800 880" role="img" aria-label="Schematic map of food spots"></svg>
     </div>
@@ -599,8 +652,8 @@
 <script>
 /* ================= DATA ================= */
 const AREAS = [
-  { id:"Tsukiji",  city:"tokyo", name:"Tsukiji, Tsukishima & Ginza — home base", pairs:"Block 4 + every morning",
-    sub:"You sleep 5 minutes from Japan's best breakfast. Do the market crawl early (most stalls 6:00–14:00, many closed Wed/Sun)." },
+  { id:"Tsukiji",  city:"tokyo", name:"Tsukiji, Tsukishima & Ginza — home turf", pairs:"Block 4 + every morning",
+    sub:"All an easy walk or one stop from the hotel. Do the market crawl early (most stalls 6:00–14:00, many closed Wed/Sun)." },
   { id:"Asakusa",  city:"tokyo", name:"Asakusa", pairs:"Block 4",
     sub:"Eat your way down Nakamise street between the gate and the temple." },
   { id:"Akihabara", city:"tokyo", name:"Akihabara & Ikebukuro", pairs:"Block 1",
@@ -816,6 +869,7 @@ const eaten = new Set(JSON.parse(localStorage.getItem("jp-eaten") || "[]"));
 let cityFilter = "all";
 const tagFilters = new Set();
 let query = "";
+let nearMode = false, userLL = null;
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 FOOD.forEach(f => f.id = slug(f.name));
@@ -842,6 +896,7 @@ function matches(f, areaCity) {
 }
 function render() {
   let html = "", shown = 0;
+  if (nearMode && userLL) html += nearSectionHTML();
   for (const a of AREAS) {
     const items = FOOD.filter(f => f.area === a.id && matches(f, a.city));
     if (!items.length) continue;
@@ -960,9 +1015,16 @@ const AREA_MAP = { Tsukiji:"tokyo", Asakusa:"tokyo", Akihabara:"tokyo", Shibuya:
   Odaiba:"tokyo", Azabudai:"tokyo", Dotonbori:"osaka", Umeda:"osaka", USJ:"osaka",
   Kyoto:"trip", Nara:"trip" };
 
+const HOTELS = {
+  tokyo: { name:"MIMARU Tokyo Station East", jp:"ミマル東京 STATION EAST",
+    ll:[35.6755,139.7840], maps:"MIMARU Tokyo Station East" },
+  osaka: { name:"MIMARU Osaka Namba Station", jp:"ミマル大阪 難波STATION",
+    ll:[34.6640,135.5020], maps:"MIMARU Osaka Namba Station" },
+};
+
 const MAPS = {
   tokyo: {
-    base: { ll:[35.6668,139.7688], label:"HOTEL" },
+    base: { ll: HOTELS.tokyo.ll, label:"MIMARU" },
     labels: [["ASAKUSA",35.7175,139.7905],["IKEBUKURO",35.7307,139.7125],
       ["AKIHABARA",35.7028,139.7758],["TOKYO STATION",35.6820,139.7635],
       ["GINZA",35.6742,139.7610],["HARAJUKU",35.6720,139.7000],["SHIBUYA",35.6553,139.6985],
@@ -976,7 +1038,7 @@ const MAPS = {
       [[35.6330,139.7680],[35.6330,139.7830],[35.6250,139.7855],[35.6215,139.7760],[35.6265,139.7672]]],
   },
   osaka: {
-    base: { ll:[34.6666,135.5000], label:"BASE" },
+    base: { ll: HOTELS.osaka.ll, label:"MIMARU" },
     labels: [["UMEDA",34.7080,135.4945],["TENJINBASHI",34.7085,135.5135],
       ["NAMBA · DOTONBORI",34.6712,135.5060],["KUROMON",34.6638,135.5075],
       ["UNIVERSAL STUDIOS",34.6700,135.4295],["TEMPOZAN · AQUARIUM",34.6528,135.4340],
@@ -1003,7 +1065,7 @@ const MAPS = {
 
 const mapSpots = city => FOOD.filter(f => AREA_MAP[f.area] === city && COORDS[f.name]);
 const VIEW = {};   // per-city {k,tx,ty}
-let curMap = "tokyo", selSpot = null;
+let curMap = "tokyo", selSpot = null, mapP = null;
 const svg = document.getElementById("mapsvg");
 const W = 800, H = 880;
 
@@ -1034,9 +1096,9 @@ function buildMap(city) {
   const P = projector(city), cfg = MAPS[city], spots = mapSpots(city);
   let bg = `<rect x="-2000" y="-2000" width="4800" height="4880" fill="var(--map-land)"/>`;
   (cfg.water || []).forEach(w => bg += `<path d="${pathOf(w, P, true)}" fill="var(--map-water)"/>`);
-  (cfg.rivers || []).forEach(r => bg += `<path d="${pathOf(r, P)}" fill="none" stroke="var(--map-water)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>`);
+  (cfg.rivers || []).forEach(r => bg += `<path d="${pathOf(r, P)}" fill="none" stroke="var(--map-water)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`);
   (cfg.islands || []).forEach(i => bg += `<path d="${pathOf(i, P, true)}" fill="var(--map-land)"/>`);
-  (cfg.routes || []).forEach(r => bg += `<path d="${pathOf(r.pts, P)}" fill="none" stroke="var(--noren)" stroke-width="2" stroke-dasharray="7 6" opacity=".55"/>`);
+  (cfg.routes || []).forEach(r => bg += `<path d="${pathOf(r.pts, P)}" fill="none" stroke="var(--noren)" stroke-width="2" stroke-dasharray="7 6" opacity=".55" vector-effect="non-scaling-stroke"/>`);
 
   let fg = "";
   (cfg.labels || []).forEach(([t, la, lo]) => {
@@ -1063,8 +1125,26 @@ function buildMap(city) {
     </g>`;
   });
   svg.innerHTML = `<g id="gWorld">${bg}${fg}</g>`;
+  mapP = P;
+  drawUserDot();
   if (!VIEW[city]) VIEW[city] = { k: 1, tx: 0, ty: 0 };
   applyView();
+}
+
+function drawUserDot() {
+  const g = document.getElementById("gWorld");
+  const old = document.getElementById("udot");
+  if (old) old.remove();
+  if (!userLL || !mapP || !g) return;
+  const [x, y] = mapP(userLL);
+  if (x < -60 || x > W + 60 || y < -60 || y > H + 60) return;
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  el.id = "udot"; el.classList.add("cs");
+  el.dataset.x = x; el.dataset.y = y;
+  el.innerHTML = `<circle class="halo" r="9"/>
+    <circle r="7" fill="#2E7CD6" stroke="#fff" stroke-width="2.5"/>
+    <text y="26" class="mnote">YOU</text>`;
+  g.appendChild(el);
 }
 
 function applyView() {
@@ -1179,4 +1259,130 @@ document.getElementById("mapDetail").addEventListener("click", e => {
 });
 
 buildMap("tokyo");
+
+/* ================= LOCATION & HOTELS ================= */
+function distM(a, b) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+  const h = Math.sin(dLa / 2) ** 2 +
+    Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const distStr = m => m < 950 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
+const walkStr = m => m <= 4200 ? ` · <b>~${Math.max(1, Math.round(m / 75))} min walk</b>` : "";
+
+function locate(then) {
+  if (!navigator.geolocation) return then("Location isn't available in this browser.");
+  navigator.geolocation.getCurrentPosition(
+    p => { userLL = [p.coords.latitude, p.coords.longitude]; then(null); },
+    () => then("Couldn't get your location — check that location access is allowed and try again."),
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+}
+
+function nearSectionHTML() {
+  const rows = FOOD.filter(f => COORDS[f.name])
+    .map(f => ({ f, d: distM(userLL, COORDS[f.name]) }))
+    .sort((a, b) => a.d - b.d).slice(0, 8);
+  const far = rows[0].d > 8000;
+  let h = `<div class="nearwrap"><h3 class="area-head">📍 Closest to you right now</h3>
+    <p class="area-sub">${far
+      ? "You're outside the eating zones at the moment — these are the closest spots anyway."
+      : "Straight-line distances — the map link gives you the walking route."}</p>`;
+  for (const { f, d } of rows) {
+    h += `<div class="nearrow">
+      <span class="nname">${f.name}</span><span class="njp">${f.jp} · ${f.area}</span>
+      <span class="ndist">${distStr(d)}${walkStr(d)} ·
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a></span>
+    </div>`;
+  }
+  return h + `</div>`;
+}
+
+const nearBtn = document.getElementById("nearBtn"), nearMsg = document.getElementById("nearMsg");
+nearBtn.addEventListener("click", () => {
+  nearMsg.hidden = true;
+  if (nearMode) { nearMode = false; nearBtn.setAttribute("aria-pressed", "false"); render(); return; }
+  nearBtn.textContent = "📍 Locating…";
+  locate(err => {
+    nearBtn.textContent = "📍 Food near me";
+    if (err) { nearMsg.textContent = err; nearMsg.hidden = false; return; }
+    nearMode = true;
+    nearBtn.setAttribute("aria-pressed", "true");
+    render();
+  });
+});
+
+document.getElementById("locBtn").addEventListener("click", () => {
+  const msg = document.getElementById("mapMsg");
+  msg.hidden = true;
+  locate(err => {
+    if (err) { msg.textContent = err; msg.hidden = false; return; }
+    let best = curMap, bd = Infinity;
+    for (const city of ["tokyo", "osaka", "trip"]) {
+      for (const f of mapSpots(city)) {
+        const d = distM(userLL, COORDS[f.name]);
+        if (d < bd) { bd = d; best = city; }
+      }
+    }
+    if (best !== curMap) {
+      document.querySelectorAll("#mapChips .chip").forEach(x =>
+        x.setAttribute("aria-pressed", x.dataset.map === best ? "true" : "false"));
+      buildMap(best);
+    } else drawUserDot();
+    const dot = document.getElementById("udot");
+    if (dot) {
+      const v = VIEW[curMap];
+      v.k = Math.max(v.k, 2.2);
+      v.tx = W / 2 - dot.dataset.x * v.k;
+      v.ty = H / 2 - dot.dataset.y * v.k;
+      applyView();
+    } else {
+      msg.textContent = `You're ${distStr(bd)} from the nearest spot — the dot will appear once you're near one of the maps.`;
+      msg.hidden = false;
+    }
+  });
+});
+
+/* landing-day hotel box */
+function hotelBlockHTML(city, dateLabel, advice, open) {
+  const h = HOTELS[city];
+  const near = FOOD.filter(f => COORDS[f.name])
+    .map(f => ({ f, d: distM(h.ll, COORDS[f.name]) }))
+    .sort((a, b) => a.d - b.d).slice(0, 6)
+    .filter(x => x.d < 2600);
+  return `<details class="hblock"${open ? " open" : ""}>
+    <summary><span class="hdate">${dateLabel}</span><span class="htitle">${h.name}</span>
+      <a class="hmaps" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.maps)}" target="_blank" rel="noopener">Map ↗</a></summary>
+    <div class="hbody">
+      <p>${advice}</p>
+      <div class="hchips">${near.map(({ f, d }) =>
+        `<button class="hchip" data-goto="${f.id}">${f.name} <span class="wmin">· ~${Math.max(1, Math.round(d / 75))} min</span></button>`).join("")}
+      </div>
+    </div>
+  </details>`;
+}
+(function buildHotelBox() {
+  const inOsaka = isTripMonth && today.getDate() >= 5 && today.getDate() <= 10;
+  document.getElementById("hotelBox").innerHTML =
+    hotelBlockHTML("tokyo", "🛬 Land Aug 2",
+      `You're in Shinkawa — a quiet riverside pocket by Hatchobori station (Mom's Hibiya-line routes work from Hatchobori or Kayabacho, both ~5 min away). <b>Landing-night plan:</b> walk over the Sumida bridge to <b>Monja Street</b> and cook monjayaki at the table — short, fun, and it keeps everyone awake till bedtime. Landing late and wrecked? <b>Sushizanmai</b> in Tsukiji never closes. Tap a chip for the full card:`, !inOsaka) +
+    hotelBlockHTML("osaka", "🚄 Aug 5 check-in",
+      `You're moving into the best street-food square kilometer in Japan — everything below is a stroll from the lobby. <b>First-evening plan:</b> <b>551 Horai</b> pork buns → <b>Wanaka</b> takoyaki → neon photos at the Glico sign → a warm <b>Rikuro's</b> cheesecake back at the hotel. Save <b>Kuromon Market</b> for tomorrow's breakfast.`, inOsaka);
+})();
+document.getElementById("hotelBox").addEventListener("click", e => {
+  const chip = e.target.closest("[data-goto]"); if (!chip) return;
+  cityFilter = "all"; tagFilters.clear(); query = ""; nearMode = false;
+  nearBtn.setAttribute("aria-pressed", "false");
+  document.getElementById("search").value = "";
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x.dataset.city === "all" ? "true" : "false"));
+  document.querySelectorAll("#tagChips .chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+  render();
+  const card = list.querySelector(`.rcard[data-id="${chip.dataset.goto}"]`);
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("flash");
+    setTimeout(() => card.classList.remove("flash"), 2200);
+  }
+});
 </script>
