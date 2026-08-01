@@ -659,8 +659,8 @@
 <script>
 /* ================= DATA ================= */
 const AREAS = [
-  { id:"Tsukiji",  city:"tokyo", name:"Tsukiji, Tsukishima & Ginza — home turf", pairs:"Block 4 + every morning",
-    sub:"All an easy walk or one stop from the hotel. Do the market crawl early (most stalls 6:00–14:00, many closed Wed/Sun)." },
+  { id:"Tsukiji",  city:"tokyo", name:"Home turf — Nihonbashi, Tsukiji & Ginza", pairs:"Block 4 + every morning",
+    sub:"Everything here is a 10–20 minute walk (or one metro stop) from the hotel. Do the Tsukiji market crawl early (most stalls 6:00–14:00, many closed Wed/Sun); the Nihonbashi–Kyobashi blocks just north of you are the city's salaryman-lunch heartland." },
   { id:"Asakusa",  city:"tokyo", name:"Asakusa", pairs:"Block 4",
     sub:"Eat your way down Nakamise street between the gate and the temple." },
   { id:"Akihabara", city:"tokyo", name:"Akihabara & Ikebukuro", pairs:"Block 1",
@@ -706,6 +706,18 @@ const FOOD = [
   { area:"Tsukiji", name:"Turret Coffee", jp:"ターレットコーヒー", tags:["sweet"], price:"¥",
     desc:"Tiny specialty espresso bar named after the market's turret trucks — the parents' morning stop. Try the <b>turret latte</b>.",
     book:"Walk in", maps:"Turret Coffee Tsukiji" },
+  { area:"Tsukiji", name:"Tsujihan", jp:"つじ半 日本橋", tags:[], price:"¥¥",
+    desc:"One dish only: the <b>zeitaku-don</b> — a tower of chopped seafood over rice; when you're near the end they pour sea-bream broth over the rest. 15 min walk north of the hotel, one of Tokyo's most famous lunch queues.",
+    book:"Queue 30–60 min · go early", maps:"Tsujihan Nihonbashi" },
+  { area:"Tsukiji", name:"Taimeiken", jp:"たいめいけん", tags:["kid"], price:"¥¥",
+    desc:"Nihonbashi institution (since 1931) for <b>omurice</b> — the wobbly omelette over ketchup rice made famous by the movie <i>Tampopo</i>. Old-school, comfy, great with kids. ~15 min from the hotel.",
+    book:"Queue at lunch", maps:"Taimeiken Nihonbashi" },
+  { area:"Tsukiji", name:"Kaneko Hannosuke", jp:"金子半之助 日本橋", tags:[], price:"¥",
+    desc:"The famous <b>Edomae tendon</b> — a bowl buried under tempura (conger eel, prawns, half-cooked egg) for ~¥1,300. ~18 min walk or one stop to Mitsukoshimae.",
+    book:"Queue 30–45 min", maps:"Tendon Kaneko Hannosuke Nihonbashi" },
+  { area:"Tsukiji", name:"Isehiro", jp:"伊勢廣 京橋本店", tags:["meat"], price:"¥¥¥",
+    desc:"Century-old <b>yakitori</b> house in Kyobashi, ~15 min from the hotel — charcoal-grilled chicken course menus, calm and old-Tokyo. An easy Dad dinner on a no-plans night.",
+    book:"Reservable · walk-in at lunch", maps:"Isehiro Kyobashi Honten yakitori" },
 
   /* --- Asakusa --- */
   { area:"Asakusa", name:"Daikokuya Tempura", jp:"大黒家天麩羅", tags:["must"], price:"¥¥",
@@ -808,6 +820,15 @@ const FOOD = [
   { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must","meat"], price:"¥¥",
     desc:"Namba's covered market, 10 min from Dotonbori: <b>wagyu skewers, grilled scallops, uni, fresh fruit</b>. Best as a grazing breakfast/brunch before a day trip.",
     book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka" },
+  { area:"Dotonbori", name:"Jiyuken", jp:"自由軒 難波本店", tags:[], price:"¥",
+    desc:"Since 1910 and 3 minutes from the hotel: the <b>meibutsu curry</b> — curried rice mixed through with minced beef, served with a raw egg on top to stir in. Retro Osaka in a bowl.",
+    book:"Walk in · closed Mon", maps:"Jiyuken Namba Honten" },
+  { area:"Dotonbori", name:"Fukutaro", jp:"福太郎 本店", tags:["meat"], price:"¥¥",
+    desc:"Locals' favorite <b>okonomiyaki &amp; negiyaki</b> a few blocks from the hotel — the pork negiyaki is the order. Shorter queue than Mizuno, arguably as good.",
+    book:"Queue ~30 min · reservable early evening", maps:"Fukutaro Honten Namba okonomiyaki" },
+  { area:"Dotonbori", name:"Dotonbori Imai", jp:"道頓堀 今井", tags:[], price:"¥¥",
+    desc:"A calm, wood-paneled oasis right on the neon strip: silky <b>kitsune udon</b> in golden dashi with sweet fried tofu. The quiet-lunch antidote to Dotonbori chaos.",
+    book:"Short queue · closed Wed", maps:"Dotonbori Imai udon" },
   { area:"Dotonbori", name:"Harukoma", jp:"春駒 本店", tags:[], price:"¥¥",
     desc:"Legendary neighborhood <b>sushi counter</b> on Tenjinbashisuji — enormous nigiri at half Tokyo prices. Worth pairing with an Umeda afternoon.",
     book:"Queue ~30 min · closed Tue", maps:"Harukoma Sushi Tenjinbashisuji" },
@@ -1009,6 +1030,9 @@ const COORDS = {
   "Kyushu Jangara":[35.7012,139.7717], "Go!Go!Curry":[35.6988,139.7712],
   "Mutekiya":[35.7273,139.7150], "Gyoza Stadium (Namja Town)":[35.7290,139.7190],
   "Yakiniku Like":[35.6990,139.7708], "Han no Daidokoro":[35.6582,139.6982],
+  "Tsujihan":[35.6808,139.7742], "Taimeiken":[35.6818,139.7752],
+  "Kaneko Hannosuke":[35.6850,139.7737], "Isehiro":[35.6768,139.7700],
+  "Jiyuken":[34.6653,135.5013], "Fukutaro":[34.6650,135.5068], "Dotonbori Imai":[34.6689,135.5019],
   "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
   "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
   "Marion Crêpes":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
@@ -1363,7 +1387,7 @@ function hotelBlockHTML(city, dateLabel, advice, open) {
   const h = HOTELS[city];
   const near = FOOD.filter(f => COORDS[f.name])
     .map(f => ({ f, d: distM(h.ll, COORDS[f.name]) }))
-    .sort((a, b) => a.d - b.d).slice(0, 6)
+    .sort((a, b) => a.d - b.d).slice(0, 8)
     .filter(x => x.d < 2600);
   return `<details class="hblock"${open ? " open" : ""}>
     <summary><span class="hdate">${dateLabel}</span><span class="htitle">${h.name}</span>
