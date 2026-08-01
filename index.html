@@ -15,6 +15,8 @@
     --gold-soft: #F3EBD8;
     --green: #3E7C52;
     --green-soft: #E2EEE5;
+    --map-land: #EFEBE1;
+    --map-water: #C9DCEA;
     --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
   }
   @media (prefers-color-scheme: dark) {
@@ -32,6 +34,8 @@
       --gold-soft: #3B3222;
       --green: #7CB98F;
       --green-soft: #24362B;
+      --map-land: #222A39;
+      --map-water: #14202E;
       --shadow: 0 1px 3px rgba(0,0,0,.4);
     }
   }
@@ -40,6 +44,7 @@
     --line: #E3DFD5; --shu: #C93A40; --shu-soft: #F7E3E2; --noren: #33567F;
     --noren-soft: #E4EAF2; --gold: #A8802F; --gold-soft: #F3EBD8;
     --green: #3E7C52; --green-soft: #E2EEE5;
+    --map-land: #EFEBE1; --map-water: #C9DCEA;
     --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
   }
   :root[data-theme="dark"] {
@@ -47,6 +52,7 @@
     --line: #313A4C; --shu: #E8646B; --shu-soft: #43262C; --noren: #8FB0D8;
     --noren-soft: #263447; --gold: #D4A94E; --gold-soft: #3B3222;
     --green: #7CB98F; --green-soft: #24362B;
+    --map-land: #222A39; --map-water: #14202E;
     --shadow: 0 1px 3px rgba(0,0,0,.4);
   }
 
@@ -243,6 +249,53 @@
   }
   .booksec:first-of-type { margin-top: 18px; }
 
+  /* ---------- map ---------- */
+  .mapbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .mapzoom { margin-left: auto; display: flex; gap: 6px; }
+  .mapzoom button {
+    width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); font-size: 16px; font-weight: 700; color: var(--ink);
+    display: grid; place-items: center;
+  }
+  .mapframe {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    background: var(--map-land); box-shadow: var(--shadow);
+  }
+  #mapsvg {
+    display: block; width: 100%; height: auto; max-height: 74vh;
+    touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  }
+  #mapsvg.dragging { cursor: grabbing; }
+  #mapsvg .mlabel {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12px; font-weight: 700; letter-spacing: .14em;
+    fill: var(--ink-soft); opacity: .65; text-anchor: middle;
+  }
+  #mapsvg .mnote {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 10.5px; font-weight: 600; letter-spacing: .02em;
+    fill: var(--noren); text-anchor: middle;
+  }
+  #mapsvg .mpin { cursor: pointer; }
+  #mapsvg .mpin circle.hit { fill: transparent; }
+  #mapsvg .mpin.dim { opacity: .38; }
+  #mapsvg .mpin .ring { fill: none; stroke: var(--ink); stroke-width: 1.6; opacity: 0; }
+  #mapsvg .mpin.sel .ring { opacity: 1; }
+  .maplegend {
+    display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px;
+    color: var(--ink-soft); margin-top: 10px; align-items: center;
+  }
+  .maplegend .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block; margin-right: 5px; vertical-align: -1px;
+  }
+  .mapdetail {
+    margin-top: 12px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .mapdetail .hint { color: var(--ink-soft); font-size: 13.5px; margin: 0; }
+
   .empty { color: var(--ink-soft); text-align: center; padding: 40px 0; font-size: 14px; }
   footer {
     max-width: 980px; margin: 0 auto; padding: 0 18px 40px;
@@ -263,6 +316,7 @@
 <nav class="tabs" aria-label="Sections">
   <div class="tabs-inner" role="tablist">
     <button class="tab" role="tab" id="tab-food" aria-selected="true" data-panel="panel-food">🍜 Food guide</button>
+    <button class="tab" role="tab" id="tab-map" aria-selected="false" data-panel="panel-map">🗺️ Map</button>
     <button class="tab" role="tab" id="tab-plan" aria-selected="false" data-panel="panel-plan">📅 Itinerary</button>
     <button class="tab" role="tab" id="tab-book" aria-selected="false" data-panel="panel-book">📌 Book ahead</button>
   </div>
@@ -290,6 +344,33 @@
       <div class="progress" id="progress"></div>
     </div>
     <div id="foodList"></div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <div class="mapbar">
+      <div class="chiprow" id="mapChips" role="group" aria-label="Choose a map">
+        <button class="chip" data-map="tokyo" aria-pressed="true">Tokyo</button>
+        <button class="chip" data-map="osaka" aria-pressed="false">Osaka</button>
+        <button class="chip" data-map="trip" aria-pressed="false">Kyoto &amp; Nara</button>
+      </div>
+      <div class="mapzoom">
+        <button id="zoomIn" aria-label="Zoom in">＋</button>
+        <button id="zoomOut" aria-label="Zoom out">－</button>
+        <button id="zoomReset" aria-label="Reset view">⌂</button>
+      </div>
+    </div>
+    <div class="mapframe">
+      <svg id="mapsvg" viewBox="0 0 800 880" role="img" aria-label="Schematic map of food spots"></svg>
+    </div>
+    <div class="maplegend">
+      <span><span class="dot" style="background:var(--shu)"></span>Must-eat</span>
+      <span><span class="dot" style="background:var(--gold)"></span>Book ahead</span>
+      <span><span class="dot" style="background:var(--noren)"></span>Good stop</span>
+      <span>★ Home base</span>
+      <span style="flex-basis:100%">Schematic map — positions are real, everything else is simplified. Drag to pan, pinch or ＋/－ to zoom, tap a pin.</span>
+    </div>
+    <div class="mapdetail" id="mapDetail"><p class="hint">Tap a pin to see the details — faded pins are ones you've already eaten at.</p></div>
   </section>
 
   <!-- ============ ITINERARY ============ -->
@@ -800,6 +881,7 @@ list.addEventListener("click", e => {
   eaten.has(id) ? eaten.delete(id) : eaten.add(id);
   localStorage.setItem("jp-eaten", JSON.stringify([...eaten]));
   render();
+  if (typeof buildMap === "function" && svg) { buildMap(curMap); showDetail(selSpot); }
 });
 document.getElementById("cityChips").addEventListener("click", e => {
   const c = e.target.closest(".chip"); if (!c) return;
@@ -846,4 +928,255 @@ document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click"
   const el = document.getElementById("area-" + target);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }));
+
+/* ================= MAP ================= */
+const COORDS = {
+  "Tsukiji Outer Market crawl":[35.6654,139.7707], "Kitsuneya":[35.6650,139.7692],
+  "Sushizanmai Honten":[35.6672,139.7702], "Monja Street, Tsukishima":[35.6647,139.7823],
+  "Ginza Kagari":[35.6718,139.7648], "Kura Sushi Ginza":[35.6740,139.7657],
+  "Turret Coffee":[35.6668,139.7718], "Daikokuya Tempura":[35.7113,139.7946],
+  "Kagetsudo":[35.7147,139.7936], "Asakusa Menchi":[35.7119,139.7943],
+  "Suzukien Nanaya":[35.7121,139.7996], "Tonkatsu Marugo":[35.6999,139.7718],
+  "Kyushu Jangara":[35.7012,139.7717], "Go!Go!Curry":[35.6988,139.7712],
+  "Mutekiya":[35.7273,139.7150], "Gyoza Stadium (Namja Town)":[35.7290,139.7190],
+  "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
+  "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
+  "Marion Crêpes":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
+  "Tonkatsu Maisen":[35.6670,139.7105], "Odaiba Takoyaki Museum":[35.6288,139.7746],
+  "bills Odaiba":[35.6291,139.7740], "Azabudai Hills Market":[35.6605,139.7398],
+  "Rokurinsha":[35.6796,139.7669],
+  "Mizuno":[34.6686,135.5028], "Wanaka Honten":[34.6659,135.5049],
+  "Daruma":[34.6688,135.5014], "Kani Doraku Honten":[34.6692,135.5010],
+  "Matsusakagyu Yakiniku M":[34.6677,135.5033], "551 Horai":[34.6668,135.5012],
+  "Rikuro's Cheesecake":[34.6656,135.5009], "Kuromon Ichiba Market":[34.6653,135.5063],
+  "Harukoma":[34.7057,135.5110], "Kiji":[34.7053,135.4900], "Hanadako":[34.7027,135.4988],
+  "Naniwa Kuishinbo Yokocho":[34.6553,135.4310], "Kinopio's Cafe":[34.6676,135.4323],
+  "Three Broomsticks + Butterbeer":[34.6663,135.4306],
+  "Fushimi Inari street stalls":[34.9671,135.7727], "Yoshimura":[35.0128,135.6782],
+  "% Arabica Arashiyama":[35.0136,135.6778], "Katsukura":[34.9855,135.7585],
+  "Nakatanidou":[34.6820,135.8290], "Kamameshi Shizuka":[34.6839,135.8399],
+};
+const AREA_MAP = { Tsukiji:"tokyo", Asakusa:"tokyo", Akihabara:"tokyo", Shibuya:"tokyo",
+  Odaiba:"tokyo", Azabudai:"tokyo", Dotonbori:"osaka", Umeda:"osaka", USJ:"osaka",
+  Kyoto:"trip", Nara:"trip" };
+
+const MAPS = {
+  tokyo: {
+    base: { ll:[35.6668,139.7688], label:"HOTEL" },
+    labels: [["ASAKUSA",35.7175,139.7905],["IKEBUKURO",35.7307,139.7125],
+      ["AKIHABARA",35.7028,139.7758],["TOKYO STATION",35.6820,139.7635],
+      ["GINZA",35.6742,139.7610],["HARAJUKU",35.6720,139.7000],["SHIBUYA",35.6553,139.6985],
+      ["AZABUDAI",35.6580,139.7398],["TSUKISHIMA",35.6620,139.7845],
+      ["ODAIBA",35.6262,139.7715],["TOKYO BAY",35.6440,139.7930]],
+    water: [[[35.6600,139.7660],[35.6480,139.7620],[35.6280,139.7580],[35.6150,139.7700],
+      [35.6150,139.8150],[35.6600,139.8150],[35.6720,139.7960],[35.6660,139.7780]]],
+    rivers: [[[35.7330,139.8010],[35.7120,139.7990],[35.7000,139.7900],[35.6880,139.7865],
+      [35.6760,139.7845],[35.6680,139.7800],[35.6620,139.7760]]],
+    islands: [[[35.6685,139.7795],[35.6668,139.7860],[35.6620,139.7872],[35.6600,139.7820],[35.6648,139.7778]],
+      [[35.6330,139.7680],[35.6330,139.7830],[35.6250,139.7855],[35.6215,139.7760],[35.6265,139.7672]]],
+  },
+  osaka: {
+    base: { ll:[34.6666,135.5000], label:"BASE" },
+    labels: [["UMEDA",34.7080,135.4945],["TENJINBASHI",34.7085,135.5135],
+      ["NAMBA · DOTONBORI",34.6712,135.5060],["KUROMON",34.6638,135.5075],
+      ["UNIVERSAL STUDIOS",34.6700,135.4295],["TEMPOZAN · AQUARIUM",34.6528,135.4340],
+      ["OSAKA BAY",34.6650,135.4180]],
+    water: [[[34.7150,135.4150],[34.6150,135.4150],[34.6150,135.4450],[34.6520,135.4415],
+      [34.6600,135.4330],[34.6900,135.4230],[34.7150,135.4230]]],
+    rivers: [[[34.6850,135.4520],[34.6750,135.4430],[34.6640,135.4330]],
+      [[34.6693,135.4900],[34.6693,135.5145]]],
+    islands: [],
+  },
+  trip: {
+    base: null,
+    labels: [["ARASHIYAMA",35.0180,135.6780],["FUSHIMI INARI",34.9625,135.7760],
+      ["KYOTO STATION",34.9890,135.7550],["NARA",34.6890,135.8330]],
+    water: [], islands: [],
+    rivers: [[[35.0230,135.6710],[35.0125,135.6790],[35.0050,135.6900]]],
+    routes: [
+      { pts:[[35.0128,135.6782],[34.9855,135.7585]], note:"JR · ~15 min", at:[35.0030,135.7180] },
+      { pts:[[34.9855,135.7585],[34.9671,135.7727]], note:"JR · ~5 min", at:[34.9740,135.7690] },
+      { pts:[[34.9671,135.7727],[34.6820,135.8290]], note:"separate day · Kintetsu from Namba ~40 min", at:[34.8250,135.8250] },
+    ],
+  },
+};
+
+const mapSpots = city => FOOD.filter(f => AREA_MAP[f.area] === city && COORDS[f.name]);
+const VIEW = {};   // per-city {k,tx,ty}
+let curMap = "tokyo", selSpot = null;
+const svg = document.getElementById("mapsvg");
+const W = 800, H = 880;
+
+function projector(city) {
+  const pts = mapSpots(city).map(f => COORDS[f.name]).slice();
+  if (MAPS[city].base) pts.push(MAPS[city].base.ll);
+  const lats = pts.map(p => p[0]), lngs = pts.map(p => p[1]);
+  const la0 = Math.min(...lats), la1 = Math.max(...lats);
+  const lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
+  const cos = Math.cos((la0 + la1) / 2 * Math.PI / 180);
+  const pad = 0.12;
+  const wDeg = (lo1 - lo0) * cos || 1e-6, hDeg = (la1 - la0) || 1e-6;
+  const s = Math.min(W * (1 - pad * 2) / wDeg, H * (1 - pad * 2) / hDeg);
+  const ox = (W - wDeg * s) / 2, oy = (H - hDeg * s) / 2;
+  return ([la, lo]) => [ox + (lo - lo0) * cos * s, oy + (la1 - la) * s];
+}
+
+function pinColor(f) {
+  if (f.tags.includes("must")) return "var(--shu)";
+  if (f.tags.includes("book")) return "var(--gold)";
+  return "var(--noren)";
+}
+const pathOf = (pts, P, close) =>
+  pts.map((p, i) => (i ? "L" : "M") + P(p).map(n => n.toFixed(1)).join(",")).join(" ") + (close ? " Z" : "");
+
+function buildMap(city) {
+  curMap = city;
+  const P = projector(city), cfg = MAPS[city], spots = mapSpots(city);
+  let bg = `<rect x="-2000" y="-2000" width="4800" height="4880" fill="var(--map-land)"/>`;
+  (cfg.water || []).forEach(w => bg += `<path d="${pathOf(w, P, true)}" fill="var(--map-water)"/>`);
+  (cfg.rivers || []).forEach(r => bg += `<path d="${pathOf(r, P)}" fill="none" stroke="var(--map-water)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>`);
+  (cfg.islands || []).forEach(i => bg += `<path d="${pathOf(i, P, true)}" fill="var(--map-land)"/>`);
+  (cfg.routes || []).forEach(r => bg += `<path d="${pathOf(r.pts, P)}" fill="none" stroke="var(--noren)" stroke-width="2" stroke-dasharray="7 6" opacity=".55"/>`);
+
+  let fg = "";
+  (cfg.labels || []).forEach(([t, la, lo]) => {
+    const [x, y] = P([la, lo]);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}"><text class="mlabel">${t}</text></g>`;
+  });
+  (cfg.routes || []).forEach(r => {
+    const [x, y] = P(r.at);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}"><text class="mnote">${r.note}</text></g>`;
+  });
+  if (cfg.base) {
+    const [x, y] = P(cfg.base.ll);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}">
+      <text y="5" text-anchor="middle" font-size="17" fill="var(--gold)">★</text>
+      <text y="20" class="mnote">${cfg.base.label}</text></g>`;
+  }
+  spots.forEach(f => {
+    const [x, y] = P(COORDS[f.name]);
+    const i = FOOD.indexOf(f);
+    fg += `<g class="mpin cs${eaten.has(f.id) ? " dim" : ""}${selSpot === f ? " sel" : ""}" data-i="${i}" data-x="${x}" data-y="${y}" role="button" aria-label="${f.name.replace(/"/g, "")}">
+      <circle class="ring" r="12"/>
+      <circle r="7" fill="${pinColor(f)}" stroke="var(--card)" stroke-width="2"/>
+      <circle class="hit" r="15"/>
+    </g>`;
+  });
+  svg.innerHTML = `<g id="gWorld">${bg}${fg}</g>`;
+  if (!VIEW[city]) VIEW[city] = { k: 1, tx: 0, ty: 0 };
+  applyView();
+}
+
+function applyView() {
+  const v = VIEW[curMap];
+  v.k = Math.min(9, Math.max(0.7, v.k));
+  document.getElementById("gWorld").setAttribute("transform", `translate(${v.tx},${v.ty}) scale(${v.k})`);
+  svg.querySelectorAll(".cs").forEach(el =>
+    el.setAttribute("transform", `translate(${el.dataset.x},${el.dataset.y}) scale(${1 / v.k})`));
+}
+
+function showDetail(f) {
+  const d = document.getElementById("mapDetail");
+  if (!f) { d.innerHTML = `<p class="hint">Tap a pin to see the details — faded pins are ones you've already eaten at.</p>`; return; }
+  const done = eaten.has(f.id);
+  d.innerHTML = `
+    <div class="rtop">
+      <h4 class="rname">${f.name}<span class="rjp">${f.jp} · ${f.area === "USJ" ? "Universal Studios" : f.area}</span></h4>
+      <button class="eatbtn" style="${done ? "background:var(--green);border-color:var(--green);color:#fff" : ""}" data-mapeat="${f.id}" aria-pressed="${done}" title="Mark as eaten">✓</button>
+    </div>
+    <div class="rmeta">${badge(f)}</div>
+    <p class="rdesc">${f.desc}</p>
+    <div class="rfoot">
+      <span class="yen">${f.price}</span>
+      <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+    </div>`;
+}
+
+/* map interactions */
+const ptrs = new Map();
+let dragged = false, lastMid = null, lastDist = 0, downPin = null;
+const toVB = (cx, cy) => {
+  const r = svg.getBoundingClientRect();
+  return [(cx - r.left) / r.width * W, (cy - r.top) / r.height * H];
+};
+svg.addEventListener("pointerdown", e => {
+  svg.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  dragged = false; lastMid = null; lastDist = 0;
+  downPin = ptrs.size === 1 ? e.target.closest(".mpin") : null;
+  svg.classList.add("dragging");
+});
+svg.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  const v = VIEW[curMap], pts = [...ptrs.values()];
+  if (pts.length === 1) {
+    const [vx, vy] = toVB(...pts[0]);
+    if (lastMid) {
+      const dx = vx - lastMid[0], dy = vy - lastMid[1];
+      if (Math.abs(dx) + Math.abs(dy) > 1.5) dragged = true;
+      v.tx += dx; v.ty += dy; applyView();
+    }
+    lastMid = [vx, vy];
+  } else if (pts.length >= 2) {
+    dragged = true;
+    const [a, b] = pts;
+    const mid = toVB((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+    const dist = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    if (lastDist) {
+      const f = dist / lastDist, k2 = Math.min(9, Math.max(0.7, v.k * f)), real = k2 / v.k;
+      v.tx = mid[0] - (mid[0] - v.tx) * real; v.ty = mid[1] - (mid[1] - v.ty) * real; v.k = k2;
+    }
+    if (lastMid) { v.tx += mid[0] - lastMid[0]; v.ty += mid[1] - lastMid[1]; }
+    lastMid = mid; lastDist = dist; applyView();
+  }
+});
+const endPtr = e => {
+  ptrs.delete(e.pointerId);
+  if (!ptrs.size) svg.classList.remove("dragging");
+  lastMid = null; lastDist = 0;
+};
+svg.addEventListener("pointerup", e => {
+  const tap = !dragged && ptrs.size === 1;
+  endPtr(e);
+  if (tap) {
+    selSpot = downPin ? FOOD[+downPin.dataset.i] : null;
+    svg.querySelectorAll(".mpin").forEach(p => p.classList.toggle("sel", downPin === p));
+    showDetail(selSpot);
+  }
+  downPin = null;
+});
+svg.addEventListener("pointercancel", e => { endPtr(e); downPin = null; });
+svg.addEventListener("wheel", e => {
+  e.preventDefault();
+  const v = VIEW[curMap], [vx, vy] = toVB(e.clientX, e.clientY);
+  const k2 = Math.min(9, Math.max(0.7, v.k * Math.pow(1.0015, -e.deltaY))), real = k2 / v.k;
+  v.tx = vx - (vx - v.tx) * real; v.ty = vy - (vy - v.ty) * real; v.k = k2;
+  applyView();
+}, { passive: false });
+const zoomBy = f => {
+  const v = VIEW[curMap], k2 = Math.min(9, Math.max(0.7, v.k * f)), real = k2 / v.k;
+  v.tx = W / 2 - (W / 2 - v.tx) * real; v.ty = H / 2 - (H / 2 - v.ty) * real; v.k = k2;
+  applyView();
+};
+document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.45));
+document.getElementById("zoomOut").addEventListener("click", () => zoomBy(1 / 1.45));
+document.getElementById("zoomReset").addEventListener("click", () => { VIEW[curMap] = { k: 1, tx: 0, ty: 0 }; applyView(); });
+
+document.getElementById("mapChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  document.querySelectorAll("#mapChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  selSpot = null; showDetail(null);
+  buildMap(c.dataset.map);
+});
+document.getElementById("mapDetail").addEventListener("click", e => {
+  const btn = e.target.closest("[data-mapeat]"); if (!btn) return;
+  const id = btn.dataset.mapeat;
+  eaten.has(id) ? eaten.delete(id) : eaten.add(id);
+  localStorage.setItem("jp-eaten", JSON.stringify([...eaten]));
+  render(); buildMap(curMap); showDetail(selSpot);
+});
+
+buildMap("tokyo");
 </script>
