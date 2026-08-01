@@ -192,6 +192,39 @@
   .b-plain { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
   .rdesc { font-size: 13.5px; color: var(--ink-soft); margin: 0; flex: 1; }
   .rdesc b { color: var(--ink); font-weight: 600; }
+  /* stall-by-stall detail for markets & food streets */
+  details.deep { border-top: 1px solid var(--line); padding-top: 9px; }
+  details.deep > summary {
+    list-style: none; cursor: pointer; font-size: 12.5px; font-weight: 600;
+    color: var(--noren); display: flex; align-items: center; gap: 6px;
+  }
+  details.deep > summary::-webkit-details-marker { display: none; }
+  details.deep > summary::before { content: "▸"; transition: transform .15s; }
+  details.deep[open] > summary::before { transform: rotate(90deg); }
+  details.deep > summary .cnt { color: var(--ink-soft); font-weight: 500; }
+  .deepbody { padding-top: 10px; display: flex; flex-direction: column; gap: 9px; }
+  .dline { display: flex; gap: 9px; font-size: 12.5px; line-height: 1.45; }
+  .dline .dk {
+    flex: 0 0 62px; font-size: 10.5px; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ink-soft); padding-top: 2px;
+  }
+  .dline .dv { color: var(--ink); }
+  .dline.book .dv { color: var(--gold); font-weight: 600; }
+  .dline.book.free .dv { color: var(--green); font-weight: 600; }
+  ul.dstalls { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  ul.dstalls li {
+    font-size: 13px; line-height: 1.45; padding-left: 11px;
+    border-left: 2px solid var(--line);
+  }
+  ul.dstalls .sn { font-weight: 600; }
+  ul.dstalls .sj { color: var(--ink-soft); font-size: 12px; }
+  ul.dstalls .sp { color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dhow {
+    margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft);
+    background: var(--noren-soft); padding: 9px 11px; border-radius: 8px;
+  }
+  .dhow b { color: var(--ink); }
+
   .rfoot {
     display: flex; justify-content: space-between; align-items: center;
     border-top: 1px solid var(--line); padding-top: 9px; font-size: 13px;
@@ -695,8 +728,21 @@ const AREAS = [
 const FOOD = [
   /* --- Tsukiji / Ginza --- */
   { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥",
-    desc:"The classic hits as you wander: fresh <b>tamagoyaki skewers at Yamachō</b> (¥200), <b>strawberry daifuku</b>, grilled scallops, tuna skewers. Go 8:00–10:00, before the heat and the crowds.",
-    book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo" },
+    desc:"Four narrow lanes of stalls that fed Tokyo's fish trade for 80 years. Graze standing up: <b>tamagoyaki on a stick, grilled scallops, tuna skewers, fruit</b>. Go 8:00–10:00, before the heat and the crowds.",
+    book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo",
+    deep: { count:"~400 shops", hours:"Most stalls 6:00–14:00 — by 15:00 it's shuttered",
+      ticket:"No booking, no entry fee. Bring cash — plenty of stalls still refuse cards.",
+      free:true,
+      when:"Many shops close Sundays and some Wednesdays, so skip landing day (Sun Aug 2) and Wed Aug 12. Best mornings: Mon Aug 3, Tue Aug 4, or Tue Aug 11.",
+      eat:[
+        { n:"Yamachō", jp:"山長", w:"Tamagoyaki skewer — sweet, hot, custardy egg. The signature first bite of the market.", p:"~¥150" },
+        { n:"Shōro", jp:"松露", w:"The refined tamagoyaki rival — buy a whole block to take back to the hotel.", p:"~¥700" },
+        { n:"Marutoyo", jp:"丸豊", w:"Wall of handmade onigiri, 30+ fillings. Cheapest good breakfast in Tokyo.", p:"~¥200 ea" },
+        { n:"Ajino Hamatō", jp:"味の浜藤", w:"Miso-marinated grilled fish — the classic Tsukiji souvenir.", p:"¥800+" },
+        { n:"Scallop & uni stalls", jp:"焼きホタテ", w:"Scallops grilled in the shell with butter-soy; sea urchin served in the shell.", p:"¥500–1,500" },
+        { n:"Fruit stands", jp:"果物", w:"Strawberry daifuku, melon slices, whole-fruit skewers — the little brother's stop.", p:"¥300–800" },
+      ],
+      how:"<b>Etiquette:</b> eat beside the stall you bought from, not while walking — most have a small counter or a bin. <b>Heads up:</b> the famous tuna auction is no longer here; it moved to Toyosu, 15 min away, and close-up viewing needs an advance lottery application. The upper viewing deck there is free and needs no booking, but it's a 5:00 start." } },
   { area:"Tsukiji", name:"Kitsuneya", jp:"きつねや", tags:["street","meat"], price:"¥",
     desc:"Standing counter, 70+ years old. Order the <b>gyudon</b> (beef bowl) — or the famous horumon-don if someone's brave. Open ~6:30–13:30.",
     book:"Queue a little · breakfast", maps:"Kitsuneya Tsukiji" },
@@ -704,8 +750,18 @@ const FOOD = [
     desc:"The 24/7 sushi flagship — big menu with pictures, great fatty tuna (<b>otoro</b>), zero stress with kids. Perfect jet-lag dinner on night one.",
     book:"Walk in · open 24 h", maps:"Sushizanmai Honten Tsukiji" },
   { area:"Tsukiji", name:"Monja Street, Tsukishima", jp:"月島もんじゃストリート", tags:["must","kid"], price:"¥¥",
-    desc:"70 shops of <b>monjayaki</b> — Tokyo's gooey cousin of okonomiyaki that you cook yourselves on the table grill. Kids love the little spatulas. Try Kondō (近どう), the oldest. One stop on the Yurakucho line.",
-    book:"Book 1–2 days ahead or queue", maps:"Monja Street Tsukishima" },
+    desc:"A 400 m lane packed with <b>monjayaki</b> shops — Tokyo's runny, savoury cousin of okonomiyaki, cooked by you on the table griddle. The most fun the four of you can have over dinner.",
+    book:"Book 1–2 days ahead or queue", maps:"Monja Street Tsukishima",
+    deep: { count:"~70 shops", hours:"Most 11:00–22:00; some take a 15:00–17:00 break on weekdays",
+      ticket:"Worth booking — Sunday and Saturday nights fill up. Most shops take same-day phone bookings and the hotel desk will call for you. Otherwise arrive by 17:30 or queue 30–60 min.",
+      when:"You land Sunday Aug 2, one of the busiest nights — either have the hotel book it, or walk over early.",
+      eat:[
+        { n:"Kondō", jp:"近どう", w:"Since 1950, one of the street's originals. Staff will cook the first one for you if you ask.", p:"¥1,200–1,900" },
+        { n:"Iroha", jp:"いろは", w:"Famous for mentaiko-mochi-cheese monja — the gateway version for anyone unsure about the texture.", p:"¥1,300–2,000" },
+        { n:"Any shop with a queue", jp:"", w:"Quality is genuinely even along the street. A line of locals is a safe pick.", p:"~¥1,500" },
+        { n:"Order alongside", jp:"", w:"Add an okonomiyaki and a yakisoba to the table — they cook on the same griddle and fill out the meal.", p:"¥900–1,400" },
+      ],
+      how:"<b>How to cook it:</b> stir-fry the solid ingredients on the griddle, chop them up, then shape a doughnut-shaped ring and pour the liquid batter into the middle. Let it bubble and thicken, then mix everything together and flatten it out. <b>How to eat it:</b> don't plate it — press small amounts flat with the little spatula (<i>hera</i>), let it crisp for a second, and eat straight off the griddle. The crunchy scrapings at the edge are the best part." } },
   { area:"Tsukiji", name:"Ginza Kagari", jp:"銀座 篝", tags:["must"], price:"¥¥",
     desc:"Michelin-listed <b>tori-paitan ramen</b> — silky chicken broth that even non-ramen people rave about. 15 min walk from the hotel.",
     book:"Queue ~30–60 min", maps:"Ginza Kagari ramen" },
@@ -729,6 +785,21 @@ const FOOD = [
     book:"Reservable · walk-in at lunch", maps:"Isehiro Kyobashi Honten yakitori" },
 
   /* --- Asakusa --- */
+  { area:"Asakusa", name:"Nakamise Street snacks", jp:"仲見世通り", tags:["street","kid"], price:"¥",
+    desc:"The 250 m stall-lined approach from the great lantern gate to Sensō-ji — Japan's oldest shopping street, trading since the 1600s. Half souvenirs, half snacks made in front of you.",
+    book:"Walk through · daytime", maps:"Nakamise Dori Asakusa",
+    deep: { count:"~90 stalls", hours:"Roughly 9:30–18:30; snack stalls close earlier than the souvenir shops",
+      ticket:"No booking, no entry fee — and Sensō-ji temple at the end is free to enter too.",
+      free:true,
+      when:"Mom's plan pairs this with Tsukiji on a clear morning. Come before 10:00 and the street is calm; by noon it's shoulder to shoulder.",
+      eat:[
+        { n:"Kimuraya Honten", jp:"木村家本店", w:"Ningyō-yaki — little sponge cakes filled with red bean, baked in moulds shaped like lanterns and pagodas. Selling them since 1868; buy a warm bag of four.", p:"~¥500 for 4" },
+        { n:"Kokonoe", jp:"九重", w:"Age-manju — deep-fried bean-paste buns, crisp outside and molten inside. Best eaten within a minute of buying.", p:"~¥150 ea" },
+        { n:"Azuma", jp:"あづま", w:"Kibi-dango — millet dumplings dusted in soybean flour, served warm on skewers with cold matcha. A Nakamise institution.", p:"~¥400 for 5" },
+        { n:"Senbei stalls", jp:"煎餅", w:"Rice crackers grilled over charcoal in front of you and brushed with soy — you can smell them down the whole street.", p:"¥100–200 ea" },
+        { n:"Kaminari-okoshi", jp:"雷おこし", w:"Crunchy puffed-rice brittle named after the Thunder Gate itself — the classic box to bring home.", p:"¥500+" },
+      ],
+      how:"<b>Etiquette matters here:</b> eating while walking along Nakamise is actively discouraged and some stalls post signs about it — buy, step to the side, finish, then move on. <b>Worth knowing:</b> Kagetsudo's giant melon pan and the menchi-katsu stand are just off the main street on the side lanes, and Suzukien's 7-level matcha gelato is a few minutes east — the side streets are where the best eating actually is." } },
   { area:"Asakusa", name:"Daikokuya Tempura", jp:"大黒家天麩羅", tags:["must"], price:"¥¥",
     desc:"Frying <b>tendon</b> (tempura on rice, dark sweet sauce) since 1887, in a beautiful old building near the temple. The one sit-down worth the Asakusa queue.",
     book:"Queue ~30 min · lunch", maps:"Daikokuya Tempura Asakusa" },
@@ -759,8 +830,16 @@ const FOOD = [
     desc:"Ikebukuro's famous <b>tonkotsu ramen</b> — the queue outside is the landmark. Pairs with the Pokémon Center / Namja Town afternoon.",
     book:"Queue 30–60 min", maps:"Mutekiya Ikebukuro" },
   { area:"Akihabara", name:"Gyoza Stadium (Namja Town)", jp:"ナンジャ餃子スタジアム", tags:["kid"], price:"¥",
-    desc:"Inside Namja Town: famous <b>gyoza</b> shops from all over Japan in a retro-Showa alley, plus deliberately weird desserts.",
-    book:"Inside the park", maps:"Namja Town Sunshine City Ikebukuro" },
+    desc:"A themed food alley inside Namja Town, dressed as a 1950s Showa backstreet: famous <b>gyoza</b> shops from across Japan, plus a dessert corner selling deliberately absurd flavours.",
+    book:"Entry ticket needed", maps:"Namja Town Sunshine City Ikebukuro",
+    deep: { count:"~6 gyoza shops + dessert alley", hours:"10:00–21:00, last entry 20:00",
+      ticket:"You must buy a Namja Town entry ticket to eat here — around ¥1,000 per person for entry only, or roughly ¥3,500 for the passport that includes the attractions. Buy at the door or online; it rarely sells out, so no need to book days ahead.",
+      when:"Block 1 pairs it with the Pokémon Center — both are inside Sunshine City, so one trip covers them.",
+      eat:[
+        { n:"Regional gyoza counters", jp:"ご当地餃子", w:"Each shop represents a different city's style — thin Utsunomiya-style, garlicky Kyushu, thick-skinned northern. Plates are small so you can hit three.", p:"¥400–700 a plate" },
+        { n:"Dessert alley", jp:"デザート横丁", w:"Where the novelty flavours live — the shops here have a long history of joke ice creams alongside genuinely good soft serve.", p:"¥400–700" },
+      ],
+      how:"<b>Be honest about the trade-off:</b> paying ~¥1,000 each just to reach a food court only makes sense if you're doing Namja Town's attractions anyway. If you only want great gyoza, Gyoza Lou in Harajuku is better and free to walk into — this one is about the theming and the day out." } },
 
   /* --- Harajuku / Shibuya --- */
   { area:"Shibuya", name:"Gyukatsu Motomura", jp:"牛かつもと村", tags:["must","meat"], price:"¥¥",
@@ -778,9 +857,21 @@ const FOOD = [
   { area:"Shibuya", name:"Afuri", jp:"阿夫利", tags:[], price:"¥",
     desc:"Light, citrusy <b>yuzu shio ramen</b> — the right bowl for a 35° day, right by Harajuku station.",
     book:"Short queue", maps:"Afuri Harajuku" },
-  { area:"Shibuya", name:"Marion Crêpes", jp:"マリオンクレープ", tags:["street","sweet","kid"], price:"¥",
-    desc:"The original Takeshita Street <b>crêpe stand</b> since 1976 — 80+ flavors, eaten walking. Non-negotiable Harajuku ritual.",
-    book:"Queue is part of it", maps:"Marion Crepes Takeshita Street" },
+  { area:"Shibuya", name:"Marion Crêpes & Takeshita St", jp:"マリオンクレープ・竹下通り", tags:["street","sweet","kid"], price:"¥",
+    desc:"Marion Crêpes opened here in 1976 and effectively invented the Japanese street crêpe — a cone of cream, fruit and cake stuffed into a pancake. It anchors a 350 m street built entirely around teenage snacking.",
+    book:"Queue is part of it", maps:"Marion Crepes Takeshita Street",
+    deep: { count:"~10 snack stops on one street", hours:"Most stalls 10:00–19:00; the street is busiest 14:00–17:00",
+      ticket:"Nothing bookable — it's all counter service and queues. Weekday mornings are markedly calmer than afternoons.",
+      free:true,
+      when:"Block 3 puts you here after Meiji Shrine. Arrive by 11:00 if you'd rather not shuffle through crowds.",
+      eat:[
+        { n:"Marion Crêpes", jp:"マリオンクレープ", w:"The original. 80+ fillings on a photo menu — the classic is strawberry, whipped cream and a slice of cheesecake inside.", p:"¥600–900" },
+        { n:"Santa Monica Crêpes", jp:"サンタモニカ", w:"The rival stand a few doors down, usually a shorter queue and slightly bigger crêpes. A genuine taste-test.", p:"¥600–900" },
+        { n:"Totti Candy Factory", jp:"トッティキャンディファクトリー", w:"The giant rainbow cotton candy that's bigger than a child's head. Almost entirely a photo prop — buy one for the four of you, not four.", p:"~¥1,000" },
+        { n:"Calbee+", jp:"カルビープラス", w:"Potato chips fried to order and served hot in a cup, sometimes with soft serve on top. Better than it has any right to be.", p:"¥400–600" },
+        { n:"Zaku Zaku", jp:"ザクザク", w:"Croquant chou — a crunchy choux pastry stick piped full of cold custard.", p:"~¥300" },
+      ],
+      how:"<b>Reality check:</b> Takeshita Street is narrow, extremely crowded and aimed squarely at teenagers — plan on 45 minutes rather than an afternoon. <b>The grown-up escape:</b> Omotesando, the broad tree-lined boulevard one block south, is where Gyoza Lou and Maisen are. Do Takeshita for the little brother, then walk down there for lunch." } },
   { area:"Shibuya", name:"Gyoza Lou", jp:"餃子楼", tags:[], price:"¥",
     desc:"Just <b>gyoza</b> (grilled or steamed), rice, beans and beer — ¥370 a plate, always a line, always worth it. Backstreet Omotesando.",
     book:"Queue ~20–30 min · cash", maps:"Gyoza Lou Harajuku" },
@@ -790,16 +881,37 @@ const FOOD = [
 
   /* --- Odaiba --- */
   { area:"Odaiba", name:"Odaiba Takoyaki Museum", jp:"お台場たこ焼きミュージアム", tags:["street","kid"], price:"¥",
-    desc:"Five famous Osaka <b>takoyaki</b> shops on one floor of Decks — a warm-up for Dotonbori. Same building as Joypolis.",
-    book:"Walk in", maps:"Odaiba Takoyaki Museum Decks" },
+    desc:"Not a museum — a food court on the 4th floor of DECKS where several famous Osaka <b>takoyaki</b> shops compete side by side. The perfect warm-up for Dotonbori, in the same building as Joypolis.",
+    book:"Walk in", maps:"Odaiba Takoyaki Museum Decks",
+    deep: { count:"4–5 shops", hours:"~11:00–21:00, same as the DECKS mall",
+      ticket:"Free to enter, pay each shop separately. No booking — it's a food court with shared seating.",
+      free:true,
+      when:"Indoors and air-conditioned, so it's a safe bet on a brutally hot or rainy Odaiba day.",
+      eat:[
+        { n:"Aizuya", jp:"会津屋", w:"The shop that invented takoyaki in 1935 — theirs is seasoned in the batter and served with no sauce at all. Order this first as a baseline.", p:"~¥500" },
+        { n:"Kukuru", jp:"くくる", w:"The opposite extreme: huge octopus chunks, heavy sauce and mayo, mountain of bonito flakes.", p:"~¥600" },
+        { n:"Acchichi Honpo", jp:"あっちち本舗", w:"Crisp outside, almost liquid inside — the molten style. Genuinely mouth-scalding, hence the name.", p:"~¥600" },
+        { n:"Rotating guest shops", jp:"", w:"The line-up changes every few years, so expect one or two names not on this list.", p:"¥500–700" },
+      ],
+      how:"<b>The point:</b> buy one tray from two or three different shops and compare — sauce-less original against modern loaded style. <b>Warning for the little brother:</b> the centre is molten for a good minute or two. Let each ball sit before biting." } },
   { area:"Odaiba", name:"bills Odaiba", jp:"ビルズ お台場", tags:["book","sweet"], price:"¥¥¥",
     desc:"The famous <b>ricotta pancakes</b> with a Rainbow Bridge view — proper sit-down break in the middle of the arcade day.",
     book:"Book online 2–3 days ahead", maps:"bills Odaiba Decks Tokyo Beach" },
 
   /* --- Azabudai / Tokyo Station --- */
   { area:"Azabudai", name:"Azabudai Hills Market", jp:"麻布台ヒルズ マーケット", tags:[], price:"¥¥",
-    desc:"Polished <b>food hall</b> in the same complex as teamLab — sushi, wagyu sandos, bakeries. Eat here right after your slot.",
-    book:"Walk in", maps:"Azabudai Hills Market" },
+    desc:"A polished modern <b>food hall</b> on the ground floor of the same complex as teamLab — fishmongers, butchers, bakeries and counters all with eat-in seating. Walk out of the exhibition and straight into lunch.",
+    book:"Walk in", maps:"Azabudai Hills Market",
+    deep: { count:"~30 shops", hours:"~11:00–20:00, counters vary",
+      ticket:"No booking for the market itself. teamLab Borderless upstairs is the opposite — strictly timed tickets bought in advance, and August slots go early, so lock that in before anything else.",
+      when:"Built for exactly this: a cool, indoor place to land after 3 hours in a dark exhibition.",
+      eat:[
+        { n:"Sushi & seafood counters", jp:"鮨・鮮魚", w:"Fishmongers who will slice a plate for you to eat right there — better value than a sit-down sushi restaurant in this district.", p:"¥1,500–3,500" },
+        { n:"Wagyu sando", jp:"和牛サンド", w:"Beef cutlet in white bread, cut into neat squares. Expensive, absurd, and very good. Dad pick.", p:"¥1,500–3,000" },
+        { n:"Bakeries", jp:"ベーカリー", w:"Azabudai's bakery counters are a destination in their own right — pastries, melon pan, filled breads.", p:"¥300–800" },
+        { n:"Ramen & noodle counters", jp:"麺類", w:"A quick bowl if the group wants something hot and familiar without a queue.", p:"¥1,000–1,600" },
+      ],
+      how:"<b>How it works:</b> buy from whichever counters you like and share a table — everyone can eat something different, which is the easiest way to feed four people with different appetites. <b>Note:</b> this is a high-end district, so expect prices roughly double a neighbourhood shop." } },
   { area:"Azabudai", name:"Rokurinsha", jp:"六厘舎", tags:["must"], price:"¥",
     desc:"The shop that made <b>tsukemen</b> (dipping ramen) famous — thick chewy noodles, intense broth. On Tokyo Station's Ramen Street; pair with Character Street on the last-day shinkansen shuffle.",
     book:"Queue 30–45 min", maps:"Rokurinsha Tokyo Station Ramen Street" },
@@ -827,8 +939,20 @@ const FOOD = [
     desc:"The <b>jiggly cheesecake</b>, rung out of the oven with a bell — a whole fresh cake is ~¥1,000. Buy one, four forks, hotel picnic.",
     book:"Queue for fresh-from-oven", maps:"Rikuro Ojisan Namba Honten" },
   { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must","meat"], price:"¥¥",
-    desc:"Namba's covered market, 10 min from Dotonbori: <b>wagyu skewers, grilled scallops, uni, fresh fruit</b>. Best as a grazing breakfast/brunch before a day trip.",
-    book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka" },
+    desc:"A 580 m covered arcade known as \"Osaka's kitchen\" — 6 minutes from your hotel. Stalls grill <b>A5 wagyu skewers, scallops, king crab and uni</b> to eat on the spot. The best grazing brunch of the trip.",
+    book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka",
+    deep: { count:"~150 shops", hours:"9:00–18:00, many winding down by 17:00. Busiest 10:00–15:00",
+      ticket:"No booking, no entry fee. Carry cash — and note prices here are tourist-facing, so it's pricier than it looks.",
+      free:true,
+      when:"Open daily, though a few shops close Sundays. Perfect for the mornings before your Nara or Kyoto day trips.",
+      eat:[
+        { n:"Wagyu skewer stalls", jp:"和牛串", w:"A5 beef grilled in front of you; a couple of stalls also do wagyu sushi seared with a blowtorch. Dad's stop.", p:"¥800–2,500" },
+        { n:"Kurogin", jp:"まぐろ屋黒銀", w:"Tuna specialist — fatty otoro sashimi and tuna rice bowls cut to order.", p:"¥1,000–2,500" },
+        { n:"Sanpei", jp:"黒門三平", w:"The big seafood hall: grilled scallops, oysters, crab legs, uni in the shell, with an eat-in counter upstairs.", p:"¥500–3,000" },
+        { n:"Tempura & croquette stands", jp:"天ぷら・コロッケ", w:"Fried-to-order prawn tempura and potato croquettes for about ¥150 — the cheap filler.", p:"¥120–400" },
+        { n:"Fruit stalls", jp:"果物", w:"Musk melon, peaches and strawberries by the cup, plus fresh juices. Worth it in the August heat.", p:"¥400–1,000" },
+      ],
+      how:"<b>Etiquette:</b> stalls expect you to eat right there at their counter — walking off down the arcade with food is frowned on, and most stalls have a bin for your skewers. <b>Tip:</b> prices are rarely displayed per-100g clearly, so point and ask before they cut, especially for crab and otoro." } },
   { area:"Dotonbori", name:"Jiyuken", jp:"自由軒 難波本店", tags:[], price:"¥",
     desc:"Since 1910 and 3 minutes from the hotel: the <b>meibutsu curry</b> — curried rice mixed through with minced beef, served with a raw egg on top to stir in. Retro Osaka in a bowl.",
     book:"Walk in · closed Mon", maps:"Jiyuken Namba Honten" },
@@ -850,8 +974,20 @@ const FOOD = [
     desc:"Umeda's standing-room <b>takoyaki</b> champion — order the <b>negi-mayo</b> (buried in green onion). Steps from Osaka station.",
     book:"Short queue", maps:"Hanadako Umeda" },
   { area:"Umeda", name:"Naniwa Kuishinbo Yokocho", jp:"なにわ食いしんぼ横丁", tags:["street","kid"], price:"¥",
-    desc:"Retro 1960s <b>food alley</b> inside Tempozan Marketplace, right next to the aquarium — takoyaki, omurice, kushikatsu without leaving the building.",
-    book:"Walk in", maps:"Naniwa Kuishinbo Yokocho Tempozan" },
+    desc:"A food alley built as a replica of 1965 Osaka — wooden shopfronts, old film posters, retro signage — inside Tempozan Marketplace, right beside the aquarium. Every Osaka classic in one air-conditioned lane.",
+    book:"Walk in", maps:"Naniwa Kuishinbo Yokocho Tempozan",
+    deep: { count:"~20 stalls", hours:"~11:00–20:00, shops vary",
+      ticket:"Free to walk in, pay per stall, no booking. The aquarium next door is the one to book — Kaiyukan uses timed-entry tickets and August is peak season, so buy those online before the day.",
+      free:true,
+      when:"Exactly where to eat on the Block 8 bay day — you can do aquarium, ferris wheel and lunch without stepping outside into the heat.",
+      eat:[
+        { n:"Takoyaki counters", jp:"たこ焼き", w:"Several competing stalls; this is the cheapest place to try the Osaka original if you skipped Dotonbori.", p:"¥400–600" },
+        { n:"Okonomiyaki & modan-yaki", jp:"お好み焼き", w:"Griddle counters where you sit at the teppan — modan-yaki adds a nest of fried noodles inside.", p:"¥800–1,200" },
+        { n:"Kushikatsu", jp:"串カツ", w:"Deep-fried skewers, same no-double-dipping rule as Daruma.", p:"¥150–250 a skewer" },
+        { n:"Doteyaki", jp:"どて焼き", w:"Beef sinew slow-stewed in sweet miso — a proper old-Osaka dish you won't see on tourist menus. Dad pick.", p:"¥400–700" },
+        { n:"Omurice", jp:"オムライス", w:"Ketchup rice under a soft omelette — the safest order for the little brother.", p:"¥800–1,100" },
+      ],
+      how:"<b>Tip:</b> the whole alley is a photo set as much as a food court — the shopfronts are dressed to look like the year of the 1970 Osaka Expo. Do a full lap before choosing; several stalls sell the same thing at different prices." } },
 
   /* --- USJ --- */
   { area:"USJ", name:"Kinopio's Cafe", jp:"キノピオ・カフェ", tags:["kid","must"], price:"¥¥",
@@ -863,8 +999,20 @@ const FOOD = [
 
   /* --- Kyoto --- */
   { area:"Kyoto", name:"Fushimi Inari street stalls", jp:"伏見稲荷 参道グルメ", tags:["street"], price:"¥",
-    desc:"Before the torii climb: <b>inari-zushi</b> (sweet fried-tofu sushi, the fox's favorite), yakitori, and taiyaki along the approach road.",
-    book:"Morning graze", maps:"Fushimi Inari Sando street food" },
+    desc:"The approach road to the shrine is lined with stalls, and the food here is themed to the fox spirits the shrine is dedicated to. Eat before the torii climb, or reward yourselves after.",
+    book:"Morning graze", maps:"Fushimi Inari Sando street food",
+    deep: { count:"~30 stalls along the approach", hours:"Stalls ~9:00–17:00; the shrine itself is open 24 hours",
+      ticket:"The shrine is free and needs no ticket or booking — one of the few major sights in Kyoto that doesn't.",
+      free:true,
+      when:"Mom's plan says start early, and she's right for the gates — but stalls don't open until about 9:00. Climb first from 7:00–8:00 while it's cool and empty, then eat on the way down.",
+      eat:[
+        { n:"Inari-zushi", jp:"いなり寿司", w:"Sushi rice in a pouch of sweet fried tofu — said to be the fox's favourite food, which is why it's everywhere here. Kyoto's version adds sesame and hemp seed.", p:"¥150–300 ea" },
+        { n:"Kitsune udon", jp:"きつねうどん", w:"\"Fox udon\" — the same sweet fried tofu floating on hot noodles. A proper sit-down for about ¥700.", p:"~¥700" },
+        { n:"Grilled sparrow & quail", jp:"すずめ・うずら", w:"The shrine's oldest and strangest specialty, grilled whole on a skewer. Historic rather than delicious — but a real one.", p:"¥500–1,000" },
+        { n:"Taiyaki & dango", jp:"たい焼き・団子", w:"Fish-shaped cakes filled with red bean or custard, and grilled rice dumplings in sweet soy glaze.", p:"¥200–400" },
+        { n:"Matcha soft serve", jp:"抹茶ソフト", w:"The correct move after the climb in August heat.", p:"¥400–500" },
+      ],
+      how:"<b>Fair warning on the sparrow:</b> it's served whole, head included, and your little brother will either love it or be horrified — worth deciding before you walk past the grill. <b>On the climb:</b> the full loop to the summit takes 2–3 hours, but the dense, photogenic gate tunnels are in the first 30 minutes. Turning back at the Yotsutsuji viewpoint (about 45 min up) is a perfectly good plan with a family." } },
   { area:"Kyoto", name:"Yoshimura", jp:"嵐山よしむら", tags:["must"], price:"¥¥",
     desc:"Handmade <b>soba</b> with a window view of Togetsukyō bridge — the civilized Arashiyama lunch. Tempura-soba sets ~¥1,600.",
     book:"Queue at lunch — arrive by 11:30", maps:"Arashiyama Yoshimura soba" },
@@ -929,6 +1077,25 @@ function badge(f) {
   else if (f.book) out.push(`<span class="badge b-plain">${f.book}</span>`);
   return out.join("");
 }
+function deepHTML(f) {
+  const d = f.deep;
+  if (!d) return "";
+  const line = (k, v, cls) => v ? `<div class="dline ${cls || ""}"><span class="dk">${k}</span><span class="dv">${v}</span></div>` : "";
+  return `<details class="deep">
+    <summary>What to eat here <span class="cnt">· ${d.count}</span></summary>
+    <div class="deepbody">
+      ${line("Booking", d.ticket, "book" + (d.free ? " free" : ""))}
+      ${line("Hours", d.hours)}
+      ${line("Best day", d.when)}
+      <ul class="dstalls">${d.eat.map(s => `<li>
+        <span class="sn">${s.n}</span>${s.jp ? ` <span class="sj">${s.jp}</span>` : ""}
+        <span class="sp">· ${s.p}</span><br>${s.w}
+      </li>`).join("")}</ul>
+      ${d.how ? `<p class="dhow">${d.how}</p>` : ""}
+    </div>
+  </details>`;
+}
+
 function matches(f, areaCity) {
   if (cityFilter !== "all" && areaCity !== cityFilter) return false;
   for (const t of tagFilters) if (!f.tags.includes(t)) return false;
@@ -956,6 +1123,7 @@ function render() {
         </div>
         <div class="rmeta">${badge(f)}</div>
         <p class="rdesc">${f.desc}</p>
+        ${deepHTML(f)}
         <div class="rfoot">
           <span class="yen">${f.price}</span>
           <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a>
@@ -1044,7 +1212,8 @@ const COORDS = {
   "Jiyuken":[34.6653,135.5013], "Fukutaro":[34.6650,135.5068], "Dotonbori Imai":[34.6689,135.5019],
   "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
   "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
-  "Marion Crêpes":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
+  "Marion Crêpes & Takeshita St":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
+  "Nakamise Street snacks":[35.7128,139.7965],
   "Tonkatsu Maisen":[35.6670,139.7105], "Odaiba Takoyaki Museum":[35.6288,139.7746],
   "bills Odaiba":[35.6291,139.7740], "Azabudai Hills Market":[35.6605,139.7398],
   "Rokurinsha":[35.6796,139.7669],
@@ -1281,6 +1450,7 @@ function showDetail(f) {
     </div>
     <div class="rmeta">${badge(f)}</div>
     <p class="rdesc">${f.desc}</p>
+    ${deepHTML(f)}
     <div class="rfoot">
       <span class="yen">${f.price}</span>
       <span>
