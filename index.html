@@ -366,6 +366,50 @@
   }
   .hchip .wmin { font-weight: 400; opacity: .85; }
   .hmaps { font-size: 12.5px; font-weight: 600; }
+  /* ---------- smart ask ---------- */
+  .chiprow.examples { gap: 6px; }
+  .exchip {
+    font-size: 12px; padding: 5px 11px; border-radius: 999px;
+    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft);
+  }
+  .exchip:hover { border-style: solid; color: var(--noren); border-color: var(--noren); }
+  .answer {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--shu);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 15px 17px; margin-bottom: 26px;
+  }
+  .answer h3 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 17px; font-weight: 600; margin: 0 0 3px;
+  }
+  .answer .read {
+    font-size: 12.5px; color: var(--ink-soft); margin: 0 0 12px;
+    display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+  }
+  .answer .rd {
+    background: var(--noren-soft); color: var(--noren); font-weight: 600;
+    padding: 2px 8px; border-radius: 5px; font-size: 11.5px;
+  }
+  .ansrow {
+    display: flex; gap: 11px; align-items: baseline; flex-wrap: wrap;
+    padding: 10px 0; border-top: 1px solid var(--line);
+  }
+  .ansrow .rank {
+    font-variant-numeric: tabular-nums; color: var(--ink-soft);
+    font-size: 12px; font-weight: 700; flex: 0 0 16px;
+  }
+  .ansrow .an { font-weight: 600; }
+  .ansrow .aj { color: var(--ink-soft); font-size: 12.5px; }
+  .ansrow .ameta {
+    flex-basis: 100%; padding-left: 27px; font-size: 12.5px; color: var(--ink-soft);
+    display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+  }
+  .ansrow .ameta b { color: var(--noren); }
+  .ansrow .why {
+    font-size: 11px; background: var(--shu-soft); color: var(--shu);
+    padding: 1px 7px; border-radius: 4px; font-weight: 600;
+  }
+  .answer .none { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+
   .nearwrap { margin-bottom: 26px; }
   .nearrow {
     display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
@@ -418,7 +462,15 @@
         <button class="chip" id="nearBtn" aria-pressed="false">📍 Food near me</button>
         <span class="locmsg" id="nearMsg" hidden></span>
       </div>
-      <input id="search" type="search" placeholder="Search a dish, place, or area…" aria-label="Search restaurants">
+      <input id="search" type="search" placeholder="Ask: cheap ramen near me · meat for dad · rainy day in Osaka" aria-label="Ask about food">
+      <div class="chiprow examples" id="askExamples">
+        <button class="exchip" data-ask="cheap ramen near me">cheap ramen near me</button>
+        <button class="exchip" data-ask="meat for dad tonight">meat for dad</button>
+        <button class="exchip" data-ask="something fun for my little brother">for my brother</button>
+        <button class="exchip" data-ask="open today">open today</button>
+        <button class="exchip" data-ask="best street food in osaka">street food in Osaka</button>
+        <button class="exchip" data-ask="dessert near me">dessert near me</button>
+      </div>
       <div class="chiprow" id="cityChips" role="group" aria-label="Filter by city">
         <button class="chip" data-city="all" aria-pressed="true">All</button>
         <button class="chip" data-city="tokyo" aria-pressed="false">Tokyo</button>
@@ -727,7 +779,7 @@ const AREAS = [
 
 const FOOD = [
   /* --- Tsukiji / Ginza --- */
-  { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥",
+  { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥", closed:["Sun","Wed"],
     desc:"Four narrow lanes of stalls that fed Tokyo's fish trade for 80 years. Graze standing up: <b>tamagoyaki on a stick, grilled scallops, tuna skewers, fruit</b>. Go 8:00–10:00, before the heat and the crowds.",
     book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo",
     deep: { count:"~400 shops", hours:"Most stalls 6:00–14:00 — by 15:00 it's shuttered",
@@ -765,6 +817,9 @@ const FOOD = [
   { area:"Tsukiji", name:"Ginza Kagari", jp:"銀座 篝", tags:["must"], price:"¥¥",
     desc:"Michelin-listed <b>tori-paitan ramen</b> — silky chicken broth that even non-ramen people rave about. 15 min walk from the hotel.",
     book:"Queue ~30–60 min", maps:"Ginza Kagari ramen" },
+  { area:"Tsukiji", name:"Ginza Hachigou", jp:"銀座 八五", tags:["must"], price:"¥¥",
+    desc:"A Michelin-starred bowl from a former French chef: a clear, golden <b>chicken-and-duck broth</b> closer to consommé than to ordinary ramen — famously made with no soy sauce at all. The most refined bowl in this guide, 20 min from the hotel.",
+    book:"Queue · sold out by early afternoon", maps:"Ginza Hachigou ramen" },
   { area:"Tsukiji", name:"Kura Sushi Ginza", jp:"くら寿司 銀座", tags:["kid","book"], price:"¥",
     desc:"Conveyor sushi where every 5 plates plays the <b>Bikkura-Pon capsule game</b> — little-brother heaven, ¥115 a plate, order by tablet in English.",
     book:"Queue ticket via app, same day", maps:"Kura Sushi Ginza" },
@@ -803,6 +858,9 @@ const FOOD = [
   { area:"Asakusa", name:"Daikokuya Tempura", jp:"大黒家天麩羅", tags:["must"], price:"¥¥",
     desc:"Frying <b>tendon</b> (tempura on rice, dark sweet sauce) since 1887, in a beautiful old building near the temple. The one sit-down worth the Asakusa queue.",
     book:"Queue ~30 min · lunch", maps:"Daikokuya Tempura Asakusa" },
+  { area:"Asakusa", name:"Yoroiya", jp:"与ろゐ屋", tags:[], price:"¥",
+    desc:"Old-school <b>Tokyo shoyu ramen</b> two minutes off Nakamise — clear brown soy broth, curly noodles, bamboo and a slice of chashu. This is what ramen tasted like before tonkotsu took over, and it's the right bowl after the temple.",
+    book:"Short queue", maps:"Yoroiya ramen Asakusa" },
   { area:"Asakusa", name:"Kagetsudo", jp:"花月堂", tags:["street","sweet","kid"], price:"¥",
     desc:"<b>Jumbo melon-pan</b> — crackly-sweet giant bun, best eaten warm. Get the ice-cream-stuffed one in the August heat.",
     book:"Walk up", maps:"Kagetsudo melon pan Asakusa" },
@@ -823,6 +881,12 @@ const FOOD = [
   { area:"Akihabara", name:"Go!Go!Curry", jp:"ゴーゴーカレー", tags:["kid","meat"], price:"¥",
     desc:"Thick, dark Kanazawa-style <b>katsu curry</b> served on a steel plate — gamer fuel between Yodobashi and Super Potato. Portions named after baseball.",
     book:"Walk in", maps:"Go Go Curry Akihabara" },
+  { area:"Akihabara", name:"Kikanbo", jp:"鬼金棒", tags:[], price:"¥",
+    desc:"Demon-themed <b>karashibi miso ramen</b>, 10 min from the arcades: you pick your own level of <i>kara</i> (chilli heat) and <i>shibi</i> (the tingling numbness of Sichuan pepper). Order both \"normal\" the first time — the higher levels are not a joke.",
+    book:"Queue 20–40 min", maps:"Kikanbo Kanda ramen" },
+  { area:"Akihabara", name:"Nakiryu", jp:"鳴龍", tags:["must"], price:"¥",
+    desc:"One of only a handful of ramen shops in the world with a <b>Michelin star</b> — the draw is <b>tantanmen</b>, sesame and chilli noodles with an oily, nutty depth. Near Ikebukuro, so it pairs with the Pokémon Center afternoon.",
+    book:"Queue 45–90 min · go at opening", maps:"Nakiryu ramen Otsuka" },
   { area:"Akihabara", name:"Yakiniku Like", jp:"焼肉ライク 秋葉原", tags:["meat","kid"], price:"¥",
     desc:"Fast-casual <b>yakiniku</b> where every seat gets its own personal grill — order a wagyu or karubi set on the tablet and cook it yourself in minutes. Dad gets beef, the little brother gets fire (supervised), everyone's out in 40 minutes.",
     book:"Walk in · short queue", maps:"Yakiniku Like Akihabara" },
@@ -854,6 +918,9 @@ const FOOD = [
   { area:"Shibuya", name:"Ichiran", jp:"一蘭", tags:["kid"], price:"¥",
     desc:"Tonkotsu ramen in <b>solo booths</b> — order by ticket machine, customize on paper, the bowl appears through a curtain. The ritual is half the fun.",
     book:"Queue · open late", maps:"Ichiran Shibuya" },
+  { area:"Shibuya", name:"Tokyo Abura-gumi", jp:"東京油組総本店", tags:["kid"], price:"¥",
+    desc:"<b>Abura soba</b> — ramen with no soup at all. Thick noodles sit on tare and oil at the bottom of the bowl; you add vinegar and chilli oil, then mix hard for 20 seconds before eating. Cheap, fast, and a genuinely different noodle.",
+    book:"Walk in · fast", maps:"Tokyo Abura Gumi Souhonten Shibuya" },
   { area:"Shibuya", name:"Afuri", jp:"阿夫利", tags:[], price:"¥",
     desc:"Light, citrusy <b>yuzu shio ramen</b> — the right bowl for a 35° day, right by Harajuku station.",
     book:"Short queue", maps:"Afuri Harajuku" },
@@ -926,6 +993,12 @@ const FOOD = [
   { area:"Dotonbori", name:"Daruma", jp:"だるま 道頓堀店", tags:["meat"], price:"¥¥",
     desc:"<b>Kushikatsu</b> — everything breaded, fried, on sticks. House rule the kids will enforce: <b>no double-dipping</b> in the communal sauce.",
     book:"Queue ~20–30 min", maps:"Kushikatsu Daruma Dotonbori" },
+  { area:"Dotonbori", name:"Kamukura", jp:"神座 道頓堀店", tags:["kid"], price:"¥",
+    desc:"Osaka's own comfort bowl, and the city's answer to \"ramen but lighter\": a clear, faintly sweet <b>shoyu broth piled with softened cabbage</b>. Non-ramen people usually like this one. Open late, so it's the post-Dotonbori-neon bowl.",
+    book:"Short queue · open late", maps:"Kamukura Dotonbori ramen" },
+  { area:"Dotonbori", name:"Kinryu Ramen", jp:"金龍ラーメン", tags:["street","kid"], price:"¥",
+    desc:"The giant green dragon on the Dotonbori strip. <b>Tonkotsu ramen around the clock</b>, eaten cross-legged on a raised tatami platform with free kimchi and garlic chives you pile on yourself. More landmark than fine dining — and open 24 hours.",
+    book:"Walk up · open 24 h", maps:"Kinryu Ramen Dotonbori" },
   { area:"Dotonbori", name:"Kani Doraku Honten", jp:"かに道楽 本店", tags:["book"], price:"¥¥¥¥",
     desc:"Under the giant moving crab: a full <b>crab dinner</b> — sashimi, grilled, hotpot. The one fancy family dinner of the Osaka week.",
     book:"Book 3–5 days ahead", maps:"Kani Doraku Honten Dotonbori" },
@@ -1019,6 +1092,9 @@ const FOOD = [
   { area:"Kyoto", name:"% Arabica Arashiyama", jp:"アラビカ京都 嵐山", tags:["street","sweet"], price:"¥",
     desc:"Cult <b>latte</b> with a riverside view — the queue moves. Grab dango or a croquette from the main-street stalls while you wait.",
     book:"Queue ~20 min", maps:"%25 Arabica Kyoto Arashiyama" },
+  { area:"Kyoto", name:"Honke Daiichi-Asahi", jp:"本家第一旭", tags:["must"], price:"¥",
+    desc:"<b>Kyoto-style ramen</b> beside Kyoto Station and a world away from Tokyo's: dark soy broth enriched with pork back-fat, buried under sliced chashu and a haystack of green onion. Opens early enough to be breakfast, and there is always a queue.",
+    book:"Queue 20–40 min · opens early", maps:"Honke Daiichi Asahi ramen Kyoto" },
   { area:"Kyoto", name:"Katsukura", jp:"名代とんかつ かつくら", tags:["kid","meat"], price:"¥¥",
     desc:"Kyoto's <b>tonkatsu</b> chain done right — grind your own sesame for the sauce, free rice/cabbage refills. In Kyoto Station: zero-effort dinner before the train back.",
     book:"Short queue", maps:"Katsukura Kyoto Station" },
@@ -1060,10 +1136,16 @@ const eaten = new Set(JSON.parse(localStorage.getItem("jp-eaten") || "[]"));
 let cityFilter = "all";
 const tagFilters = new Set();
 let query = "";
+let ASK = null, askLocating = false;
 let nearMode = false, userLL = null;
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-FOOD.forEach(f => f.id = slug(f.name));
+FOOD.forEach(f => {
+  f.id = slug(f.name);
+  f._blob = (f.name + " " + f.jp + " " + f.desc + " " + f.area + " " + (f.book || "") + " " +
+    (f.deep ? f.deep.eat.map(s => s.n + " " + s.w).join(" ") + " " + (f.deep.how || "") : ""))
+    .replace(/<[^>]+>/g, " ").toLowerCase();
+});
 
 /* ================= RENDER ================= */
 const list = document.getElementById("foodList");
@@ -1096,17 +1178,181 @@ function deepHTML(f) {
   </details>`;
 }
 
+/* ================= SMART ASK ================= */
+const DISH = [
+  { id:"ramen", label:"ramen", q:["ramen","noodle","noodles","tsukemen","tonkotsu","tantanmen","abura soba","shoyu"], re:/ramen|tsukemen|tantanmen|abura soba/ },
+  { id:"sushi", label:"sushi & seafood", q:["sushi","sashimi","nigiri","fish","seafood","tuna","otoro","uni","raw fish"], re:/sushi|sashimi|nigiri|tuna|otoro|seafood|uni |scallop|fish/ },
+  { id:"crab", label:"crab", q:["crab"], re:/crab/ },
+  { id:"takoyaki", label:"takoyaki", q:["takoyaki","octopus"], re:/takoyaki|octopus/ },
+  { id:"okonomiyaki", label:"okonomiyaki", q:["okonomiyaki","monja","monjayaki","negiyaki"], re:/okonomiyaki|monja|negiyaki|modan/ },
+  { id:"katsu", label:"katsu", q:["katsu","tonkatsu","gyukatsu","cutlet","fried pork"], re:/katsu/ },
+  { id:"beef", label:"beef & yakiniku", q:["yakiniku","bbq","barbecue","beef","wagyu","steak","grill"], re:/yakiniku|wagyu|beef|matsusaka|gyukatsu/ },
+  { id:"curry", label:"curry", q:["curry"], re:/curry/ },
+  { id:"tempura", label:"tempura", q:["tempura","tendon"], re:/tempura|tendon/ },
+  { id:"udon", label:"udon & soba", q:["udon","soba","noodle","noodles"], re:/udon|soba/ },
+  { id:"gyoza", label:"gyoza", q:["gyoza","dumpling","dumplings"], re:/gyoza/ },
+  { id:"skewer", label:"skewers", q:["yakitori","skewer","skewers","kushikatsu"], re:/yakitori|kushikatsu|skewer/ },
+  { id:"sweet", label:"sweets", q:["dessert","desserts","sweet","sweets","cake","ice cream","gelato","crepe","crepes","mochi","matcha","cheesecake","pancakes"],
+    test:f => f.tags.includes("sweet") || /gelato|crepe|mochi|cheesecake|pancake|dessert|soft serve|ice cream|daifuku|taiyaki|dango|melon.?pan|matcha/.test(f._blob) },
+  { id:"coffee", label:"coffee", q:["coffee","espresso","latte","cafe"], re:/coffee|latte|espresso/ },
+  { id:"omurice", label:"omurice", q:["omurice","omelette","omelet"], re:/omurice|omelette/ },
+  { id:"onigiri", label:"rice balls", q:["onigiri","rice ball","rice balls"], re:/onigiri/ },
+];
+const MODS = [
+  { id:"cheap", label:"cheap", q:["cheap","budget","affordable","inexpensive","casual"], test:f => f.price === "¥" },
+  { id:"splurge", label:"a splurge", q:["splurge","fancy","expensive","upscale","celebration","treat"], test:f => f.price.length >= 3 },
+  { id:"meat", label:"Dad picks", q:["dad","father","meat","carnivore","meaty"], test:f => f.tags.includes("meat") },
+  { id:"kid", label:"little-brother picks", q:["brother","kid","kids","child","children","fun","playful"], test:f => f.tags.includes("kid") },
+  { id:"must", label:"must-eats", q:["best","must","top","famous","iconic","essential","highlight"], test:f => f.tags.includes("must") },
+  { id:"book", label:"needs booking", q:["book","booking","reserve","reservation","reservations"], test:f => f.tags.includes("book") },
+  { id:"street", label:"street food", q:["street food","stall","stalls","market","grazing","standing"], test:f => f.tags.includes("street") },
+  { id:"quick", label:"no long queue", q:["quick","fast","hurry","rush","quickly"], test:f => !/queue\s*(3\d|4\d|5\d|6\d|9\d|1\s*h|up to)/i.test(f.book || "") },
+  { id:"late", label:"open late", q:["late","midnight","24 h","24 hours"], test:f => /24\s*h|open late|late/i.test(f.book || "") },
+  { id:"morning", label:"morning", q:["breakfast","morning","early"], test:f => /morning|opens early|breakfast/i.test((f.book || "") + " " + f._blob) },
+  { id:"indoor", label:"indoor / rainy-day", q:["rain","rainy","indoor","indoors","aircon","covered","shelter"],
+    test:f => /arcade|indoor|covered|mall|food hall|food court|inside|floor of|decks|basement|station/i.test(f._blob) },
+];
+const AREA_WORDS = [
+  { q:["shibuya","harajuku","omotesando","takeshita"], area:"Shibuya" },
+  { q:["asakusa","sensoji","nakamise"], area:"Asakusa" },
+  { q:["akihabara","akiba","ikebukuro","kanda"], area:"Akihabara" },
+  { q:["odaiba"], area:"Odaiba" },
+  { q:["ginza","tsukiji","nihonbashi","kyobashi","tsukishima"], area:"Tsukiji" },
+  { q:["azabudai","teamlab","tokyo station"], area:"Azabudai" },
+  { q:["dotonbori","namba","kuromon","shinsaibashi"], area:"Dotonbori" },
+  { q:["umeda","tempozan","kaiyukan"], area:"Umeda" },
+  { q:["universal","usj","nintendo"], area:"USJ" },
+  { q:["arashiyama","fushimi","inari"], area:"Kyoto" },
+];
+const CITY_WORDS = [
+  { q:["tokyo"], city:"tokyo" }, { q:["osaka"], city:"osaka" },
+  { q:["kyoto"], city:"kyoto" }, { q:["nara"], city:"nara" },
+];
+const AREA_CITY = Object.fromEntries(AREAS.map(a => [a.id, a.city]));
+const NEAR_ME = ["near me","nearby","closest","close to me","around me","near here","walking distance"];
+const NEAR_HOTEL = ["hotel","near the hotel","from the hotel"];
+const TODAY_W = ["open today","today","open now","right now","tonight"];
+const STOP = new Set(("a an the for to in at on of and or me my we us i is are some something anything " +
+  "want find good place places spot spots food eat get near close around with that this can where what " +
+  "show give recommend suggest go going lets let's please any there here it's its " +
+  "little big really very nice great bit thing things option options idea ideas choice choices " +
+  "day days time meal meals dinner lunch supper brunch snack somewhere anywhere area " +
+  "should would could will need needs have has had they them our your you not but out one two").split(" "));
+
+const DAYS3 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function closedToday(f) {
+  const d = DAYS3[new Date().getDay()].toLowerCase();
+  if (f.closed && f.closed.some(x => x.toLowerCase() === d)) return true;
+  const m = (f.book || "").match(/closed\s+(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/i);
+  return !!m && m[1].toLowerCase() === d;
+}
+
+const dishHit = (d, f) => d.test ? d.test(f) : d.re.test(f._blob);
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function parseAsk(raw) {
+  const q = (raw || "").toLowerCase().trim();
+  if (!q) return null;
+  const has = p => new RegExp("(^|[^a-z0-9])" + esc(p) + "([^a-z0-9]|$)", "i").test(q);
+  const dishes = DISH.filter(d => d.q.some(has));
+  const mods = MODS.filter(m => m.q.some(has));
+  const place = AREA_WORDS.find(a => a.q.some(has));
+  const city = CITY_WORDS.find(c => c.q.some(has));
+  const nearMe = NEAR_ME.some(has);
+  const nearHotel = !nearMe && NEAR_HOTEL.some(has);
+  const openToday = TODAY_W.some(has);
+  const known = new Set();
+  [...DISH, ...MODS].forEach(g => g.q.forEach(w => w.split(" ").forEach(x => known.add(x))));
+  [...AREA_WORDS, ...CITY_WORDS].forEach(g => g.q.forEach(w => w.split(" ").forEach(x => known.add(x))));
+  [...NEAR_ME, ...NEAR_HOTEL, ...TODAY_W].forEach(w => w.split(" ").forEach(x => known.add(x)));
+  const free = q.split(/[^a-z0-9']+/).filter(w => w.length > 2 && !STOP.has(w) && !known.has(w));
+  const hasIntent = !!(dishes.length || mods.length || place || city || nearMe || nearHotel || openToday);
+  return { q, dishes, mods, place, city, nearMe, nearHotel, openToday, free, hasIntent };
+}
+
+function askMatch(f) {
+  if (ASK.place && f.area !== ASK.place.area) return false;
+  if (ASK.city && AREA_CITY[f.area] !== ASK.city.city) return false;
+  if (ASK.dishes.length && !ASK.dishes.some(d => dishHit(d, f))) return false;
+  for (const m of ASK.mods) if (!m.test(f)) return false;
+  if (ASK.openToday && closedToday(f)) return false;
+  if (ASK.free.length && !ASK.free.some(w => f._blob.includes(w))) return false;
+  return true;
+}
+function askScore(f) {
+  let s = f.tags.includes("must") ? 2 : 0;
+  for (const d of ASK.dishes) if (dishHit(d, f)) s += 8;
+  s += ASK.mods.length * 4;
+  for (const w of ASK.free) {
+    if (f.name.toLowerCase().includes(w)) s += 6;
+    else if (f._blob.includes(w)) s += 2;
+  }
+  return s;
+}
+function askOrigin() {
+  if (ASK.nearMe && userLL) return userLL;
+  if (ASK.nearHotel) return (HOTELS[ASK.city ? ASK.city.city : null] || currentHotel()).ll;
+  return null;
+}
+function currentHotel() {
+  const inOsaka = isTripMonth && today.getDate() >= 5 && today.getDate() <= 10;
+  return inOsaka ? HOTELS.osaka : HOTELS.tokyo;
+}
+
+function answerHTML() {
+  const origin = askOrigin();
+  let hits = FOOD.filter(askMatch).map(f => ({
+    f, s: askScore(f),
+    d: (origin && COORDS[f.name]) ? distM(origin, COORDS[f.name]) : null,
+  }));
+  hits.sort((a, b) => (origin && a.d != null && b.d != null) ? a.d - b.d : b.s - a.s || (a.d ?? 0) - (b.d ?? 0));
+  const top = hits.slice(0, 6);
+
+  const read = [];
+  ASK.dishes.forEach(d => read.push(d.label));
+  ASK.mods.forEach(m => read.push(m.label));
+  if (ASK.place) read.push(ASK.place.area === "Tsukiji" ? "Ginza / Tsukiji" : ASK.place.area);
+  else if (ASK.city) read.push(ASK.city.city[0].toUpperCase() + ASK.city.city.slice(1));
+  if (ASK.nearMe) read.push(userLL ? "near you" : "near you (locating…)");
+  if (ASK.nearHotel) read.push("near the hotel");
+  if (ASK.openToday) read.push("open today");
+  ASK.free.forEach(w => read.push(`“${w}”`));
+
+  let h = `<div class="answer"><h3>${top.length ? `${hits.length} spot${hits.length > 1 ? "s" : ""} match` : "No match"}</h3>
+    <p class="read">Read as: ${read.map(r => `<span class="rd">${r}</span>`).join("")}</p>`;
+  if (!top.length) {
+    h += `<p class="none">Nothing fits all of that. Try dropping a word — or tap one of the examples under the box.</p></div>`;
+    return h;
+  }
+  top.forEach(({ f, d }, i) => {
+    const why = [];
+    ASK.dishes.forEach(x => { if (dishHit(x, f)) why.push(x.label); });
+    ASK.mods.forEach(x => why.push(x.label));
+    h += `<div class="ansrow">
+      <span class="rank">${i + 1}</span>
+      <span class="an">${f.name}</span><span class="aj">${f.jp} · ${f.area === "USJ" ? "Universal" : f.area}</span>
+      <div class="ameta">
+        <span class="yen">${f.price}</span>
+        ${d != null ? `<span><b>${distStr(d)}</b>${walkStr(d)}</span>` : ""}
+        <span>${f.book || ""}</span>
+        ${why.slice(0, 3).map(w => `<span class="why">${w}</span>`).join("")}
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a>
+      </div>
+    </div>`;
+  });
+  if (ASK.openToday) h += `<p class="none" style="margin-top:11px">Only spots with a known closing day get filtered out — most shops here don't publish fixed hours, so check the map link before a long walk.</p>`;
+  return h + `</div>`;
+}
+
 function matches(f, areaCity) {
   if (cityFilter !== "all" && areaCity !== cityFilter) return false;
   for (const t of tagFilters) if (!f.tags.includes(t)) return false;
-  if (query) {
-    const hay = (f.name + " " + f.jp + " " + f.desc + " " + f.area).toLowerCase();
-    if (!hay.includes(query)) return false;
-  }
+  if (ASK && ASK.hasIntent) return askMatch(f);
+  if (query && !f._blob.includes(query)) return false;
   return true;
 }
 function render() {
   let html = "", shown = 0;
+  if (ASK && ASK.hasIntent) html += answerHTML();
   if (nearMode && userLL) html += nearSectionHTML();
   for (const a of AREAS) {
     const items = FOOD.filter(f => f.area === a.id && matches(f, a.city));
@@ -1167,7 +1413,19 @@ document.getElementById("tagChips").addEventListener("click", e => {
 });
 document.getElementById("search").addEventListener("input", e => {
   query = e.target.value.trim().toLowerCase();
+  ASK = parseAsk(e.target.value);
+  if (ASK && ASK.nearMe && !userLL && !askLocating) {
+    askLocating = true;
+    locate(() => { askLocating = false; render(); });
+  }
   render();
+});
+document.getElementById("askExamples").addEventListener("click", e => {
+  const c = e.target.closest(".exchip"); if (!c) return;
+  const box = document.getElementById("search");
+  box.value = c.dataset.ask;
+  box.dispatchEvent(new Event("input", { bubbles: true }));
+  box.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 /* tabs */
@@ -1186,7 +1444,7 @@ document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click"
   e.preventDefault();
   const target = a.dataset.jump;
   document.getElementById("tab-food").click();
-  cityFilter = "all"; tagFilters.clear(); query = "";
+  cityFilter = "all"; tagFilters.clear(); query = ""; ASK = null;
   document.getElementById("search").value = "";
   document.querySelectorAll("#cityChips .chip").forEach(x =>
     x.setAttribute("aria-pressed", x.dataset.city === "all" ? "true" : "false"));
@@ -1210,6 +1468,11 @@ const COORDS = {
   "Tsujihan":[35.6808,139.7742], "Taimeiken":[35.6818,139.7752],
   "Kaneko Hannosuke":[35.6850,139.7737], "Isehiro":[35.6768,139.7700],
   "Jiyuken":[34.6653,135.5013], "Fukutaro":[34.6650,135.5068], "Dotonbori Imai":[34.6689,135.5019],
+  "Ginza Hachigou":[35.6745,139.7665], "Yoroiya":[35.7125,139.7945],
+  "Kikanbo":[35.6950,139.7715], "Nakiryu":[35.7315,139.7285],
+  "Tokyo Abura-gumi":[35.6595,139.6985],
+  "Kamukura":[34.6687,135.5013], "Kinryu Ramen":[34.6684,135.5030],
+  "Honke Daiichi-Asahi":[34.9885,135.7600],
   "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
   "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
   "Marion Crêpes & Takeshita St":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
@@ -1660,7 +1923,7 @@ function hotelBlockHTML(city, dateLabel, advice, open) {
 })();
 document.getElementById("hotelBox").addEventListener("click", e => {
   const chip = e.target.closest("[data-goto]"); if (!chip) return;
-  cityFilter = "all"; tagFilters.clear(); query = ""; nearMode = false;
+  cityFilter = "all"; tagFilters.clear(); query = ""; ASK = null; nearMode = false;
   nearBtn.setAttribute("aria-pressed", "false");
   document.getElementById("search").value = "";
   document.querySelectorAll("#cityChips .chip").forEach(x =>
