@@ -1,0 +1,1940 @@
+<meta charset="utf-8">
+<title>Japan Food Atlas · Aug 2–13</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#C93A40">
+<style>
+  :root {
+    --paper: #F6F4EF;
+    --card: #FFFFFF;
+    --ink: #20283A;
+    --ink-soft: #5A6275;
+    --line: #E3DFD5;
+    --shu: #C93A40;          /* must-eat red */
+    --shu-soft: #F7E3E2;
+    --noren: #33567F;        /* interactive indigo */
+    --noren-soft: #E4EAF2;
+    --gold: #A8802F;         /* book-ahead */
+    --gold-soft: #F3EBD8;
+    --green: #3E7C52;
+    --green-soft: #E2EEE5;
+    --map-land: #EFEBE1;
+    --map-water: #C9DCEA;
+    --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #161B26;
+      --card: #1F2634;
+      --ink: #E9E5DB;
+      --ink-soft: #9BA3B4;
+      --line: #313A4C;
+      --shu: #E8646B;
+      --shu-soft: #43262C;
+      --noren: #8FB0D8;
+      --noren-soft: #263447;
+      --gold: #D4A94E;
+      --gold-soft: #3B3222;
+      --green: #7CB98F;
+      --green-soft: #24362B;
+      --map-land: #222A39;
+      --map-water: #14202E;
+      --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F6F4EF; --card: #FFFFFF; --ink: #20283A; --ink-soft: #5A6275;
+    --line: #E3DFD5; --shu: #C93A40; --shu-soft: #F7E3E2; --noren: #33567F;
+    --noren-soft: #E4EAF2; --gold: #A8802F; --gold-soft: #F3EBD8;
+    --green: #3E7C52; --green-soft: #E2EEE5;
+    --map-land: #EFEBE1; --map-water: #C9DCEA;
+    --shadow: 0 1px 3px rgba(32,40,58,.08), 0 4px 14px rgba(32,40,58,.05);
+  }
+  :root[data-theme="dark"] {
+    --paper: #161B26; --card: #1F2634; --ink: #E9E5DB; --ink-soft: #9BA3B4;
+    --line: #313A4C; --shu: #E8646B; --shu-soft: #43262C; --noren: #8FB0D8;
+    --noren-soft: #263447; --gold: #D4A94E; --gold-soft: #3B3222;
+    --green: #7CB98F; --green-soft: #24362B;
+    --map-land: #222A39; --map-water: #14202E;
+    --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif; }
+
+  a { color: var(--noren); }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid var(--noren); outline-offset: 2px; border-radius: 4px;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    padding: 26px 18px 14px;
+    max-width: 980px; margin: 0 auto;
+  }
+  .kicker {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--shu); font-weight: 600; margin-bottom: 6px;
+  }
+  h1 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: clamp(26px, 5.5vw, 38px); font-weight: 600;
+    margin: 0 0 4px; line-height: 1.2; text-wrap: balance;
+  }
+  h1 .jp { color: var(--ink-soft); font-size: .55em; font-weight: 400; margin-left: .5em; }
+  .sub { color: var(--ink-soft); font-size: 14px; margin: 0; }
+  #today-banner {
+    display: none; margin-top: 12px; padding: 8px 14px; border-radius: 8px;
+    background: var(--noren-soft); color: var(--noren); font-weight: 600; font-size: 13px;
+    width: fit-content;
+  }
+
+  /* ---------- date strip ---------- */
+  .datestrip {
+    display: flex; gap: 4px; overflow-x: auto; padding: 14px 18px 4px;
+    max-width: 980px; margin: 0 auto; scrollbar-width: none;
+  }
+  .datestrip::-webkit-scrollbar { display: none; }
+  .day {
+    flex: 0 0 auto; text-align: center; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--card); min-width: 46px;
+    font-variant-numeric: tabular-nums;
+  }
+  .day .num { font-weight: 700; font-size: 15px; display: block; }
+  .day .city { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  .day.tokyo .city { color: var(--noren); }
+  .day.osaka .city { color: var(--shu); }
+  .day.travel { border-style: dashed; }
+  .day.is-today { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu); }
+
+  /* ---------- tabs ---------- */
+  nav.tabs {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    margin-top: 10px;
+  }
+  .tabs-inner { max-width: 980px; margin: 0 auto; display: flex; gap: 2px; padding: 0 12px; }
+  .tab {
+    padding: 12px 14px 10px; font-weight: 600; font-size: 14px; color: var(--ink-soft);
+    border-bottom: 2px solid transparent; border-radius: 0;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--shu); }
+
+  main { max-width: 980px; margin: 0 auto; padding: 18px 18px 80px; }
+  section[hidden] { display: none; }
+
+  /* ---------- filters ---------- */
+  .filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); font-size: 13px; font-weight: 500; color: var(--ink-soft);
+  }
+  .chip[aria-pressed="true"] { background: var(--noren); border-color: var(--noren); color: #fff; }
+  .chip.tag[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  #search {
+    width: 100%; max-width: 420px; padding: 9px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px;
+  }
+  #search::placeholder { color: var(--ink-soft); }
+  .progress { font-size: 13px; color: var(--ink-soft); }
+  .progress b { color: var(--shu); font-variant-numeric: tabular-nums; }
+
+  /* ---------- food cards ---------- */
+  .area-head {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 19px; font-weight: 600; margin: 30px 0 4px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .area-head:first-child { margin-top: 4px; }
+  .area-head .pairs { font-family: inherit; }
+  .area-sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 14px; max-width: 62ch; }
+  .pairs {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--noren); background: var(--noren-soft); padding: 3px 9px; border-radius: 6px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .rcard {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 16px 14px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; position: relative;
+  }
+  .rcard.must { border-top: 3px solid var(--shu); }
+  .rcard.eaten { opacity: .55; }
+  .rcard.eaten .rname { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .rtop { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .rname {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 17px; font-weight: 600; line-height: 1.3; margin: 0;
+  }
+  .rjp { display: block; font-size: 12.5px; color: var(--ink-soft); font-weight: 400; margin-top: 1px; }
+  .eatbtn {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid var(--line); font-size: 15px; line-height: 1;
+    display: grid; place-items: center; color: var(--ink-soft);
+  }
+  .rcard.eaten .eatbtn { background: var(--green); border-color: var(--green); color: #fff; }
+  .rmeta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; }
+  .badge { padding: 2px 8px; border-radius: 5px; font-weight: 600; letter-spacing: .02em; }
+  .b-must  { background: var(--shu-soft);   color: var(--shu); }
+  .b-book  { background: var(--gold-soft);  color: var(--gold); }
+  .b-queue { background: var(--noren-soft); color: var(--noren); }
+  .b-kid   { background: var(--green-soft); color: var(--green); }
+  .b-meat  { background: rgba(150, 95, 55, .16); color: #A9714B; }
+  .b-plain { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .rdesc { font-size: 13.5px; color: var(--ink-soft); margin: 0; flex: 1; }
+  .rdesc b { color: var(--ink); font-weight: 600; }
+  /* stall-by-stall detail for markets & food streets */
+  details.deep { border-top: 1px solid var(--line); padding-top: 9px; }
+  details.deep > summary {
+    list-style: none; cursor: pointer; font-size: 12.5px; font-weight: 600;
+    color: var(--noren); display: flex; align-items: center; gap: 6px;
+  }
+  details.deep > summary::-webkit-details-marker { display: none; }
+  details.deep > summary::before { content: "▸"; transition: transform .15s; }
+  details.deep[open] > summary::before { transform: rotate(90deg); }
+  details.deep > summary .cnt { color: var(--ink-soft); font-weight: 500; }
+  .deepbody { padding-top: 10px; display: flex; flex-direction: column; gap: 9px; }
+  .dline { display: flex; gap: 9px; font-size: 12.5px; line-height: 1.45; }
+  .dline .dk {
+    flex: 0 0 62px; font-size: 10.5px; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ink-soft); padding-top: 2px;
+  }
+  .dline .dv { color: var(--ink); }
+  .dline.book .dv { color: var(--gold); font-weight: 600; }
+  .dline.book.free .dv { color: var(--green); font-weight: 600; }
+  ul.dstalls { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  ul.dstalls li {
+    font-size: 13px; line-height: 1.45; padding-left: 11px;
+    border-left: 2px solid var(--line);
+  }
+  ul.dstalls .sn { font-weight: 600; }
+  ul.dstalls .sj { color: var(--ink-soft); font-size: 12px; }
+  ul.dstalls .sp { color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dhow {
+    margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft);
+    background: var(--noren-soft); padding: 9px 11px; border-radius: 8px;
+  }
+  .dhow b { color: var(--ink); }
+
+  .rfoot {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--line); padding-top: 9px; font-size: 13px;
+  }
+  .yen { color: var(--ink-soft); font-variant-numeric: tabular-nums; letter-spacing: .05em; }
+  .maplink { font-weight: 600; text-decoration: none; }
+  .maplink:hover { text-decoration: underline; }
+
+  /* ---------- itinerary ---------- */
+  .cityhead {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 22px; margin: 34px 0 14px; font-weight: 600;
+  }
+  .cityhead:first-child { margin-top: 4px; }
+  .block {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+  }
+  .block > summary {
+    list-style: none; cursor: pointer; padding: 15px 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .block > summary::-webkit-details-marker { display: none; }
+  .block > summary::after {
+    content: "▾"; margin-left: auto; color: var(--ink-soft); transition: transform .15s;
+  }
+  .block[open] > summary::after { transform: rotate(180deg); }
+  .bemoji { font-size: 22px; }
+  .btitle { font-weight: 600; font-size: 15.5px; line-height: 1.3; }
+  .bweather { font-size: 12px; color: var(--ink-soft); display: block; margin-top: 2px; }
+  .bbody { padding: 0 18px 16px; border-top: 1px solid var(--line); }
+  .bbody h4 {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-soft); margin: 16px 0 6px;
+  }
+  .bbody ul { margin: 0; padding-left: 20px; }
+  .bbody li { margin: 4px 0; font-size: 14px; }
+  .bbody li .t { color: var(--ink-soft); font-size: 12.5px; }
+  .foodjump {
+    display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 600;
+    color: var(--noren); background: var(--noren-soft);
+    padding: 7px 13px; border-radius: 8px; text-decoration: none;
+  }
+
+  /* ---------- book ahead ---------- */
+  .book-intro { max-width: 65ch; color: var(--ink-soft); font-size: 14px; }
+  .bookcard {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline;
+  }
+  .bookcard .bn { font-weight: 700; }
+  .bookcard .bw { color: var(--ink-soft); font-size: 13.5px; flex: 1 1 100%; }
+  .bookcard .lead { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+  .booksec {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 18px; font-weight: 600; margin: 28px 0 12px;
+  }
+  .booksec:first-of-type { margin-top: 18px; }
+
+  /* ---------- map ---------- */
+  .mapbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .mapzoom { margin-left: auto; display: flex; gap: 6px; }
+  .mapzoom button {
+    width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); font-size: 16px; font-weight: 700; color: var(--ink);
+    display: grid; place-items: center;
+  }
+  .mapframe {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    background: var(--map-land); box-shadow: var(--shadow);
+  }
+  #mapsvg {
+    display: block; width: 100%; height: auto; max-height: 74vh;
+    touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  }
+  #mapsvg.dragging { cursor: grabbing; }
+  #mapsvg .mlabel {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12px; font-weight: 700; letter-spacing: .14em;
+    fill: var(--ink-soft); opacity: .65; text-anchor: middle;
+  }
+  #mapsvg .mnote {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 10.5px; font-weight: 600; letter-spacing: .02em;
+    fill: var(--noren); text-anchor: middle;
+  }
+  #mapsvg .mpin { cursor: pointer; }
+  #mapsvg .mpin circle.hit { fill: transparent; }
+  #mapsvg .mpin.dim { opacity: .38; }
+  #mapsvg.sat .schem { display: none; }
+  #mapsvg.sat .mlabel, #mapsvg.sat .mnote {
+    fill: #fff; opacity: .95;
+    paint-order: stroke; stroke: rgba(10, 16, 26, .65); stroke-width: 3px;
+  }
+  #mapsvg .mpin .ring { fill: none; stroke: var(--ink); stroke-width: 1.6; opacity: 0; }
+  #mapsvg .mpin.sel .ring { opacity: 1; }
+  .maplegend {
+    display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px;
+    color: var(--ink-soft); margin-top: 10px; align-items: center;
+  }
+  .maplegend .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block; margin-right: 5px; vertical-align: -1px;
+  }
+  .mapdetail {
+    margin-top: 12px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .mapdetail .hint { color: var(--ink-soft); font-size: 13.5px; margin: 0; }
+
+  /* ---------- hotel + near-me ---------- */
+  .locmsg { font-size: 12.5px; color: var(--shu); align-self: center; margin-bottom: 8px; }
+  .hblock {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--noren);
+    border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden;
+  }
+  .hblock > summary {
+    list-style: none; cursor: pointer; padding: 13px 16px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .hblock > summary::-webkit-details-marker { display: none; }
+  .hblock .htitle {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-weight: 600; font-size: 15.5px;
+  }
+  .hblock .hdate {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--noren); background: var(--noren-soft); padding: 3px 9px; border-radius: 6px;
+  }
+  .hblock .hbody { padding: 0 16px 14px; font-size: 13.5px; color: var(--ink-soft); }
+  .hblock .hbody p { margin: 10px 0 0; max-width: 68ch; }
+  .hblock .hbody b { color: var(--ink); }
+  .hchips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .hchip {
+    font-size: 12.5px; background: var(--noren-soft); color: var(--noren);
+    padding: 5px 12px; border-radius: 999px; font-weight: 600; border: none;
+  }
+  .hchip .wmin { font-weight: 400; opacity: .85; }
+  .hmaps { font-size: 12.5px; font-weight: 600; }
+  /* ---------- smart ask ---------- */
+  .chiprow.examples { gap: 6px; }
+  .exchip {
+    font-size: 12px; padding: 5px 11px; border-radius: 999px;
+    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft);
+  }
+  .exchip:hover { border-style: solid; color: var(--noren); border-color: var(--noren); }
+  .answer {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--shu);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 15px 17px; margin-bottom: 26px;
+  }
+  .answer h3 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+    font-size: 17px; font-weight: 600; margin: 0 0 3px;
+  }
+  .answer .read {
+    font-size: 12.5px; color: var(--ink-soft); margin: 0 0 12px;
+    display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+  }
+  .answer .rd {
+    background: var(--noren-soft); color: var(--noren); font-weight: 600;
+    padding: 2px 8px; border-radius: 5px; font-size: 11.5px;
+  }
+  .ansrow {
+    display: flex; gap: 11px; align-items: baseline; flex-wrap: wrap;
+    padding: 10px 0; border-top: 1px solid var(--line);
+  }
+  .ansrow .rank {
+    font-variant-numeric: tabular-nums; color: var(--ink-soft);
+    font-size: 12px; font-weight: 700; flex: 0 0 16px;
+  }
+  .ansrow .an { font-weight: 600; }
+  .ansrow .aj { color: var(--ink-soft); font-size: 12.5px; }
+  .ansrow .ameta {
+    flex-basis: 100%; padding-left: 27px; font-size: 12.5px; color: var(--ink-soft);
+    display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+  }
+  .ansrow .ameta b { color: var(--noren); }
+  .ansrow .why {
+    font-size: 11px; background: var(--shu-soft); color: var(--shu);
+    padding: 1px 7px; border-radius: 4px; font-weight: 600;
+  }
+  .answer .none { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+
+  .nearwrap { margin-bottom: 26px; }
+  .nearrow {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 11px 15px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 8px; box-shadow: var(--shadow);
+  }
+  .nearrow .nname { font-weight: 600; }
+  .nearrow .njp { color: var(--ink-soft); font-size: 12.5px; }
+  .nearrow .ndist {
+    margin-left: auto; font-variant-numeric: tabular-nums; font-size: 13px;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+  .nearrow .ndist b { color: var(--noren); }
+  #mapsvg #udot .halo { fill: #2E7CD6; opacity: .35; animation: upulse 1.8s ease-out infinite; }
+  @keyframes upulse { 0% { r: 8; opacity: .4; } 100% { r: 24; opacity: 0; } }
+  .rcard.flash { outline: 2px solid var(--noren); outline-offset: 2px; }
+
+  .empty { color: var(--ink-soft); text-align: center; padding: 40px 0; font-size: 14px; }
+  footer {
+    max-width: 980px; margin: 0 auto; padding: 0 18px 40px;
+    color: var(--ink-soft); font-size: 12.5px;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header>
+  <div class="kicker">Maxin family · Aug 2 – 13, 2026</div>
+  <h1>Japan Food Atlas<span class="jp serif">日本たべもの帳</span></h1>
+  <p class="sub">Tokyo → Osaka (+ Kyoto &amp; Nara day trips) → Tokyo. Built around Mom's itinerary — every eating spot is matched to one of her blocks.</p>
+  <div id="today-banner"></div>
+</header>
+
+<div class="datestrip" id="datestrip"></div>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-inner" role="tablist">
+    <button class="tab" role="tab" id="tab-food" aria-selected="true" data-panel="panel-food">🍜 Food guide</button>
+    <button class="tab" role="tab" id="tab-map" aria-selected="false" data-panel="panel-map">🗺️ Map</button>
+    <button class="tab" role="tab" id="tab-plan" aria-selected="false" data-panel="panel-plan">📅 Itinerary</button>
+    <button class="tab" role="tab" id="tab-book" aria-selected="false" data-panel="panel-book">📌 Book ahead</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ============ FOOD ============ -->
+  <section id="panel-food" role="tabpanel" aria-labelledby="tab-food">
+    <div id="hotelBox"></div>
+    <div class="filters">
+      <div class="chiprow">
+        <button class="chip" id="nearBtn" aria-pressed="false">📍 Food near me</button>
+        <span class="locmsg" id="nearMsg" hidden></span>
+      </div>
+      <input id="search" type="search" placeholder="Ask: cheap ramen near me · meat for dad · rainy day in Osaka" aria-label="Ask about food">
+      <div class="chiprow examples" id="askExamples">
+        <button class="exchip" data-ask="cheap ramen near me">cheap ramen near me</button>
+        <button class="exchip" data-ask="meat for dad tonight">meat for dad</button>
+        <button class="exchip" data-ask="something fun for my little brother">for my brother</button>
+        <button class="exchip" data-ask="open today">open today</button>
+        <button class="exchip" data-ask="best street food in osaka">street food in Osaka</button>
+        <button class="exchip" data-ask="dessert near me">dessert near me</button>
+      </div>
+      <div class="chiprow" id="cityChips" role="group" aria-label="Filter by city">
+        <button class="chip" data-city="all" aria-pressed="true">All</button>
+        <button class="chip" data-city="tokyo" aria-pressed="false">Tokyo</button>
+        <button class="chip" data-city="osaka" aria-pressed="false">Osaka</button>
+        <button class="chip" data-city="kyoto" aria-pressed="false">Kyoto</button>
+        <button class="chip" data-city="nara" aria-pressed="false">Nara</button>
+      </div>
+      <div class="chiprow" id="tagChips" role="group" aria-label="Filter by tag">
+        <button class="chip tag" data-tag="must" aria-pressed="false">🔴 Must-eat</button>
+        <button class="chip tag" data-tag="kid" aria-pressed="false">🧒 Little-brother pick</button>
+        <button class="chip tag" data-tag="meat" aria-pressed="false">🥩 Dad picks</button>
+        <button class="chip tag" data-tag="street" aria-pressed="false">🥢 Street food</button>
+        <button class="chip tag" data-tag="book" aria-pressed="false">📌 Book ahead</button>
+        <button class="chip tag" data-tag="sweet" aria-pressed="false">🍦 Sweets</button>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+    <div id="foodList"></div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <div class="mapbar">
+      <div class="chiprow" id="mapChips" role="group" aria-label="Choose a map">
+        <button class="chip" data-map="tokyo" aria-pressed="true">Tokyo</button>
+        <button class="chip" data-map="osaka" aria-pressed="false">Osaka</button>
+        <button class="chip" data-map="trip" aria-pressed="false">Kyoto &amp; Nara</button>
+        <button class="chip" id="satBtn" aria-pressed="false">🛰️ Satellite</button>
+      </div>
+      <div class="mapzoom">
+        <button id="locBtn" aria-label="Show my location">📍</button>
+        <button id="zoomIn" aria-label="Zoom in">＋</button>
+        <button id="zoomOut" aria-label="Zoom out">－</button>
+        <button id="zoomReset" aria-label="Reset view">⌂</button>
+      </div>
+    </div>
+    <div class="locmsg" id="mapMsg" hidden></div>
+    <div class="mapframe">
+      <svg id="mapsvg" viewBox="0 0 800 880" role="img" aria-label="Schematic map of food spots"></svg>
+    </div>
+    <div class="maplegend">
+      <span><span class="dot" style="background:var(--shu)"></span>Must-eat</span>
+      <span><span class="dot" style="background:var(--gold)"></span>Book ahead</span>
+      <span><span class="dot" style="background:var(--noren)"></span>Good stop</span>
+      <span>★ Home base</span>
+      <span style="flex-basis:100%">Pin positions are real; the schematic ground is simplified — flip on 🛰️ Satellite for real imagery under the pins. Drag to pan, pinch or ＋/－ to zoom, tap a pin.</span>
+      <span id="satCredit" hidden>Imagery © Esri — Maxar, Earthstar Geographics &amp; the GIS community</span>
+    </div>
+    <div class="mapdetail" id="mapDetail"><p class="hint">Tap a pin to see the details — faded pins are ones you've already eaten at.</p></div>
+  </section>
+
+  <!-- ============ ITINERARY ============ -->
+  <section id="panel-plan" role="tabpanel" aria-labelledby="tab-plan" hidden>
+    <h2 class="cityhead">Part A · Tokyo &amp; around <span style="font-size:13px;color:var(--ink-soft);font-weight:400">(hotel: Tsukiji · Aug 2–5 and 11–13)</span></h2>
+
+    <details class="block">
+      <summary><span class="bemoji">🎮</span><span><span class="btitle">Block 1 · Gaming, retro &amp; pop culture — Akihabara &amp; Ikebukuro</span><span class="bweather">Best on very hot or rainy days — nearly everything is indoors and air-conditioned</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Super Potato — legendary retro-gaming store <span class="t">· 1–1.5 h</span></li>
+          <li>Mandarake &amp; Radio Kaikan — whole floors of collectibles and pop culture <span class="t">· 1.5–2.5 h</span></li>
+          <li>Yodobashi Akiba — giant tech &amp; gaming mall <span class="t">· 1–2 h</span></li>
+          <li>Pokémon Center, Sunshine City (Ikebukuro) <span class="t">· 1 h</span></li>
+          <li>Namja Town — Namco indoor amusement park <span class="t">· 1.5–2 h</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Akihabara: Hibiya line → Ginza, transfer to Ginza line → Suehirocho (exit 1) <span class="t">· ~20–25 min</span></li>
+          <li>Ikebukuro: Yurakucho line west → Higashi-Ikebukuro <span class="t">· ~30 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Akihabara">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🤖</span><span><span class="btitle">Block 2 · Arcades, sport &amp; the future — Odaiba</span><span class="bweather">Ideal for extremely hot or rainy days — parks and sport halls fully indoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Joypolis — SEGA indoor park, VR &amp; simulators <span class="t">· 3–4 h</span></li>
+          <li>Spocha (inside Round 1) — indoor sports &amp; arcade hall <span class="t">· 2–3 h</span></li>
+          <li>Giant Gundam statue — light &amp; movement shows <span class="t">· 20–30 min</span></li>
+          <li>Yurikamome line — panoramic driverless train over the bay <span class="t">· 25–30 min</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Hibiya line → Higashi-Ginza, Asakusa line → Shimbashi, then Yurikamome (toward Toyosu) → Daiba <span class="t">· ~30–40 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Odaiba">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🛍️</span><span><span class="btitle">Block 3 · Street fashion &amp; youth culture — Harajuku, Shibuya, Yoyogi</span><span class="bweather">For sunny/pleasant or partly-cloudy days — mostly outdoor walking</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Yoyogi Park &amp; Meiji Shrine — huge calm green park <span class="t">· 1.5–2 h</span></li>
+          <li>Takeshita Street (Harajuku) — street fashion, pop culture, crêpe stands <span class="t">· 1.5 h</span></li>
+          <li>Kiddy Land — 5 floors of toys &amp; characters <span class="t">· 1 h</span></li>
+          <li>Shibuya — Scramble crossing, Hachikō, Center Gai <span class="t">· 2–3 h</span></li>
+          <li>Shibuya Sky observation deck <span class="t">· 1–1.5 h · book tickets ahead</span></li>
+        </ul>
+        <h4>Getting there from Tsukiji</h4>
+        <ul>
+          <li>Harajuku: Hibiya line → Hibiya, Chiyoda line → Meiji-Jingumae (exit 3) <span class="t">· ~25–30 min</span></li>
+          <li>On to Shibuya: Fukutoshin line from Meiji-Jingumae → Shibuya <span class="t">· ~3 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Shibuya">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🥢</span><span><span class="btitle">Block 4 · Tradition, markets &amp; street food — Asakusa &amp; Tsukiji</span><span class="bweather">Clear, dry days — start early morning to beat the heat</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Tsukiji Outer Market — food crawl <span class="t">· 1.5–2 h, morning</span></li>
+          <li>Asakusa — Sensō-ji temple &amp; Nakamise shopping street <span class="t">· 2–3 h</span></li>
+        </ul>
+        <h4>Getting there</h4>
+        <ul>
+          <li>Tsukiji market: walk from hotel <span class="t">· 5–10 min</span></li>
+          <li>To Asakusa: Hibiya line north → Ningyocho, Asakusa line → Asakusa (exit 1A) <span class="t">· ~20 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Tsukiji">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🌌</span><span><span class="btitle">Half day · teamLab Borderless — Azabudai Hills</span><span class="bweather">Any weather — dark, indoor, fully air-conditioned. Pre-booked, fixed time slot</span></span></summary>
+      <div class="bbody">
+        <h4>Plan</h4>
+        <ul>
+          <li>Interactive digital art experience <span class="t">· 2.5–3 h</span></li>
+          <li>Hibiya line from Tsukiji direct → Kamiyacho (exit 5), straight into Azabudai Hills <span class="t">· ~15–20 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Azabudai">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🎡</span><span><span class="btitle">Full day · Tokyo DisneySea / Disneyland</span><span class="bweather">Any weather — use indoor rides &amp; shows on hot or rainy days. Pre-booked</span></span></summary>
+      <div class="bbody">
+        <h4>Plan</h4>
+        <ul>
+          <li>Full park day <span class="t">· 8–10 h</span></li>
+          <li>Hibiya line → Hatchobori, JR Keiyo line → Maihama (park entrance) <span class="t">· ~30–35 min</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <h2 class="cityhead">Part B · Osaka &amp; around <span style="font-size:13px;color:var(--ink-soft);font-weight:400">(base: Namba · Aug 5–11)</span></h2>
+
+    <details class="block">
+      <summary><span class="bemoji">🎢</span><span><span class="btitle">Block 6 · Universal Studios &amp; Dotonbori neon</span><span class="bweather">USJ: sunny or partly cloudy. Dotonbori &amp; Shinsaibashi: any evening, great in rain (covered arcades)</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Universal Studios Japan — Super Nintendo World, Harry Potter, coasters <span class="t">· full day, 7–9 h</span></li>
+          <li>Dotonbori &amp; Shinsaibashi — Glico sign, river cruise, street food <span class="t">· 2–3 h, evening</span></li>
+        </ul>
+        <h4>Getting there from Namba</h4>
+        <ul>
+          <li>USJ: Hanshin-Namba line → Nishikujo, JR Yumesaki line → Universal-City <span class="t">· ~25–30 min</span></li>
+          <li>Dotonbori: walk from Namba, or one stop on Midosuji line → Shinsaibashi</li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Dotonbori">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">⛩️</span><span><span class="btitle">Block 7 · Temples, bamboo &amp; deer — Kyoto &amp; Nara day trip</span><span class="bweather">Sunny/clear days, start early — it's all outdoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Nara Park &amp; Tōdai-ji — free-roaming deer, Great Buddha <span class="t">· 2.5–3.5 h</span></li>
+          <li>Fushimi Inari (Kyoto) — thousands of vermilion torii gates <span class="t">· 2–2.5 h</span></li>
+          <li>Arashiyama bamboo grove &amp; Togetsukyō bridge <span class="t">· 2–3 h</span></li>
+        </ul>
+        <h4>Getting there from Osaka</h4>
+        <ul>
+          <li>Nara: Kintetsu-Nara line direct from Osaka-Namba → Kintetsu-Nara <span class="t">· ~40 min</span></li>
+          <li>Fushimi Inari: JR Kyoto line or Keihan main line from Osaka/Umeda → Fushimi-Inari <span class="t">· ~45–50 min</span></li>
+          <li>Fushimi Inari ↔ Arashiyama: JR Nara line → Kyoto Stn, JR San-in line → Saga-Arashiyama <span class="t">· ~40 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Kyoto">→ Food near this block</a>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary><span class="bemoji">🌊</span><span><span class="btitle">Block 8 · Aquarium, bay &amp; skyline views — Osaka Bay &amp; Umeda</span><span class="bweather">Great for hot or rainy days — aquarium, malls and observation deck all indoors</span></span></summary>
+      <div class="bbody">
+        <h4>Attractions</h4>
+        <ul>
+          <li>Kaiyukan Aquarium — one of the world's largest, whale sharks <span class="t">· 2–3 h</span></li>
+          <li>Tempozan giant ferris wheel — panoramic bay views <span class="t">· 30 min</span></li>
+          <li>Umeda Sky Building — futuristic open-air observation deck <span class="t">· 1–1.5 h</span></li>
+        </ul>
+        <h4>Getting there</h4>
+        <ul>
+          <li>Kaiyukan: Chuo line (metro) → Osakako (exit 1), 5-min walk <span class="t">· ~20–25 min</span></li>
+          <li>Umeda Sky Building: Midosuji line → Umeda, 10-min walk via the underpass <span class="t">· ~15 min</span></li>
+        </ul>
+        <a class="foodjump" href="#" data-jump="Umeda">→ Food near this block</a>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ BOOK AHEAD ============ -->
+  <section id="panel-book" role="tabpanel" aria-labelledby="tab-book" hidden>
+    <p class="book-intro">Only a handful of places actually need reserving — most great food in Japan is walk-in or a queue. These are the ones worth locking in <b>now</b>, roughly in order of urgency. Book on the restaurant's site or TableCheck / Tabelog; your hotel front desk can also phone for you.</p>
+
+    <h3 class="booksec">Restaurants</h3>
+    <div class="bookcard">
+      <span class="bn">Matsusakagyu Yakiniku M — Hozenji Yokocho, Osaka</span>
+      <span class="lead">Book ~1 week ahead</span>
+      <span class="bw">Grill-your-own Matsusaka wagyu — the one big beef splurge of the trip, and slots for 4 go fast in August. Book via <a href="https://www.tablecheck.com/en/shops/yakinikum-hozenji/reserve" rel="noopener">TableCheck</a>. Aim for an Osaka evening (Aug 6–10).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Kani Doraku Honten — Dotonbori, Osaka</span>
+      <span class="lead">Book 3–5 days ahead</span>
+      <span class="bw">The famous moving-crab sign — full crab dinner, kid-friendly, tables with a Dotonbori view. Reserve on the <a href="https://douraku.co.jp/reservation/" rel="noopener">official site</a> (English available).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">bills — Odaiba, Tokyo</span>
+      <span class="lead">Book 2–3 days ahead</span>
+      <span class="bw">Ricotta pancakes with a bay view — the easy sit-down anchor for the Odaiba day (Block 2). Reserve on the <a href="https://billsjapan.com/en" rel="noopener">official site</a>.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Tonkatsu Maisen — Aoyama, Tokyo</span>
+      <span class="lead">Book 2–3 days ahead</span>
+      <span class="bw">Famous tonkatsu in a converted 1930s bathhouse, 10 min from Harajuku (Block 3). Reservable via Tabelog/TableCheck — or walk in off-peak (~14:30).</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Han no Daidokoro — Dogenzaka, Shibuya</span>
+      <span class="lead">Book 3–4 days ahead</span>
+      <span class="bw">Wagyu yakiniku near Shibuya station — the meat dinner for Dad on the Block 3 day. Reservable via TableCheck/Tabelog; evening slots for 4 go quickly.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Monja Kondō Honten — Tsukishima, Tokyo</span>
+      <span class="lead">Book 1–2 days ahead (or queue)</span>
+      <span class="bw">Cook-it-yourself monjayaki one metro stop from the hotel — perfect first-night dinner. Ask the hotel desk to phone (+81 3-3533-4555), or just queue on Monja Street and take any shop with a line.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Kura Sushi — Ginza, Tokyo</span>
+      <span class="lead">Same day, via app</span>
+      <span class="bw">Conveyor-belt sushi with the prize-capsule game (Bikkura-Pon) — grab a queue ticket on the Kura Sushi app an hour before you go.</span>
+    </div>
+
+    <h3 class="booksec">Attractions with fixed slots (from Mom's plan)</h3>
+    <div class="bookcard">
+      <span class="bn">Universal Studios Japan — Super Nintendo World</span>
+      <span class="lead">Book now</span>
+      <span class="bw">Buy park tickets + <b>Express Pass with Nintendo-area entry</b> for an August date — they sell out. Kinopio's Cafe (inside) doesn't take bookings; go at an off-hour. Free timed-entry to the Nintendo area is also drawn in the USJ app the morning of.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">teamLab Borderless — Azabudai Hills</span>
+      <span class="lead">Already planned — confirm slot</span>
+      <span class="bw">Timed tickets; afterwards eat downstairs at Azabudai Hills Market.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Tokyo Disney / DisneySea</span>
+      <span class="lead">Already planned — confirm date</span>
+      <span class="bw">Buy dated tickets in the official app; Premier Access for big rides opens in-app on the day.</span>
+    </div>
+    <div class="bookcard">
+      <span class="bn">Shibuya Sky</span>
+      <span class="lead">Book 1–2 weeks ahead for sunset</span>
+      <span class="bw">Sunset slots (~18:00–18:40 in August) sell out first — book online for the Block 3 day; any clear evening works.</span>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>🔴 red-topped cards = must-eats · tap ✓ on a card once you've eaten there — progress is saved on this device. Map links open Google Maps; the Japanese name on each card is what to show a local or paste into Maps.</p>
+</footer>
+
+<script>
+/* ================= DATA ================= */
+const AREAS = [
+  { id:"Tsukiji",  city:"tokyo", name:"Home turf — Nihonbashi, Tsukiji & Ginza", pairs:"Block 4 + every morning",
+    sub:"Everything here is a 10–20 minute walk (or one metro stop) from the hotel. Do the Tsukiji market crawl early (most stalls 6:00–14:00, many closed Wed/Sun); the Nihonbashi–Kyobashi blocks just north of you are the city's salaryman-lunch heartland." },
+  { id:"Asakusa",  city:"tokyo", name:"Asakusa", pairs:"Block 4",
+    sub:"Eat your way down Nakamise street between the gate and the temple." },
+  { id:"Akihabara", city:"tokyo", name:"Akihabara & Ikebukuro", pairs:"Block 1",
+    sub:"Gamer fuel: fast, cheap, loud and great." },
+  { id:"Shibuya",  city:"tokyo", name:"Harajuku, Omotesando & Shibuya", pairs:"Block 3",
+    sub:"Crêpes on Takeshita, then a proper sit-down around Shibuya." },
+  { id:"Odaiba",   city:"tokyo", name:"Odaiba", pairs:"Block 2",
+    sub:"Mall food done right — takoyaki floor at Decks, pancakes on the bay." },
+  { id:"Azabudai", city:"tokyo", name:"Azabudai & Tokyo Station", pairs:"teamLab + Disney travel days",
+    sub:"For the pre-booked days: food halls and ramen right on your route." },
+  { id:"Dotonbori", city:"osaka", name:"Dotonbori, Namba & Kuromon Market", pairs:"Block 6 + every Osaka evening",
+    sub:"The nation's kitchen. Come hungry, graze standing up, repeat nightly." },
+  { id:"Umeda",    city:"osaka", name:"Umeda & Osaka Bay", pairs:"Block 8",
+    sub:"Okonomiyaki in the Sky Building basement, retro food alley by the aquarium." },
+  { id:"USJ",      city:"osaka", name:"Universal Studios", pairs:"Block 6",
+    sub:"Themed food is the ride here — budget time for it." },
+  { id:"Kyoto",    city:"kyoto", name:"Kyoto — Fushimi Inari & Arashiyama", pairs:"Block 7",
+    sub:"Snack between shrines; save the sit-down for Kyoto Station before the train home." },
+  { id:"Nara",     city:"nara",  name:"Nara", pairs:"Block 7",
+    sub:"One legendary mochi stand and one proper lunch — the deer will try to join." },
+];
+
+const FOOD = [
+  /* --- Tsukiji / Ginza --- */
+  { area:"Tsukiji", name:"Tsukiji Outer Market crawl", jp:"築地場外市場", tags:["must","street"], price:"¥¥", closed:["Sun","Wed"],
+    desc:"Four narrow lanes of stalls that fed Tokyo's fish trade for 80 years. Graze standing up: <b>tamagoyaki on a stick, grilled scallops, tuna skewers, fruit</b>. Go 8:00–10:00, before the heat and the crowds.",
+    book:"Walk around · morning", maps:"Tsukiji Outer Market Tokyo",
+    deep: { count:"~400 shops", hours:"Most stalls 6:00–14:00 — by 15:00 it's shuttered",
+      ticket:"No booking, no entry fee. Bring cash — plenty of stalls still refuse cards.",
+      free:true,
+      when:"Many shops close Sundays and some Wednesdays, so skip landing day (Sun Aug 2) and Wed Aug 12. Best mornings: Mon Aug 3, Tue Aug 4, or Tue Aug 11.",
+      eat:[
+        { n:"Yamachō", jp:"山長", w:"Tamagoyaki skewer — sweet, hot, custardy egg. The signature first bite of the market.", p:"~¥150" },
+        { n:"Shōro", jp:"松露", w:"The refined tamagoyaki rival — buy a whole block to take back to the hotel.", p:"~¥700" },
+        { n:"Marutoyo", jp:"丸豊", w:"Wall of handmade onigiri, 30+ fillings. Cheapest good breakfast in Tokyo.", p:"~¥200 ea" },
+        { n:"Ajino Hamatō", jp:"味の浜藤", w:"Miso-marinated grilled fish — the classic Tsukiji souvenir.", p:"¥800+" },
+        { n:"Scallop & uni stalls", jp:"焼きホタテ", w:"Scallops grilled in the shell with butter-soy; sea urchin served in the shell.", p:"¥500–1,500" },
+        { n:"Fruit stands", jp:"果物", w:"Strawberry daifuku, melon slices, whole-fruit skewers — the little brother's stop.", p:"¥300–800" },
+      ],
+      how:"<b>Etiquette:</b> eat beside the stall you bought from, not while walking — most have a small counter or a bin. <b>Heads up:</b> the famous tuna auction is no longer here; it moved to Toyosu, 15 min away, and close-up viewing needs an advance lottery application. The upper viewing deck there is free and needs no booking, but it's a 5:00 start." } },
+  { area:"Tsukiji", name:"Kitsuneya", jp:"きつねや", tags:["street","meat"], price:"¥",
+    desc:"Standing counter, 70+ years old. Order the <b>gyudon</b> (beef bowl) — or the famous horumon-don if someone's brave. Open ~6:30–13:30.",
+    book:"Queue a little · breakfast", maps:"Kitsuneya Tsukiji" },
+  { area:"Tsukiji", name:"Sushizanmai Honten", jp:"すしざんまい 本店", tags:["kid"], price:"¥¥",
+    desc:"The 24/7 sushi flagship — big menu with pictures, great fatty tuna (<b>otoro</b>), zero stress with kids. Perfect jet-lag dinner on night one.",
+    book:"Walk in · open 24 h", maps:"Sushizanmai Honten Tsukiji" },
+  { area:"Tsukiji", name:"Monja Street, Tsukishima", jp:"月島もんじゃストリート", tags:["must","kid"], price:"¥¥",
+    desc:"A 400 m lane packed with <b>monjayaki</b> shops — Tokyo's runny, savoury cousin of okonomiyaki, cooked by you on the table griddle. The most fun the four of you can have over dinner.",
+    book:"Book 1–2 days ahead or queue", maps:"Monja Street Tsukishima",
+    deep: { count:"~70 shops", hours:"Most 11:00–22:00; some take a 15:00–17:00 break on weekdays",
+      ticket:"Worth booking — Sunday and Saturday nights fill up. Most shops take same-day phone bookings and the hotel desk will call for you. Otherwise arrive by 17:30 or queue 30–60 min.",
+      when:"You land Sunday Aug 2, one of the busiest nights — either have the hotel book it, or walk over early.",
+      eat:[
+        { n:"Kondō", jp:"近どう", w:"Since 1950, one of the street's originals. Staff will cook the first one for you if you ask.", p:"¥1,200–1,900" },
+        { n:"Iroha", jp:"いろは", w:"Famous for mentaiko-mochi-cheese monja — the gateway version for anyone unsure about the texture.", p:"¥1,300–2,000" },
+        { n:"Any shop with a queue", jp:"", w:"Quality is genuinely even along the street. A line of locals is a safe pick.", p:"~¥1,500" },
+        { n:"Order alongside", jp:"", w:"Add an okonomiyaki and a yakisoba to the table — they cook on the same griddle and fill out the meal.", p:"¥900–1,400" },
+      ],
+      how:"<b>How to cook it:</b> stir-fry the solid ingredients on the griddle, chop them up, then shape a doughnut-shaped ring and pour the liquid batter into the middle. Let it bubble and thicken, then mix everything together and flatten it out. <b>How to eat it:</b> don't plate it — press small amounts flat with the little spatula (<i>hera</i>), let it crisp for a second, and eat straight off the griddle. The crunchy scrapings at the edge are the best part." } },
+  { area:"Tsukiji", name:"Ginza Kagari", jp:"銀座 篝", tags:["must"], price:"¥¥",
+    desc:"Michelin-listed <b>tori-paitan ramen</b> — silky chicken broth that even non-ramen people rave about. 15 min walk from the hotel.",
+    book:"Queue ~30–60 min", maps:"Ginza Kagari ramen" },
+  { area:"Tsukiji", name:"Ginza Hachigou", jp:"銀座 八五", tags:["must"], price:"¥¥",
+    desc:"A Michelin-starred bowl from a former French chef: a clear, golden <b>chicken-and-duck broth</b> closer to consommé than to ordinary ramen — famously made with no soy sauce at all. The most refined bowl in this guide, 20 min from the hotel.",
+    book:"Queue · sold out by early afternoon", maps:"Ginza Hachigou ramen" },
+  { area:"Tsukiji", name:"Kura Sushi Ginza", jp:"くら寿司 銀座", tags:["kid","book"], price:"¥",
+    desc:"Conveyor sushi where every 5 plates plays the <b>Bikkura-Pon capsule game</b> — little-brother heaven, ¥115 a plate, order by tablet in English.",
+    book:"Queue ticket via app, same day", maps:"Kura Sushi Ginza" },
+  { area:"Tsukiji", name:"Turret Coffee", jp:"ターレットコーヒー", tags:["sweet"], price:"¥",
+    desc:"Tiny specialty espresso bar named after the market's turret trucks — the parents' morning stop. Try the <b>turret latte</b>.",
+    book:"Walk in", maps:"Turret Coffee Tsukiji" },
+  { area:"Tsukiji", name:"Tsujihan", jp:"つじ半 日本橋", tags:[], price:"¥¥",
+    desc:"One dish only: the <b>zeitaku-don</b> — a tower of chopped seafood over rice; when you're near the end they pour sea-bream broth over the rest. 15 min walk north of the hotel, one of Tokyo's most famous lunch queues.",
+    book:"Queue 30–60 min · go early", maps:"Tsujihan Nihonbashi" },
+  { area:"Tsukiji", name:"Taimeiken", jp:"たいめいけん", tags:["kid"], price:"¥¥",
+    desc:"Nihonbashi institution (since 1931) for <b>omurice</b> — the wobbly omelette over ketchup rice made famous by the movie <i>Tampopo</i>. Old-school, comfy, great with kids. ~15 min from the hotel.",
+    book:"Queue at lunch", maps:"Taimeiken Nihonbashi" },
+  { area:"Tsukiji", name:"Kaneko Hannosuke", jp:"金子半之助 日本橋", tags:[], price:"¥",
+    desc:"The famous <b>Edomae tendon</b> — a bowl buried under tempura (conger eel, prawns, half-cooked egg) for ~¥1,300. ~18 min walk or one stop to Mitsukoshimae.",
+    book:"Queue 30–45 min", maps:"Tendon Kaneko Hannosuke Nihonbashi" },
+  { area:"Tsukiji", name:"Isehiro", jp:"伊勢廣 京橋本店", tags:["meat"], price:"¥¥¥",
+    desc:"Century-old <b>yakitori</b> house in Kyobashi, ~15 min from the hotel — charcoal-grilled chicken course menus, calm and old-Tokyo. An easy Dad dinner on a no-plans night.",
+    book:"Reservable · walk-in at lunch", maps:"Isehiro Kyobashi Honten yakitori" },
+
+  /* --- Asakusa --- */
+  { area:"Asakusa", name:"Nakamise Street snacks", jp:"仲見世通り", tags:["street","kid"], price:"¥",
+    desc:"The 250 m stall-lined approach from the great lantern gate to Sensō-ji — Japan's oldest shopping street, trading since the 1600s. Half souvenirs, half snacks made in front of you.",
+    book:"Walk through · daytime", maps:"Nakamise Dori Asakusa",
+    deep: { count:"~90 stalls", hours:"Roughly 9:30–18:30; snack stalls close earlier than the souvenir shops",
+      ticket:"No booking, no entry fee — and Sensō-ji temple at the end is free to enter too.",
+      free:true,
+      when:"Mom's plan pairs this with Tsukiji on a clear morning. Come before 10:00 and the street is calm; by noon it's shoulder to shoulder.",
+      eat:[
+        { n:"Kimuraya Honten", jp:"木村家本店", w:"Ningyō-yaki — little sponge cakes filled with red bean, baked in moulds shaped like lanterns and pagodas. Selling them since 1868; buy a warm bag of four.", p:"~¥500 for 4" },
+        { n:"Kokonoe", jp:"九重", w:"Age-manju — deep-fried bean-paste buns, crisp outside and molten inside. Best eaten within a minute of buying.", p:"~¥150 ea" },
+        { n:"Azuma", jp:"あづま", w:"Kibi-dango — millet dumplings dusted in soybean flour, served warm on skewers with cold matcha. A Nakamise institution.", p:"~¥400 for 5" },
+        { n:"Senbei stalls", jp:"煎餅", w:"Rice crackers grilled over charcoal in front of you and brushed with soy — you can smell them down the whole street.", p:"¥100–200 ea" },
+        { n:"Kaminari-okoshi", jp:"雷おこし", w:"Crunchy puffed-rice brittle named after the Thunder Gate itself — the classic box to bring home.", p:"¥500+" },
+      ],
+      how:"<b>Etiquette matters here:</b> eating while walking along Nakamise is actively discouraged and some stalls post signs about it — buy, step to the side, finish, then move on. <b>Worth knowing:</b> Kagetsudo's giant melon pan and the menchi-katsu stand are just off the main street on the side lanes, and Suzukien's 7-level matcha gelato is a few minutes east — the side streets are where the best eating actually is." } },
+  { area:"Asakusa", name:"Daikokuya Tempura", jp:"大黒家天麩羅", tags:["must"], price:"¥¥",
+    desc:"Frying <b>tendon</b> (tempura on rice, dark sweet sauce) since 1887, in a beautiful old building near the temple. The one sit-down worth the Asakusa queue.",
+    book:"Queue ~30 min · lunch", maps:"Daikokuya Tempura Asakusa" },
+  { area:"Asakusa", name:"Yoroiya", jp:"与ろゐ屋", tags:[], price:"¥",
+    desc:"Old-school <b>Tokyo shoyu ramen</b> two minutes off Nakamise — clear brown soy broth, curly noodles, bamboo and a slice of chashu. This is what ramen tasted like before tonkotsu took over, and it's the right bowl after the temple.",
+    book:"Short queue", maps:"Yoroiya ramen Asakusa" },
+  { area:"Asakusa", name:"Kagetsudo", jp:"花月堂", tags:["street","sweet","kid"], price:"¥",
+    desc:"<b>Jumbo melon-pan</b> — crackly-sweet giant bun, best eaten warm. Get the ice-cream-stuffed one in the August heat.",
+    book:"Walk up", maps:"Kagetsudo melon pan Asakusa" },
+  { area:"Asakusa", name:"Asakusa Menchi", jp:"浅草メンチ", tags:["street","meat"], price:"¥",
+    desc:"Crispy-outside, juicy-inside <b>menchi-katsu</b> (minced pork cutlet) on a stick — the best ¥350 on the street.",
+    book:"Short queue", maps:"Asakusa Menchi" },
+  { area:"Asakusa", name:"Suzukien Nanaya", jp:"壽々喜園 × ななや", tags:["street","sweet","must","kid"], price:"¥",
+    desc:"Matcha gelato in <b>7 intensity levels</b> — No.7 is officially the world's strongest. Get one No.7 for the table and watch faces.",
+    book:"Queue ~20 min", maps:"Suzukien Nanaya matcha gelato Asakusa" },
+
+  /* --- Akihabara / Ikebukuro --- */
+  { area:"Akihabara", name:"Tonkatsu Marugo", jp:"とんかつ丸五", tags:["must","meat"], price:"¥¥",
+    desc:"Quietly one of Tokyo's best <b>tonkatsu</b> — thick, blush-pink pork, 2 minutes from the arcades. Opens 11:30; be there 15 min early.",
+    book:"Queue · closed Mon", maps:"Tonkatsu Marugo Akihabara" },
+  { area:"Akihabara", name:"Kyushu Jangara", jp:"九州じゃんがら", tags:[], price:"¥",
+    desc:"Rich Kyushu <b>tonkotsu ramen</b> right on the main Akiba drag — fast, cheap, English menu, kid-sized appetites welcome.",
+    book:"Short queue", maps:"Kyushu Jangara Ramen Akihabara" },
+  { area:"Akihabara", name:"Go!Go!Curry", jp:"ゴーゴーカレー", tags:["kid","meat"], price:"¥",
+    desc:"Thick, dark Kanazawa-style <b>katsu curry</b> served on a steel plate — gamer fuel between Yodobashi and Super Potato. Portions named after baseball.",
+    book:"Walk in", maps:"Go Go Curry Akihabara" },
+  { area:"Akihabara", name:"Kikanbo", jp:"鬼金棒", tags:[], price:"¥",
+    desc:"Demon-themed <b>karashibi miso ramen</b>, 10 min from the arcades: you pick your own level of <i>kara</i> (chilli heat) and <i>shibi</i> (the tingling numbness of Sichuan pepper). Order both \"normal\" the first time — the higher levels are not a joke.",
+    book:"Queue 20–40 min", maps:"Kikanbo Kanda ramen" },
+  { area:"Akihabara", name:"Nakiryu", jp:"鳴龍", tags:["must"], price:"¥",
+    desc:"One of only a handful of ramen shops in the world with a <b>Michelin star</b> — the draw is <b>tantanmen</b>, sesame and chilli noodles with an oily, nutty depth. Near Ikebukuro, so it pairs with the Pokémon Center afternoon.",
+    book:"Queue 45–90 min · go at opening", maps:"Nakiryu ramen Otsuka" },
+  { area:"Akihabara", name:"Yakiniku Like", jp:"焼肉ライク 秋葉原", tags:["meat","kid"], price:"¥",
+    desc:"Fast-casual <b>yakiniku</b> where every seat gets its own personal grill — order a wagyu or karubi set on the tablet and cook it yourself in minutes. Dad gets beef, the little brother gets fire (supervised), everyone's out in 40 minutes.",
+    book:"Walk in · short queue", maps:"Yakiniku Like Akihabara" },
+  { area:"Akihabara", name:"Mutekiya", jp:"無敵家", tags:["must"], price:"¥",
+    desc:"Ikebukuro's famous <b>tonkotsu ramen</b> — the queue outside is the landmark. Pairs with the Pokémon Center / Namja Town afternoon.",
+    book:"Queue 30–60 min", maps:"Mutekiya Ikebukuro" },
+  { area:"Akihabara", name:"Gyoza Stadium (Namja Town)", jp:"ナンジャ餃子スタジアム", tags:["kid"], price:"¥",
+    desc:"A themed food alley inside Namja Town, dressed as a 1950s Showa backstreet: famous <b>gyoza</b> shops from across Japan, plus a dessert corner selling deliberately absurd flavours.",
+    book:"Entry ticket needed", maps:"Namja Town Sunshine City Ikebukuro",
+    deep: { count:"~6 gyoza shops + dessert alley", hours:"10:00–21:00, last entry 20:00",
+      ticket:"You must buy a Namja Town entry ticket to eat here — around ¥1,000 per person for entry only, or roughly ¥3,500 for the passport that includes the attractions. Buy at the door or online; it rarely sells out, so no need to book days ahead.",
+      when:"Block 1 pairs it with the Pokémon Center — both are inside Sunshine City, so one trip covers them.",
+      eat:[
+        { n:"Regional gyoza counters", jp:"ご当地餃子", w:"Each shop represents a different city's style — thin Utsunomiya-style, garlicky Kyushu, thick-skinned northern. Plates are small so you can hit three.", p:"¥400–700 a plate" },
+        { n:"Dessert alley", jp:"デザート横丁", w:"Where the novelty flavours live — the shops here have a long history of joke ice creams alongside genuinely good soft serve.", p:"¥400–700" },
+      ],
+      how:"<b>Be honest about the trade-off:</b> paying ~¥1,000 each just to reach a food court only makes sense if you're doing Namja Town's attractions anyway. If you only want great gyoza, Gyoza Lou in Harajuku is better and free to walk into — this one is about the theming and the day out." } },
+
+  /* --- Harajuku / Shibuya --- */
+  { area:"Shibuya", name:"Gyukatsu Motomura", jp:"牛かつもと村", tags:["must","meat"], price:"¥¥",
+    desc:"<b>Beef katsu</b> served rare — you finish each slice yourself on a little stone grill. Interactive, delicious, very Shibuya. Everyone's trip highlight.",
+    book:"Queue 45+ min — go off-peak", maps:"Gyukatsu Motomura Shibuya" },
+  { area:"Shibuya", name:"Uobei", jp:"魚べい 渋谷道玄坂", tags:["kid","must"], price:"¥",
+    desc:"Order on a screen and your sushi <b>shoots to you on a bullet-train rail</b>. ¥110–330 a plate. The little-brother pick of the whole trip.",
+    book:"Queue moves fast", maps:"Uobei Shibuya Dogenzaka" },
+  { area:"Shibuya", name:"Han no Daidokoro", jp:"韓の台所 道玄坂", tags:["meat","book"], price:"¥¥¥",
+    desc:"Proper sit-down <b>wagyu yakiniku</b> near Shibuya station — thick-cut A4/A5 beef, harami, tongue, grilled at the table. The Dad-headliner dinner for the Shibuya day.",
+    book:"Book 3–4 days ahead", maps:"Han no Daidokoro Dogenzaka Shibuya" },
+  { area:"Shibuya", name:"Ichiran", jp:"一蘭", tags:["kid"], price:"¥",
+    desc:"Tonkotsu ramen in <b>solo booths</b> — order by ticket machine, customize on paper, the bowl appears through a curtain. The ritual is half the fun.",
+    book:"Queue · open late", maps:"Ichiran Shibuya" },
+  { area:"Shibuya", name:"Tokyo Abura-gumi", jp:"東京油組総本店", tags:["kid"], price:"¥",
+    desc:"<b>Abura soba</b> — ramen with no soup at all. Thick noodles sit on tare and oil at the bottom of the bowl; you add vinegar and chilli oil, then mix hard for 20 seconds before eating. Cheap, fast, and a genuinely different noodle.",
+    book:"Walk in · fast", maps:"Tokyo Abura Gumi Souhonten Shibuya" },
+  { area:"Shibuya", name:"Afuri", jp:"阿夫利", tags:[], price:"¥",
+    desc:"Light, citrusy <b>yuzu shio ramen</b> — the right bowl for a 35° day, right by Harajuku station.",
+    book:"Short queue", maps:"Afuri Harajuku" },
+  { area:"Shibuya", name:"Marion Crêpes & Takeshita St", jp:"マリオンクレープ・竹下通り", tags:["street","sweet","kid"], price:"¥",
+    desc:"Marion Crêpes opened here in 1976 and effectively invented the Japanese street crêpe — a cone of cream, fruit and cake stuffed into a pancake. It anchors a 350 m street built entirely around teenage snacking.",
+    book:"Queue is part of it", maps:"Marion Crepes Takeshita Street",
+    deep: { count:"~10 snack stops on one street", hours:"Most stalls 10:00–19:00; the street is busiest 14:00–17:00",
+      ticket:"Nothing bookable — it's all counter service and queues. Weekday mornings are markedly calmer than afternoons.",
+      free:true,
+      when:"Block 3 puts you here after Meiji Shrine. Arrive by 11:00 if you'd rather not shuffle through crowds.",
+      eat:[
+        { n:"Marion Crêpes", jp:"マリオンクレープ", w:"The original. 80+ fillings on a photo menu — the classic is strawberry, whipped cream and a slice of cheesecake inside.", p:"¥600–900" },
+        { n:"Santa Monica Crêpes", jp:"サンタモニカ", w:"The rival stand a few doors down, usually a shorter queue and slightly bigger crêpes. A genuine taste-test.", p:"¥600–900" },
+        { n:"Totti Candy Factory", jp:"トッティキャンディファクトリー", w:"The giant rainbow cotton candy that's bigger than a child's head. Almost entirely a photo prop — buy one for the four of you, not four.", p:"~¥1,000" },
+        { n:"Calbee+", jp:"カルビープラス", w:"Potato chips fried to order and served hot in a cup, sometimes with soft serve on top. Better than it has any right to be.", p:"¥400–600" },
+        { n:"Zaku Zaku", jp:"ザクザク", w:"Croquant chou — a crunchy choux pastry stick piped full of cold custard.", p:"~¥300" },
+      ],
+      how:"<b>Reality check:</b> Takeshita Street is narrow, extremely crowded and aimed squarely at teenagers — plan on 45 minutes rather than an afternoon. <b>The grown-up escape:</b> Omotesando, the broad tree-lined boulevard one block south, is where Gyoza Lou and Maisen are. Do Takeshita for the little brother, then walk down there for lunch." } },
+  { area:"Shibuya", name:"Gyoza Lou", jp:"餃子楼", tags:[], price:"¥",
+    desc:"Just <b>gyoza</b> (grilled or steamed), rice, beans and beer — ¥370 a plate, always a line, always worth it. Backstreet Omotesando.",
+    book:"Queue ~20–30 min · cash", maps:"Gyoza Lou Harajuku" },
+  { area:"Shibuya", name:"Tonkatsu Maisen", jp:"とんかつ まい泉 青山本店", tags:["book","meat"], price:"¥¥¥",
+    desc:"Famous <b>tonkatsu</b> in a converted pre-war bathhouse — the elegant sit-down option after Meiji Shrine. Kurobuta pork is the move.",
+    book:"Reservable · or off-peak walk-in", maps:"Tonkatsu Maisen Aoyama Honten" },
+
+  /* --- Odaiba --- */
+  { area:"Odaiba", name:"Odaiba Takoyaki Museum", jp:"お台場たこ焼きミュージアム", tags:["street","kid"], price:"¥",
+    desc:"Not a museum — a food court on the 4th floor of DECKS where several famous Osaka <b>takoyaki</b> shops compete side by side. The perfect warm-up for Dotonbori, in the same building as Joypolis.",
+    book:"Walk in", maps:"Odaiba Takoyaki Museum Decks",
+    deep: { count:"4–5 shops", hours:"~11:00–21:00, same as the DECKS mall",
+      ticket:"Free to enter, pay each shop separately. No booking — it's a food court with shared seating.",
+      free:true,
+      when:"Indoors and air-conditioned, so it's a safe bet on a brutally hot or rainy Odaiba day.",
+      eat:[
+        { n:"Aizuya", jp:"会津屋", w:"The shop that invented takoyaki in 1935 — theirs is seasoned in the batter and served with no sauce at all. Order this first as a baseline.", p:"~¥500" },
+        { n:"Kukuru", jp:"くくる", w:"The opposite extreme: huge octopus chunks, heavy sauce and mayo, mountain of bonito flakes.", p:"~¥600" },
+        { n:"Acchichi Honpo", jp:"あっちち本舗", w:"Crisp outside, almost liquid inside — the molten style. Genuinely mouth-scalding, hence the name.", p:"~¥600" },
+        { n:"Rotating guest shops", jp:"", w:"The line-up changes every few years, so expect one or two names not on this list.", p:"¥500–700" },
+      ],
+      how:"<b>The point:</b> buy one tray from two or three different shops and compare — sauce-less original against modern loaded style. <b>Warning for the little brother:</b> the centre is molten for a good minute or two. Let each ball sit before biting." } },
+  { area:"Odaiba", name:"bills Odaiba", jp:"ビルズ お台場", tags:["book","sweet"], price:"¥¥¥",
+    desc:"The famous <b>ricotta pancakes</b> with a Rainbow Bridge view — proper sit-down break in the middle of the arcade day.",
+    book:"Book online 2–3 days ahead", maps:"bills Odaiba Decks Tokyo Beach" },
+
+  /* --- Azabudai / Tokyo Station --- */
+  { area:"Azabudai", name:"Azabudai Hills Market", jp:"麻布台ヒルズ マーケット", tags:[], price:"¥¥",
+    desc:"A polished modern <b>food hall</b> on the ground floor of the same complex as teamLab — fishmongers, butchers, bakeries and counters all with eat-in seating. Walk out of the exhibition and straight into lunch.",
+    book:"Walk in", maps:"Azabudai Hills Market",
+    deep: { count:"~30 shops", hours:"~11:00–20:00, counters vary",
+      ticket:"No booking for the market itself. teamLab Borderless upstairs is the opposite — strictly timed tickets bought in advance, and August slots go early, so lock that in before anything else.",
+      when:"Built for exactly this: a cool, indoor place to land after 3 hours in a dark exhibition.",
+      eat:[
+        { n:"Sushi & seafood counters", jp:"鮨・鮮魚", w:"Fishmongers who will slice a plate for you to eat right there — better value than a sit-down sushi restaurant in this district.", p:"¥1,500–3,500" },
+        { n:"Wagyu sando", jp:"和牛サンド", w:"Beef cutlet in white bread, cut into neat squares. Expensive, absurd, and very good. Dad pick.", p:"¥1,500–3,000" },
+        { n:"Bakeries", jp:"ベーカリー", w:"Azabudai's bakery counters are a destination in their own right — pastries, melon pan, filled breads.", p:"¥300–800" },
+        { n:"Ramen & noodle counters", jp:"麺類", w:"A quick bowl if the group wants something hot and familiar without a queue.", p:"¥1,000–1,600" },
+      ],
+      how:"<b>How it works:</b> buy from whichever counters you like and share a table — everyone can eat something different, which is the easiest way to feed four people with different appetites. <b>Note:</b> this is a high-end district, so expect prices roughly double a neighbourhood shop." } },
+  { area:"Azabudai", name:"Rokurinsha", jp:"六厘舎", tags:["must"], price:"¥",
+    desc:"The shop that made <b>tsukemen</b> (dipping ramen) famous — thick chewy noodles, intense broth. On Tokyo Station's Ramen Street; pair with Character Street on the last-day shinkansen shuffle.",
+    book:"Queue 30–45 min", maps:"Rokurinsha Tokyo Station Ramen Street" },
+
+  /* --- Dotonbori / Namba --- */
+  { area:"Dotonbori", name:"Mizuno", jp:"美津の", tags:["must"], price:"¥¥",
+    desc:"Michelin Bib Gourmand <b>okonomiyaki</b> since 1945 — get the yamaimo-yaki. The queue is real: line up ~30 min before opening or at 21:00.",
+    book:"Queue up to 1 h", maps:"Mizuno Okonomiyaki Dotonbori" },
+  { area:"Dotonbori", name:"Wanaka Honten", jp:"わなか 千日前本店", tags:["must","street","kid"], price:"¥",
+    desc:"Osaka's best-loved <b>takoyaki</b> — crisp outside, molten inside. Get the 8-pack with everything on it and eat standing like locals.",
+    book:"Short queue", maps:"Takoyaki Wanaka Sennichimae Honten" },
+  { area:"Dotonbori", name:"Daruma", jp:"だるま 道頓堀店", tags:["meat"], price:"¥¥",
+    desc:"<b>Kushikatsu</b> — everything breaded, fried, on sticks. House rule the kids will enforce: <b>no double-dipping</b> in the communal sauce.",
+    book:"Queue ~20–30 min", maps:"Kushikatsu Daruma Dotonbori" },
+  { area:"Dotonbori", name:"Kamukura", jp:"神座 道頓堀店", tags:["kid"], price:"¥",
+    desc:"Osaka's own comfort bowl, and the city's answer to \"ramen but lighter\": a clear, faintly sweet <b>shoyu broth piled with softened cabbage</b>. Non-ramen people usually like this one. Open late, so it's the post-Dotonbori-neon bowl.",
+    book:"Short queue · open late", maps:"Kamukura Dotonbori ramen" },
+  { area:"Dotonbori", name:"Kinryu Ramen", jp:"金龍ラーメン", tags:["street","kid"], price:"¥",
+    desc:"The giant green dragon on the Dotonbori strip. <b>Tonkotsu ramen around the clock</b>, eaten cross-legged on a raised tatami platform with free kimchi and garlic chives you pile on yourself. More landmark than fine dining — and open 24 hours.",
+    book:"Walk up · open 24 h", maps:"Kinryu Ramen Dotonbori" },
+  { area:"Dotonbori", name:"Kani Doraku Honten", jp:"かに道楽 本店", tags:["book"], price:"¥¥¥¥",
+    desc:"Under the giant moving crab: a full <b>crab dinner</b> — sashimi, grilled, hotpot. The one fancy family dinner of the Osaka week.",
+    book:"Book 3–5 days ahead", maps:"Kani Doraku Honten Dotonbori" },
+  { area:"Dotonbori", name:"Matsusakagyu Yakiniku M", jp:"松阪牛焼肉M 法善寺横丁", tags:["book","must","meat"], price:"¥¥¥¥",
+    desc:"Grill-your-own <b>Matsusaka wagyu</b> in the lantern-lit Hozenji alley — the beef splurge. Book about a week out.",
+    book:"Book ~1 week ahead (TableCheck)", maps:"Matsusakagyu Yakiniku M Hozenji Yokocho" },
+  { area:"Dotonbori", name:"551 Horai", jp:"551蓬莱 戎橋本店", tags:["street","kid","must","meat"], price:"¥",
+    desc:"Steamed <b>butaman</b> (pork buns) Osakans carry home by the box — follow the smell near Namba station. Two each, minimum.",
+    book:"Fast-moving line", maps:"551 Horai Ebisubashi Honten" },
+  { area:"Dotonbori", name:"Rikuro's Cheesecake", jp:"りくろーおじさんの店", tags:["sweet","kid","must"], price:"¥",
+    desc:"The <b>jiggly cheesecake</b>, rung out of the oven with a bell — a whole fresh cake is ~¥1,000. Buy one, four forks, hotel picnic.",
+    book:"Queue for fresh-from-oven", maps:"Rikuro Ojisan Namba Honten" },
+  { area:"Dotonbori", name:"Kuromon Ichiba Market", jp:"黒門市場", tags:["street","must","meat"], price:"¥¥",
+    desc:"A 580 m covered arcade known as \"Osaka's kitchen\" — 6 minutes from your hotel. Stalls grill <b>A5 wagyu skewers, scallops, king crab and uni</b> to eat on the spot. The best grazing brunch of the trip.",
+    book:"Morning walk-around", maps:"Kuromon Ichiba Market Osaka",
+    deep: { count:"~150 shops", hours:"9:00–18:00, many winding down by 17:00. Busiest 10:00–15:00",
+      ticket:"No booking, no entry fee. Carry cash — and note prices here are tourist-facing, so it's pricier than it looks.",
+      free:true,
+      when:"Open daily, though a few shops close Sundays. Perfect for the mornings before your Nara or Kyoto day trips.",
+      eat:[
+        { n:"Wagyu skewer stalls", jp:"和牛串", w:"A5 beef grilled in front of you; a couple of stalls also do wagyu sushi seared with a blowtorch. Dad's stop.", p:"¥800–2,500" },
+        { n:"Kurogin", jp:"まぐろ屋黒銀", w:"Tuna specialist — fatty otoro sashimi and tuna rice bowls cut to order.", p:"¥1,000–2,500" },
+        { n:"Sanpei", jp:"黒門三平", w:"The big seafood hall: grilled scallops, oysters, crab legs, uni in the shell, with an eat-in counter upstairs.", p:"¥500–3,000" },
+        { n:"Tempura & croquette stands", jp:"天ぷら・コロッケ", w:"Fried-to-order prawn tempura and potato croquettes for about ¥150 — the cheap filler.", p:"¥120–400" },
+        { n:"Fruit stalls", jp:"果物", w:"Musk melon, peaches and strawberries by the cup, plus fresh juices. Worth it in the August heat.", p:"¥400–1,000" },
+      ],
+      how:"<b>Etiquette:</b> stalls expect you to eat right there at their counter — walking off down the arcade with food is frowned on, and most stalls have a bin for your skewers. <b>Tip:</b> prices are rarely displayed per-100g clearly, so point and ask before they cut, especially for crab and otoro." } },
+  { area:"Dotonbori", name:"Jiyuken", jp:"自由軒 難波本店", tags:[], price:"¥",
+    desc:"Since 1910 and 3 minutes from the hotel: the <b>meibutsu curry</b> — curried rice mixed through with minced beef, served with a raw egg on top to stir in. Retro Osaka in a bowl.",
+    book:"Walk in · closed Mon", maps:"Jiyuken Namba Honten" },
+  { area:"Dotonbori", name:"Fukutaro", jp:"福太郎 本店", tags:["meat"], price:"¥¥",
+    desc:"Locals' favorite <b>okonomiyaki &amp; negiyaki</b> a few blocks from the hotel — the pork negiyaki is the order. Shorter queue than Mizuno, arguably as good.",
+    book:"Queue ~30 min · reservable early evening", maps:"Fukutaro Honten Namba okonomiyaki" },
+  { area:"Dotonbori", name:"Dotonbori Imai", jp:"道頓堀 今井", tags:[], price:"¥¥",
+    desc:"A calm, wood-paneled oasis right on the neon strip: silky <b>kitsune udon</b> in golden dashi with sweet fried tofu. The quiet-lunch antidote to Dotonbori chaos.",
+    book:"Short queue · closed Wed", maps:"Dotonbori Imai udon" },
+  { area:"Dotonbori", name:"Harukoma", jp:"春駒 本店", tags:[], price:"¥¥",
+    desc:"Legendary neighborhood <b>sushi counter</b> on Tenjinbashisuji — enormous nigiri at half Tokyo prices. Worth pairing with an Umeda afternoon.",
+    book:"Queue ~30 min · closed Tue", maps:"Harukoma Sushi Tenjinbashisuji" },
+
+  /* --- Umeda / Bay --- */
+  { area:"Umeda", name:"Kiji", jp:"きじ 滝見小路店", tags:["must"], price:"¥",
+    desc:"Beloved <b>okonomiyaki</b> in the retro Takimi-koji alley in the Umeda Sky Building basement — literally under Mom's observation deck. Get the modan-yaki.",
+    book:"Queue · closed Thu", maps:"Kiji Okonomiyaki Umeda Sky Building" },
+  { area:"Umeda", name:"Hanadako", jp:"はなだこ", tags:["street"], price:"¥",
+    desc:"Umeda's standing-room <b>takoyaki</b> champion — order the <b>negi-mayo</b> (buried in green onion). Steps from Osaka station.",
+    book:"Short queue", maps:"Hanadako Umeda" },
+  { area:"Umeda", name:"Naniwa Kuishinbo Yokocho", jp:"なにわ食いしんぼ横丁", tags:["street","kid"], price:"¥",
+    desc:"A food alley built as a replica of 1965 Osaka — wooden shopfronts, old film posters, retro signage — inside Tempozan Marketplace, right beside the aquarium. Every Osaka classic in one air-conditioned lane.",
+    book:"Walk in", maps:"Naniwa Kuishinbo Yokocho Tempozan",
+    deep: { count:"~20 stalls", hours:"~11:00–20:00, shops vary",
+      ticket:"Free to walk in, pay per stall, no booking. The aquarium next door is the one to book — Kaiyukan uses timed-entry tickets and August is peak season, so buy those online before the day.",
+      free:true,
+      when:"Exactly where to eat on the Block 8 bay day — you can do aquarium, ferris wheel and lunch without stepping outside into the heat.",
+      eat:[
+        { n:"Takoyaki counters", jp:"たこ焼き", w:"Several competing stalls; this is the cheapest place to try the Osaka original if you skipped Dotonbori.", p:"¥400–600" },
+        { n:"Okonomiyaki & modan-yaki", jp:"お好み焼き", w:"Griddle counters where you sit at the teppan — modan-yaki adds a nest of fried noodles inside.", p:"¥800–1,200" },
+        { n:"Kushikatsu", jp:"串カツ", w:"Deep-fried skewers, same no-double-dipping rule as Daruma.", p:"¥150–250 a skewer" },
+        { n:"Doteyaki", jp:"どて焼き", w:"Beef sinew slow-stewed in sweet miso — a proper old-Osaka dish you won't see on tourist menus. Dad pick.", p:"¥400–700" },
+        { n:"Omurice", jp:"オムライス", w:"Ketchup rice under a soft omelette — the safest order for the little brother.", p:"¥800–1,100" },
+      ],
+      how:"<b>Tip:</b> the whole alley is a photo set as much as a food court — the shopfronts are dressed to look like the year of the 1970 Osaka Expo. Do a full lap before choosing; several stalls sell the same thing at different prices." } },
+
+  /* --- USJ --- */
+  { area:"USJ", name:"Kinopio's Cafe", jp:"キノピオ・カフェ", tags:["kid","must"], price:"¥¥",
+    desc:"Toad's cafe inside <b>Super Nintendo World</b> — Mario-shaped everything, Piranha Plant caprese. Needs Nintendo-area entry; eat at an off-hour (11:00 or 15:00).",
+    book:"Queue inside the area", maps:"Kinopio's Cafe Universal Studios Japan" },
+  { area:"USJ", name:"Three Broomsticks + Butterbeer", jp:"三本の箒", tags:["kid"], price:"¥¥",
+    desc:"Hogsmeade's great hall — fish &amp; chips, roast plates, and a frozen <b>Butterbeer</b> each (frozen beats regular in August).",
+    book:"Walk in, lunch rush is real", maps:"Three Broomsticks Universal Studios Japan" },
+
+  /* --- Kyoto --- */
+  { area:"Kyoto", name:"Fushimi Inari street stalls", jp:"伏見稲荷 参道グルメ", tags:["street"], price:"¥",
+    desc:"The approach road to the shrine is lined with stalls, and the food here is themed to the fox spirits the shrine is dedicated to. Eat before the torii climb, or reward yourselves after.",
+    book:"Morning graze", maps:"Fushimi Inari Sando street food",
+    deep: { count:"~30 stalls along the approach", hours:"Stalls ~9:00–17:00; the shrine itself is open 24 hours",
+      ticket:"The shrine is free and needs no ticket or booking — one of the few major sights in Kyoto that doesn't.",
+      free:true,
+      when:"Mom's plan says start early, and she's right for the gates — but stalls don't open until about 9:00. Climb first from 7:00–8:00 while it's cool and empty, then eat on the way down.",
+      eat:[
+        { n:"Inari-zushi", jp:"いなり寿司", w:"Sushi rice in a pouch of sweet fried tofu — said to be the fox's favourite food, which is why it's everywhere here. Kyoto's version adds sesame and hemp seed.", p:"¥150–300 ea" },
+        { n:"Kitsune udon", jp:"きつねうどん", w:"\"Fox udon\" — the same sweet fried tofu floating on hot noodles. A proper sit-down for about ¥700.", p:"~¥700" },
+        { n:"Grilled sparrow & quail", jp:"すずめ・うずら", w:"The shrine's oldest and strangest specialty, grilled whole on a skewer. Historic rather than delicious — but a real one.", p:"¥500–1,000" },
+        { n:"Taiyaki & dango", jp:"たい焼き・団子", w:"Fish-shaped cakes filled with red bean or custard, and grilled rice dumplings in sweet soy glaze.", p:"¥200–400" },
+        { n:"Matcha soft serve", jp:"抹茶ソフト", w:"The correct move after the climb in August heat.", p:"¥400–500" },
+      ],
+      how:"<b>Fair warning on the sparrow:</b> it's served whole, head included, and your little brother will either love it or be horrified — worth deciding before you walk past the grill. <b>On the climb:</b> the full loop to the summit takes 2–3 hours, but the dense, photogenic gate tunnels are in the first 30 minutes. Turning back at the Yotsutsuji viewpoint (about 45 min up) is a perfectly good plan with a family." } },
+  { area:"Kyoto", name:"Yoshimura", jp:"嵐山よしむら", tags:["must"], price:"¥¥",
+    desc:"Handmade <b>soba</b> with a window view of Togetsukyō bridge — the civilized Arashiyama lunch. Tempura-soba sets ~¥1,600.",
+    book:"Queue at lunch — arrive by 11:30", maps:"Arashiyama Yoshimura soba" },
+  { area:"Kyoto", name:"% Arabica Arashiyama", jp:"アラビカ京都 嵐山", tags:["street","sweet"], price:"¥",
+    desc:"Cult <b>latte</b> with a riverside view — the queue moves. Grab dango or a croquette from the main-street stalls while you wait.",
+    book:"Queue ~20 min", maps:"%25 Arabica Kyoto Arashiyama" },
+  { area:"Kyoto", name:"Honke Daiichi-Asahi", jp:"本家第一旭", tags:["must"], price:"¥",
+    desc:"<b>Kyoto-style ramen</b> beside Kyoto Station and a world away from Tokyo's: dark soy broth enriched with pork back-fat, buried under sliced chashu and a haystack of green onion. Opens early enough to be breakfast, and there is always a queue.",
+    book:"Queue 20–40 min · opens early", maps:"Honke Daiichi Asahi ramen Kyoto" },
+  { area:"Kyoto", name:"Katsukura", jp:"名代とんかつ かつくら", tags:["kid","meat"], price:"¥¥",
+    desc:"Kyoto's <b>tonkatsu</b> chain done right — grind your own sesame for the sauce, free rice/cabbage refills. In Kyoto Station: zero-effort dinner before the train back.",
+    book:"Short queue", maps:"Katsukura Kyoto Station" },
+
+  /* --- Nara --- */
+  { area:"Nara", name:"Nakatanidou", jp:"中谷堂", tags:["must","street","sweet","kid"], price:"¥",
+    desc:"The famous <b>high-speed mochi pounding</b> show — then eat the yomogi mochi still warm, dusted in kinako. ¥200 of pure theater.",
+    book:"Catch a pounding round", maps:"Nakatanidou Nara" },
+  { area:"Nara", name:"Kamameshi Shizuka", jp:"志津香 公園店", tags:[], price:"¥¥",
+    desc:"<b>Kamameshi</b> — rice, seven ingredients, cooked to order in its own iron kettle. Calm sit-down lunch right by the deer park.",
+    book:"Queue ~30 min · closed Tue", maps:"Kamameshi Shizuka Nara" },
+];
+
+/* ================= DATES ================= */
+const TRIP = [
+  ["2","tokyo","✈️ land"],["3","tokyo"],["4","tokyo"],["5","travel","→ Osaka"],
+  ["6","osaka"],["7","osaka"],["8","osaka"],["9","osaka"],["10","osaka"],
+  ["11","travel","→ Tokyo"],["12","tokyo"],["13","tokyo","✈️ home"],
+];
+const strip = document.getElementById("datestrip");
+const today = new Date();
+const isTripMonth = today.getFullYear() === 2026 && today.getMonth() === 7;
+TRIP.forEach(([d, city, note]) => {
+  const el = document.createElement("div");
+  const isToday = isTripMonth && today.getDate() === +d;
+  el.className = `day ${city}${isToday ? " is-today" : ""}`;
+  el.innerHTML = `<span class="num">${d}</span><span class="city">${note || city}</span>`;
+  strip.appendChild(el);
+  if (isToday) {
+    const b = document.getElementById("today-banner");
+    b.style.display = "block";
+    const where = city === "travel" ? (note || "travel day") : city[0].toUpperCase() + city.slice(1);
+    b.textContent = `Today · Aug ${d} · ${where} — itadakimasu!`;
+  }
+});
+
+/* ================= STATE ================= */
+const eaten = new Set(JSON.parse(localStorage.getItem("jp-eaten") || "[]"));
+let cityFilter = "all";
+const tagFilters = new Set();
+let query = "";
+let ASK = null, askLocating = false;
+let nearMode = false, userLL = null;
+
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+FOOD.forEach(f => {
+  f.id = slug(f.name);
+  f._blob = (f.name + " " + f.jp + " " + f.desc + " " + f.area + " " + (f.book || "") + " " +
+    (f.deep ? f.deep.eat.map(s => s.n + " " + s.w).join(" ") + " " + (f.deep.how || "") : ""))
+    .replace(/<[^>]+>/g, " ").toLowerCase();
+});
+
+/* ================= RENDER ================= */
+const list = document.getElementById("foodList");
+function badge(f) {
+  const out = [];
+  if (f.tags.includes("must")) out.push('<span class="badge b-must">Must-eat</span>');
+  if (f.tags.includes("book")) out.push('<span class="badge b-book">Book ahead</span>');
+  if (f.tags.includes("kid"))  out.push('<span class="badge b-kid">Little-brother pick</span>');
+  if (f.tags.includes("meat")) out.push('<span class="badge b-meat">Dad pick</span>');
+  if (f.book && !f.tags.includes("book")) out.push(`<span class="badge b-queue">${f.book}</span>`);
+  else if (f.book) out.push(`<span class="badge b-plain">${f.book}</span>`);
+  return out.join("");
+}
+function deepHTML(f) {
+  const d = f.deep;
+  if (!d) return "";
+  const line = (k, v, cls) => v ? `<div class="dline ${cls || ""}"><span class="dk">${k}</span><span class="dv">${v}</span></div>` : "";
+  return `<details class="deep">
+    <summary>What to eat here <span class="cnt">· ${d.count}</span></summary>
+    <div class="deepbody">
+      ${line("Booking", d.ticket, "book" + (d.free ? " free" : ""))}
+      ${line("Hours", d.hours)}
+      ${line("Best day", d.when)}
+      <ul class="dstalls">${d.eat.map(s => `<li>
+        <span class="sn">${s.n}</span>${s.jp ? ` <span class="sj">${s.jp}</span>` : ""}
+        <span class="sp">· ${s.p}</span><br>${s.w}
+      </li>`).join("")}</ul>
+      ${d.how ? `<p class="dhow">${d.how}</p>` : ""}
+    </div>
+  </details>`;
+}
+
+/* ================= SMART ASK ================= */
+const DISH = [
+  { id:"ramen", label:"ramen", q:["ramen","noodle","noodles","tsukemen","tonkotsu","tantanmen","abura soba","shoyu"], re:/ramen|tsukemen|tantanmen|abura soba/ },
+  { id:"sushi", label:"sushi & seafood", q:["sushi","sashimi","nigiri","fish","seafood","tuna","otoro","uni","raw fish"], re:/sushi|sashimi|nigiri|tuna|otoro|seafood|uni |scallop|fish/ },
+  { id:"crab", label:"crab", q:["crab"], re:/crab/ },
+  { id:"takoyaki", label:"takoyaki", q:["takoyaki","octopus"], re:/takoyaki|octopus/ },
+  { id:"okonomiyaki", label:"okonomiyaki", q:["okonomiyaki","monja","monjayaki","negiyaki"], re:/okonomiyaki|monja|negiyaki|modan/ },
+  { id:"katsu", label:"katsu", q:["katsu","tonkatsu","gyukatsu","cutlet","fried pork"], re:/katsu/ },
+  { id:"beef", label:"beef & yakiniku", q:["yakiniku","bbq","barbecue","beef","wagyu","steak","grill"], re:/yakiniku|wagyu|beef|matsusaka|gyukatsu/ },
+  { id:"curry", label:"curry", q:["curry"], re:/curry/ },
+  { id:"tempura", label:"tempura", q:["tempura","tendon"], re:/tempura|tendon/ },
+  { id:"udon", label:"udon & soba", q:["udon","soba","noodle","noodles"], re:/udon|soba/ },
+  { id:"gyoza", label:"gyoza", q:["gyoza","dumpling","dumplings"], re:/gyoza/ },
+  { id:"skewer", label:"skewers", q:["yakitori","skewer","skewers","kushikatsu"], re:/yakitori|kushikatsu|skewer/ },
+  { id:"sweet", label:"sweets", q:["dessert","desserts","sweet","sweets","cake","ice cream","gelato","crepe","crepes","mochi","matcha","cheesecake","pancakes"],
+    test:f => f.tags.includes("sweet") || /gelato|crepe|mochi|cheesecake|pancake|dessert|soft serve|ice cream|daifuku|taiyaki|dango|melon.?pan|matcha/.test(f._blob) },
+  { id:"coffee", label:"coffee", q:["coffee","espresso","latte","cafe"], re:/coffee|latte|espresso/ },
+  { id:"omurice", label:"omurice", q:["omurice","omelette","omelet"], re:/omurice|omelette/ },
+  { id:"onigiri", label:"rice balls", q:["onigiri","rice ball","rice balls"], re:/onigiri/ },
+];
+const MODS = [
+  { id:"cheap", label:"cheap", q:["cheap","budget","affordable","inexpensive","casual"], test:f => f.price === "¥" },
+  { id:"splurge", label:"a splurge", q:["splurge","fancy","expensive","upscale","celebration","treat"], test:f => f.price.length >= 3 },
+  { id:"meat", label:"Dad picks", q:["dad","father","meat","carnivore","meaty"], test:f => f.tags.includes("meat") },
+  { id:"kid", label:"little-brother picks", q:["brother","kid","kids","child","children","fun","playful"], test:f => f.tags.includes("kid") },
+  { id:"must", label:"must-eats", q:["best","must","top","famous","iconic","essential","highlight"], test:f => f.tags.includes("must") },
+  { id:"book", label:"needs booking", q:["book","booking","reserve","reservation","reservations"], test:f => f.tags.includes("book") },
+  { id:"street", label:"street food", q:["street food","stall","stalls","market","grazing","standing"], test:f => f.tags.includes("street") },
+  { id:"quick", label:"no long queue", q:["quick","fast","hurry","rush","quickly"], test:f => !/queue\s*(3\d|4\d|5\d|6\d|9\d|1\s*h|up to)/i.test(f.book || "") },
+  { id:"late", label:"open late", q:["late","midnight","24 h","24 hours"], test:f => /24\s*h|open late|late/i.test(f.book || "") },
+  { id:"morning", label:"morning", q:["breakfast","morning","early"], test:f => /morning|opens early|breakfast/i.test((f.book || "") + " " + f._blob) },
+  { id:"indoor", label:"indoor / rainy-day", q:["rain","rainy","indoor","indoors","aircon","covered","shelter"],
+    test:f => /arcade|indoor|covered|mall|food hall|food court|inside|floor of|decks|basement|station/i.test(f._blob) },
+];
+const AREA_WORDS = [
+  { q:["shibuya","harajuku","omotesando","takeshita"], area:"Shibuya" },
+  { q:["asakusa","sensoji","nakamise"], area:"Asakusa" },
+  { q:["akihabara","akiba","ikebukuro","kanda"], area:"Akihabara" },
+  { q:["odaiba"], area:"Odaiba" },
+  { q:["ginza","tsukiji","nihonbashi","kyobashi","tsukishima"], area:"Tsukiji" },
+  { q:["azabudai","teamlab","tokyo station"], area:"Azabudai" },
+  { q:["dotonbori","namba","kuromon","shinsaibashi"], area:"Dotonbori" },
+  { q:["umeda","tempozan","kaiyukan"], area:"Umeda" },
+  { q:["universal","usj","nintendo"], area:"USJ" },
+  { q:["arashiyama","fushimi","inari"], area:"Kyoto" },
+];
+const CITY_WORDS = [
+  { q:["tokyo"], city:"tokyo" }, { q:["osaka"], city:"osaka" },
+  { q:["kyoto"], city:"kyoto" }, { q:["nara"], city:"nara" },
+];
+const AREA_CITY = Object.fromEntries(AREAS.map(a => [a.id, a.city]));
+const NEAR_ME = ["near me","nearby","closest","close to me","around me","near here","walking distance"];
+const NEAR_HOTEL = ["hotel","near the hotel","from the hotel"];
+const TODAY_W = ["open today","today","open now","right now","tonight"];
+const STOP = new Set(("a an the for to in at on of and or me my we us i is are some something anything " +
+  "want find good place places spot spots food eat get near close around with that this can where what " +
+  "show give recommend suggest go going lets let's please any there here it's its " +
+  "little big really very nice great bit thing things option options idea ideas choice choices " +
+  "day days time meal meals dinner lunch supper brunch snack somewhere anywhere area " +
+  "should would could will need needs have has had they them our your you not but out one two").split(" "));
+
+const DAYS3 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function closedToday(f) {
+  const d = DAYS3[new Date().getDay()].toLowerCase();
+  if (f.closed && f.closed.some(x => x.toLowerCase() === d)) return true;
+  const m = (f.book || "").match(/closed\s+(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/i);
+  return !!m && m[1].toLowerCase() === d;
+}
+
+const dishHit = (d, f) => d.test ? d.test(f) : d.re.test(f._blob);
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function parseAsk(raw) {
+  const q = (raw || "").toLowerCase().trim();
+  if (!q) return null;
+  const has = p => new RegExp("(^|[^a-z0-9])" + esc(p) + "([^a-z0-9]|$)", "i").test(q);
+  const dishes = DISH.filter(d => d.q.some(has));
+  const mods = MODS.filter(m => m.q.some(has));
+  const place = AREA_WORDS.find(a => a.q.some(has));
+  const city = CITY_WORDS.find(c => c.q.some(has));
+  const nearMe = NEAR_ME.some(has);
+  const nearHotel = !nearMe && NEAR_HOTEL.some(has);
+  const openToday = TODAY_W.some(has);
+  const known = new Set();
+  [...DISH, ...MODS].forEach(g => g.q.forEach(w => w.split(" ").forEach(x => known.add(x))));
+  [...AREA_WORDS, ...CITY_WORDS].forEach(g => g.q.forEach(w => w.split(" ").forEach(x => known.add(x))));
+  [...NEAR_ME, ...NEAR_HOTEL, ...TODAY_W].forEach(w => w.split(" ").forEach(x => known.add(x)));
+  const free = q.split(/[^a-z0-9']+/).filter(w => w.length > 2 && !STOP.has(w) && !known.has(w));
+  const hasIntent = !!(dishes.length || mods.length || place || city || nearMe || nearHotel || openToday);
+  return { q, dishes, mods, place, city, nearMe, nearHotel, openToday, free, hasIntent };
+}
+
+function askMatch(f) {
+  if (ASK.place && f.area !== ASK.place.area) return false;
+  if (ASK.city && AREA_CITY[f.area] !== ASK.city.city) return false;
+  if (ASK.dishes.length && !ASK.dishes.some(d => dishHit(d, f))) return false;
+  for (const m of ASK.mods) if (!m.test(f)) return false;
+  if (ASK.openToday && closedToday(f)) return false;
+  if (ASK.free.length && !ASK.free.some(w => f._blob.includes(w))) return false;
+  return true;
+}
+function askScore(f) {
+  let s = f.tags.includes("must") ? 2 : 0;
+  for (const d of ASK.dishes) if (dishHit(d, f)) s += 8;
+  s += ASK.mods.length * 4;
+  for (const w of ASK.free) {
+    if (f.name.toLowerCase().includes(w)) s += 6;
+    else if (f._blob.includes(w)) s += 2;
+  }
+  return s;
+}
+function askOrigin() {
+  if (ASK.nearMe && userLL) return userLL;
+  if (ASK.nearHotel) return (HOTELS[ASK.city ? ASK.city.city : null] || currentHotel()).ll;
+  return null;
+}
+function currentHotel() {
+  const inOsaka = isTripMonth && today.getDate() >= 5 && today.getDate() <= 10;
+  return inOsaka ? HOTELS.osaka : HOTELS.tokyo;
+}
+
+function answerHTML() {
+  const origin = askOrigin();
+  let hits = FOOD.filter(askMatch).map(f => ({
+    f, s: askScore(f),
+    d: (origin && COORDS[f.name]) ? distM(origin, COORDS[f.name]) : null,
+  }));
+  hits.sort((a, b) => (origin && a.d != null && b.d != null) ? a.d - b.d : b.s - a.s || (a.d ?? 0) - (b.d ?? 0));
+  const top = hits.slice(0, 6);
+
+  const read = [];
+  ASK.dishes.forEach(d => read.push(d.label));
+  ASK.mods.forEach(m => read.push(m.label));
+  if (ASK.place) read.push(ASK.place.area === "Tsukiji" ? "Ginza / Tsukiji" : ASK.place.area);
+  else if (ASK.city) read.push(ASK.city.city[0].toUpperCase() + ASK.city.city.slice(1));
+  if (ASK.nearMe) read.push(userLL ? "near you" : "near you (locating…)");
+  if (ASK.nearHotel) read.push("near the hotel");
+  if (ASK.openToday) read.push("open today");
+  ASK.free.forEach(w => read.push(`“${w}”`));
+
+  let h = `<div class="answer"><h3>${top.length ? `${hits.length} spot${hits.length > 1 ? "s" : ""} match` : "No match"}</h3>
+    <p class="read">Read as: ${read.map(r => `<span class="rd">${r}</span>`).join("")}</p>`;
+  if (!top.length) {
+    h += `<p class="none">Nothing fits all of that. Try dropping a word — or tap one of the examples under the box.</p></div>`;
+    return h;
+  }
+  top.forEach(({ f, d }, i) => {
+    const why = [];
+    ASK.dishes.forEach(x => { if (dishHit(x, f)) why.push(x.label); });
+    ASK.mods.forEach(x => why.push(x.label));
+    h += `<div class="ansrow">
+      <span class="rank">${i + 1}</span>
+      <span class="an">${f.name}</span><span class="aj">${f.jp} · ${f.area === "USJ" ? "Universal" : f.area}</span>
+      <div class="ameta">
+        <span class="yen">${f.price}</span>
+        ${d != null ? `<span><b>${distStr(d)}</b>${walkStr(d)}</span>` : ""}
+        <span>${f.book || ""}</span>
+        ${why.slice(0, 3).map(w => `<span class="why">${w}</span>`).join("")}
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a>
+      </div>
+    </div>`;
+  });
+  if (ASK.openToday) h += `<p class="none" style="margin-top:11px">Only spots with a known closing day get filtered out — most shops here don't publish fixed hours, so check the map link before a long walk.</p>`;
+  return h + `</div>`;
+}
+
+function matches(f, areaCity) {
+  if (cityFilter !== "all" && areaCity !== cityFilter) return false;
+  for (const t of tagFilters) if (!f.tags.includes(t)) return false;
+  if (ASK && ASK.hasIntent) return askMatch(f);
+  if (query && !f._blob.includes(query)) return false;
+  return true;
+}
+function render() {
+  let html = "", shown = 0;
+  if (ASK && ASK.hasIntent) html += answerHTML();
+  if (nearMode && userLL) html += nearSectionHTML();
+  for (const a of AREAS) {
+    const items = FOOD.filter(f => f.area === a.id && matches(f, a.city));
+    if (!items.length) continue;
+    shown += items.length;
+    html += `<h3 class="area-head" id="area-${a.id}">${a.name} <span class="pairs">${a.pairs}</span></h3>
+             <p class="area-sub">${a.sub}</p><div class="grid">`;
+    for (const f of items) {
+      const done = eaten.has(f.id);
+      html += `<article class="rcard${f.tags.includes("must") ? " must" : ""}${done ? " eaten" : ""}" data-id="${f.id}">
+        <div class="rtop">
+          <h4 class="rname">${f.name}<span class="rjp">${f.jp}</span></h4>
+          <button class="eatbtn" data-eat="${f.id}" aria-pressed="${done}" title="Mark as eaten">✓</button>
+        </div>
+        <div class="rmeta">${badge(f)}</div>
+        <p class="rdesc">${f.desc}</p>
+        ${deepHTML(f)}
+        <div class="rfoot">
+          <span class="yen">${f.price}</span>
+          <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a>
+        </div>
+      </article>`;
+    }
+    html += `</div>`;
+  }
+  list.innerHTML = html || `<div class="empty">Nothing matches — clear a filter or two.</div>`;
+  const musts = FOOD.filter(f => f.tags.includes("must"));
+  const done = musts.filter(f => eaten.has(f.id)).length;
+  document.getElementById("progress").innerHTML =
+    `Showing ${shown} of ${FOOD.length} spots · must-eats conquered: <b>${done} / ${musts.length}</b>`;
+}
+render();
+
+/* ================= EVENTS ================= */
+list.addEventListener("click", e => {
+  const btn = e.target.closest("[data-eat]");
+  if (!btn) return;
+  const id = btn.dataset.eat;
+  eaten.has(id) ? eaten.delete(id) : eaten.add(id);
+  localStorage.setItem("jp-eaten", JSON.stringify([...eaten]));
+  render();
+  if (typeof buildMap === "function" && svg) { buildMap(curMap); showDetail(selSpot); }
+});
+document.getElementById("cityChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  cityFilter = c.dataset.city;
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  render();
+});
+document.getElementById("tagChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  const t = c.dataset.tag;
+  const on = !tagFilters.has(t);
+  on ? tagFilters.add(t) : tagFilters.delete(t);
+  c.setAttribute("aria-pressed", String(on));
+  render();
+});
+document.getElementById("search").addEventListener("input", e => {
+  query = e.target.value.trim().toLowerCase();
+  ASK = parseAsk(e.target.value);
+  if (ASK && ASK.nearMe && !userLL && !askLocating) {
+    askLocating = true;
+    locate(() => { askLocating = false; render(); });
+  }
+  render();
+});
+document.getElementById("askExamples").addEventListener("click", e => {
+  const c = e.target.closest(".exchip"); if (!c) return;
+  const box = document.getElementById("search");
+  box.value = c.dataset.ask;
+  box.dispatchEvent(new Event("input", { bubbles: true }));
+  box.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+/* tabs */
+const tabs = document.querySelectorAll(".tab");
+tabs.forEach(t => t.addEventListener("click", () => {
+  tabs.forEach(x => {
+    const on = x === t;
+    x.setAttribute("aria-selected", String(on));
+    document.getElementById(x.dataset.panel).hidden = !on;
+  });
+  window.scrollTo({ top: 0 });
+}));
+
+/* itinerary → food jumps */
+document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => {
+  e.preventDefault();
+  const target = a.dataset.jump;
+  document.getElementById("tab-food").click();
+  cityFilter = "all"; tagFilters.clear(); query = ""; ASK = null;
+  document.getElementById("search").value = "";
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x.dataset.city === "all" ? "true" : "false"));
+  document.querySelectorAll("#tagChips .chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+  render();
+  const el = document.getElementById("area-" + target);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}));
+
+/* ================= MAP ================= */
+const COORDS = {
+  "Tsukiji Outer Market crawl":[35.6654,139.7707], "Kitsuneya":[35.6650,139.7692],
+  "Sushizanmai Honten":[35.6672,139.7702], "Monja Street, Tsukishima":[35.6647,139.7823],
+  "Ginza Kagari":[35.6718,139.7648], "Kura Sushi Ginza":[35.6740,139.7657],
+  "Turret Coffee":[35.6668,139.7718], "Daikokuya Tempura":[35.7113,139.7946],
+  "Kagetsudo":[35.7147,139.7936], "Asakusa Menchi":[35.7119,139.7943],
+  "Suzukien Nanaya":[35.7121,139.7996], "Tonkatsu Marugo":[35.6999,139.7718],
+  "Kyushu Jangara":[35.7012,139.7717], "Go!Go!Curry":[35.6988,139.7712],
+  "Mutekiya":[35.7273,139.7150], "Gyoza Stadium (Namja Town)":[35.7290,139.7190],
+  "Yakiniku Like":[35.6990,139.7708], "Han no Daidokoro":[35.6582,139.6982],
+  "Tsujihan":[35.6808,139.7742], "Taimeiken":[35.6818,139.7752],
+  "Kaneko Hannosuke":[35.6850,139.7737], "Isehiro":[35.6768,139.7700],
+  "Jiyuken":[34.6653,135.5013], "Fukutaro":[34.6650,135.5068], "Dotonbori Imai":[34.6689,135.5019],
+  "Ginza Hachigou":[35.6745,139.7665], "Yoroiya":[35.7125,139.7945],
+  "Kikanbo":[35.6950,139.7715], "Nakiryu":[35.7315,139.7285],
+  "Tokyo Abura-gumi":[35.6595,139.6985],
+  "Kamukura":[34.6687,135.5013], "Kinryu Ramen":[34.6684,135.5030],
+  "Honke Daiichi-Asahi":[34.9885,135.7600],
+  "Gyukatsu Motomura":[35.6580,139.6997], "Uobei":[35.6576,139.6962],
+  "Ichiran":[35.6591,139.7005], "Afuri":[35.6686,139.7043],
+  "Marion Crêpes & Takeshita St":[35.6713,139.7036], "Gyoza Lou":[35.6676,139.7080],
+  "Nakamise Street snacks":[35.7128,139.7965],
+  "Tonkatsu Maisen":[35.6670,139.7105], "Odaiba Takoyaki Museum":[35.6288,139.7746],
+  "bills Odaiba":[35.6291,139.7740], "Azabudai Hills Market":[35.6605,139.7398],
+  "Rokurinsha":[35.6796,139.7669],
+  "Mizuno":[34.6686,135.5028], "Wanaka Honten":[34.6659,135.5049],
+  "Daruma":[34.6688,135.5014], "Kani Doraku Honten":[34.6692,135.5010],
+  "Matsusakagyu Yakiniku M":[34.6677,135.5033], "551 Horai":[34.6668,135.5012],
+  "Rikuro's Cheesecake":[34.6656,135.5009], "Kuromon Ichiba Market":[34.6653,135.5063],
+  "Harukoma":[34.7057,135.5110], "Kiji":[34.7053,135.4900], "Hanadako":[34.7027,135.4988],
+  "Naniwa Kuishinbo Yokocho":[34.6553,135.4310], "Kinopio's Cafe":[34.6676,135.4323],
+  "Three Broomsticks + Butterbeer":[34.6663,135.4306],
+  "Fushimi Inari street stalls":[34.9671,135.7727], "Yoshimura":[35.0128,135.6782],
+  "% Arabica Arashiyama":[35.0136,135.6778], "Katsukura":[34.9855,135.7585],
+  "Nakatanidou":[34.6820,135.8290], "Kamameshi Shizuka":[34.6839,135.8399],
+};
+const AREA_MAP = { Tsukiji:"tokyo", Asakusa:"tokyo", Akihabara:"tokyo", Shibuya:"tokyo",
+  Odaiba:"tokyo", Azabudai:"tokyo", Dotonbori:"osaka", Umeda:"osaka", USJ:"osaka",
+  Kyoto:"trip", Nara:"trip" };
+
+const HOTELS = {
+  tokyo: { name:"MIMARU Tokyo Station East", jp:"ミマル東京 STATION EAST",
+    ll:[35.6755,139.7840], maps:"MIMARU Tokyo Station East" },
+  osaka: { name:"MIMARU Osaka Namba Station", jp:"ミマル大阪 難波STATION",
+    ll:[34.6640,135.5020], maps:"MIMARU Osaka Namba Station" },
+};
+
+const MAPS = {
+  tokyo: {
+    base: { ll: HOTELS.tokyo.ll, label:"MIMARU" },
+    labels: [["ASAKUSA",35.7175,139.7905],["IKEBUKURO",35.7307,139.7125],
+      ["AKIHABARA",35.7028,139.7758],["TOKYO STATION",35.6820,139.7635],
+      ["GINZA",35.6742,139.7610],["HARAJUKU",35.6720,139.7000],["SHIBUYA",35.6553,139.6985],
+      ["AZABUDAI",35.6580,139.7398],["TSUKISHIMA",35.6620,139.7845],
+      ["ODAIBA",35.6262,139.7715],["TOKYO BAY",35.6440,139.7930]],
+    water: [[[35.6600,139.7660],[35.6480,139.7620],[35.6280,139.7580],[35.6150,139.7700],
+      [35.6150,139.8150],[35.6600,139.8150],[35.6720,139.7960],[35.6660,139.7780]]],
+    rivers: [[[35.7330,139.8010],[35.7120,139.7990],[35.7000,139.7900],[35.6880,139.7865],
+      [35.6760,139.7845],[35.6680,139.7800],[35.6620,139.7760]]],
+    islands: [[[35.6685,139.7795],[35.6668,139.7860],[35.6620,139.7872],[35.6600,139.7820],[35.6648,139.7778]],
+      [[35.6330,139.7680],[35.6330,139.7830],[35.6250,139.7855],[35.6215,139.7760],[35.6265,139.7672]]],
+  },
+  osaka: {
+    base: { ll: HOTELS.osaka.ll, label:"MIMARU" },
+    labels: [["UMEDA",34.7080,135.4945],["TENJINBASHI",34.7085,135.5135],
+      ["NAMBA · DOTONBORI",34.6712,135.5060],["KUROMON",34.6638,135.5075],
+      ["UNIVERSAL STUDIOS",34.6700,135.4295],["TEMPOZAN · AQUARIUM",34.6528,135.4340],
+      ["OSAKA BAY",34.6650,135.4180]],
+    water: [[[34.7150,135.4150],[34.6150,135.4150],[34.6150,135.4450],[34.6520,135.4415],
+      [34.6600,135.4330],[34.6900,135.4230],[34.7150,135.4230]]],
+    rivers: [[[34.6850,135.4520],[34.6750,135.4430],[34.6640,135.4330]],
+      [[34.6693,135.4900],[34.6693,135.5145]]],
+    islands: [],
+  },
+  trip: {
+    base: null,
+    labels: [["ARASHIYAMA",35.0180,135.6780],["FUSHIMI INARI",34.9625,135.7760],
+      ["KYOTO STATION",34.9890,135.7550],["NARA",34.6890,135.8330]],
+    water: [], islands: [],
+    rivers: [[[35.0230,135.6710],[35.0125,135.6790],[35.0050,135.6900]]],
+    routes: [
+      { pts:[[35.0128,135.6782],[34.9855,135.7585]], note:"JR · ~15 min", at:[35.0030,135.7180] },
+      { pts:[[34.9855,135.7585],[34.9671,135.7727]], note:"JR · ~5 min", at:[34.9740,135.7690] },
+      { pts:[[34.9671,135.7727],[34.6820,135.8290]], note:"separate day · Kintetsu from Namba ~40 min", at:[34.8250,135.8250] },
+    ],
+  },
+};
+
+const mapSpots = city => FOOD.filter(f => AREA_MAP[f.area] === city && COORDS[f.name]);
+const VIEW = {};   // per-city {k,tx,ty}
+let curMap = "tokyo", selSpot = null, mapP = null;
+const svg = document.getElementById("mapsvg");
+const W = 800, H = 880;
+
+/* Web-Mercator projection so satellite tiles line up exactly with the pins */
+const mercX = lo => (lo + 180) / 360;
+const mercY = la => {
+  const s = Math.sin(la * Math.PI / 180);
+  return 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI);
+};
+let mapMerc = null;   // {s, x0, y0, ox, oy} for the current map
+function projector(city) {
+  const pts = mapSpots(city).map(f => COORDS[f.name]).slice();
+  if (MAPS[city].base) pts.push(MAPS[city].base.ll);
+  const xs = pts.map(p => mercX(p[1])), ys = pts.map(p => mercY(p[0]));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const pad = 0.12;
+  const wSpan = (x1 - x0) || 1e-9, hSpan = (y1 - y0) || 1e-9;
+  const s = Math.min(W * (1 - pad * 2) / wSpan, H * (1 - pad * 2) / hSpan);
+  const ox = (W - wSpan * s) / 2, oy = (H - hSpan * s) / 2;
+  mapMerc = { s, x0, y0, ox, oy };
+  return ([la, lo]) => [ox + (mercX(lo) - x0) * s, oy + (mercY(la) - y0) * s];
+}
+
+function pinColor(f) {
+  if (f.tags.includes("must")) return "var(--shu)";
+  if (f.tags.includes("book")) return "var(--gold)";
+  return "var(--noren)";
+}
+const pathOf = (pts, P, close) =>
+  pts.map((p, i) => (i ? "L" : "M") + P(p).map(n => n.toFixed(1)).join(",")).join(" ") + (close ? " Z" : "");
+
+function buildMap(city) {
+  curMap = city;
+  const P = projector(city), cfg = MAPS[city], spots = mapSpots(city);
+  let bg = `<rect x="-2000" y="-2000" width="4800" height="4880" fill="var(--map-land)"/>`;
+  (cfg.water || []).forEach(w => bg += `<path d="${pathOf(w, P, true)}" fill="var(--map-water)"/>`);
+  (cfg.rivers || []).forEach(r => bg += `<path d="${pathOf(r, P)}" fill="none" stroke="var(--map-water)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`);
+  (cfg.islands || []).forEach(i => bg += `<path d="${pathOf(i, P, true)}" fill="var(--map-land)"/>`);
+  (cfg.routes || []).forEach(r => bg += `<path d="${pathOf(r.pts, P)}" fill="none" stroke="var(--noren)" stroke-width="2" stroke-dasharray="7 6" opacity=".55" vector-effect="non-scaling-stroke"/>`);
+
+  let fg = "";
+  (cfg.labels || []).forEach(([t, la, lo]) => {
+    const [x, y] = P([la, lo]);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}"><text class="mlabel">${t}</text></g>`;
+  });
+  (cfg.routes || []).forEach(r => {
+    const [x, y] = P(r.at);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}"><text class="mnote">${r.note}</text></g>`;
+  });
+  if (cfg.base) {
+    const [x, y] = P(cfg.base.ll);
+    fg += `<g class="cs" data-x="${x}" data-y="${y}">
+      <text y="5" text-anchor="middle" font-size="17" fill="var(--gold)">★</text>
+      <text y="20" class="mnote">${cfg.base.label}</text></g>`;
+  }
+  spots.forEach(f => {
+    const [x, y] = P(COORDS[f.name]);
+    const i = FOOD.indexOf(f);
+    fg += `<g class="mpin cs${eaten.has(f.id) ? " dim" : ""}${selSpot === f ? " sel" : ""}" data-i="${i}" data-x="${x}" data-y="${y}" role="button" aria-label="${f.name.replace(/"/g, "")}">
+      <circle class="ring" r="12"/>
+      <circle r="7" fill="${pinColor(f)}" stroke="var(--card)" stroke-width="2"/>
+      <circle class="hit" r="15"/>
+    </g>`;
+  });
+  svg.innerHTML = `<g id="gWorld"><g id="gTiles"></g><g class="schem">${bg}</g>${fg}</g>`;
+  mapP = P;
+  drawUserDot();
+  if (!VIEW[city]) VIEW[city] = { k: 1, tx: 0, ty: 0 };
+  applyView();
+  updateTiles();
+}
+
+function drawUserDot() {
+  const g = document.getElementById("gWorld");
+  const old = document.getElementById("udot");
+  if (old) old.remove();
+  if (!userLL || !mapP || !g) return;
+  const [x, y] = mapP(userLL);
+  if (x < -60 || x > W + 60 || y < -60 || y > H + 60) return;
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  el.id = "udot"; el.classList.add("cs");
+  el.dataset.x = x; el.dataset.y = y;
+  el.innerHTML = `<circle class="halo" r="9"/>
+    <circle r="7" fill="#2E7CD6" stroke="#fff" stroke-width="2.5"/>
+    <text y="26" class="mnote">YOU</text>`;
+  g.appendChild(el);
+}
+
+function applyView() {
+  const v = VIEW[curMap];
+  v.k = Math.min(24, Math.max(0.7, v.k));
+  document.getElementById("gWorld").setAttribute("transform", `translate(${v.tx},${v.ty}) scale(${v.k})`);
+  svg.querySelectorAll(".cs").forEach(el =>
+    el.setAttribute("transform", `translate(${el.dataset.x},${el.dataset.y}) scale(${1 / v.k})`));
+  if (satMode && !tileRaf) tileRaf = requestAnimationFrame(() => { tileRaf = 0; updateTiles(); });
+}
+
+/* ---- satellite tile layer (needs a host that allows outside images) ---- */
+let satMode = false, tileRaf = 0, tileOK = 0, tileErr = 0, satWarned = false;
+const TILE_URL = (z, x, y) =>
+  `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+function updateTiles() {
+  const gt = document.getElementById("gTiles");
+  if (!gt) return;
+  if (!satMode || !mapMerc) { gt.innerHTML = ""; return; }
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width) return;
+  const v = VIEW[curMap], m = mapMerc;
+  const pxPerWorld = m.s * v.k * (rect.width / W);
+  const Z = Math.max(3, Math.min(19, Math.round(Math.log2(pxPerWorld / 256))));
+  const n = 1 << Z;
+  const wx = vx => ((vx - v.tx) / v.k - m.ox) / m.s + m.x0;
+  const wy = vy => ((vy - v.ty) / v.k - m.oy) / m.s + m.y0;
+  const tx0 = Math.max(0, Math.floor(wx(0) * n)), tx1 = Math.min(n - 1, Math.floor(wx(W) * n));
+  const ty0 = Math.max(0, Math.floor(wy(0) * n)), ty1 = Math.min(n - 1, Math.floor(wy(H) * n));
+  if (tx1 < tx0 || ty1 < ty0 || (tx1 - tx0 + 1) * (ty1 - ty0 + 1) > 60) return;
+  const want = new Set();
+  for (let x = tx0; x <= tx1; x++) for (let y = ty0; y <= ty1; y++) want.add(`${Z}/${x}/${y}`);
+  [...gt.children].forEach(c => {
+    if (want.has(c.dataset.key)) want.delete(c.dataset.key); else c.remove();
+  });
+  const ts = m.s / n;
+  want.forEach(key => {
+    const [z, x, y] = key.split("/").map(Number);
+    const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    img.dataset.key = key;
+    img.setAttribute("href", TILE_URL(z, x, y));
+    img.setAttribute("x", m.ox + (x / n - m.x0) * m.s);
+    img.setAttribute("y", m.oy + (y / n - m.y0) * m.s);
+    img.setAttribute("width", ts); img.setAttribute("height", ts);
+    img.setAttribute("preserveAspectRatio", "none");
+    img.addEventListener("load", () => { tileOK++; });
+    img.addEventListener("error", () => {
+      tileErr++;
+      if (!tileOK && tileErr >= 3 && !satWarned) {
+        satWarned = true;
+        setSat(false);
+        const msg = document.getElementById("mapMsg");
+        msg.textContent = "Satellite imagery can't load on this page — the private artifact blocks images from outside hosts. It works when the app is hosted normally (e.g. GitHub Pages); meanwhile the schematic map and each spot's “Satellite ↗” link have you covered.";
+        msg.hidden = false;
+      }
+    });
+    gt.appendChild(img);
+  });
+}
+function setSat(on) {
+  satMode = on;
+  const b = document.getElementById("satBtn");
+  b.setAttribute("aria-pressed", String(on));
+  svg.classList.toggle("sat", on);
+  document.getElementById("satCredit").hidden = !on;
+  if (on) { document.getElementById("mapMsg").hidden = true; }
+  updateTiles();
+}
+
+function showDetail(f) {
+  const d = document.getElementById("mapDetail");
+  if (!f) { d.innerHTML = `<p class="hint">Tap a pin to see the details — faded pins are ones you've already eaten at.</p>`; return; }
+  const done = eaten.has(f.id);
+  d.innerHTML = `
+    <div class="rtop">
+      <h4 class="rname">${f.name}<span class="rjp">${f.jp} · ${f.area === "USJ" ? "Universal Studios" : f.area}</span></h4>
+      <button class="eatbtn" style="${done ? "background:var(--green);border-color:var(--green);color:#fff" : ""}" data-mapeat="${f.id}" aria-pressed="${done}" title="Mark as eaten">✓</button>
+    </div>
+    <div class="rmeta">${badge(f)}</div>
+    <p class="rdesc">${f.desc}</p>
+    ${deepHTML(f)}
+    <div class="rfoot">
+      <span class="yen">${f.price}</span>
+      <span>
+        <a class="maplink" href="https://maps.google.com/?q=${encodeURIComponent(f.maps)}&t=k" target="_blank" rel="noopener">Satellite ↗</a> ·
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Google Maps ↗</a>
+      </span>
+    </div>`;
+}
+
+/* map interactions */
+const ptrs = new Map();
+let dragged = false, lastMid = null, lastDist = 0, downPin = null;
+const toVB = (cx, cy) => {
+  const r = svg.getBoundingClientRect();
+  return [(cx - r.left) / r.width * W, (cy - r.top) / r.height * H];
+};
+svg.addEventListener("pointerdown", e => {
+  svg.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  dragged = false; lastMid = null; lastDist = 0;
+  downPin = ptrs.size === 1 ? e.target.closest(".mpin") : null;
+  svg.classList.add("dragging");
+});
+svg.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  const v = VIEW[curMap], pts = [...ptrs.values()];
+  if (pts.length === 1) {
+    const [vx, vy] = toVB(...pts[0]);
+    if (lastMid) {
+      const dx = vx - lastMid[0], dy = vy - lastMid[1];
+      if (Math.abs(dx) + Math.abs(dy) > 1.5) dragged = true;
+      v.tx += dx; v.ty += dy; applyView();
+    }
+    lastMid = [vx, vy];
+  } else if (pts.length >= 2) {
+    dragged = true;
+    const [a, b] = pts;
+    const mid = toVB((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+    const dist = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    if (lastDist) {
+      const f = dist / lastDist, k2 = Math.min(24, Math.max(0.7, v.k * f)), real = k2 / v.k;
+      v.tx = mid[0] - (mid[0] - v.tx) * real; v.ty = mid[1] - (mid[1] - v.ty) * real; v.k = k2;
+    }
+    if (lastMid) { v.tx += mid[0] - lastMid[0]; v.ty += mid[1] - lastMid[1]; }
+    lastMid = mid; lastDist = dist; applyView();
+  }
+});
+const endPtr = e => {
+  ptrs.delete(e.pointerId);
+  if (!ptrs.size) svg.classList.remove("dragging");
+  lastMid = null; lastDist = 0;
+};
+svg.addEventListener("pointerup", e => {
+  const tap = !dragged && ptrs.size === 1;
+  endPtr(e);
+  if (tap) {
+    selSpot = downPin ? FOOD[+downPin.dataset.i] : null;
+    svg.querySelectorAll(".mpin").forEach(p => p.classList.toggle("sel", downPin === p));
+    showDetail(selSpot);
+  }
+  downPin = null;
+});
+svg.addEventListener("pointercancel", e => { endPtr(e); downPin = null; });
+svg.addEventListener("wheel", e => {
+  e.preventDefault();
+  const v = VIEW[curMap], [vx, vy] = toVB(e.clientX, e.clientY);
+  const k2 = Math.min(24, Math.max(0.7, v.k * Math.pow(1.0015, -e.deltaY))), real = k2 / v.k;
+  v.tx = vx - (vx - v.tx) * real; v.ty = vy - (vy - v.ty) * real; v.k = k2;
+  applyView();
+}, { passive: false });
+const zoomBy = f => {
+  const v = VIEW[curMap], k2 = Math.min(24, Math.max(0.7, v.k * f)), real = k2 / v.k;
+  v.tx = W / 2 - (W / 2 - v.tx) * real; v.ty = H / 2 - (H / 2 - v.ty) * real; v.k = k2;
+  applyView();
+};
+document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.45));
+document.getElementById("zoomOut").addEventListener("click", () => zoomBy(1 / 1.45));
+document.getElementById("zoomReset").addEventListener("click", () => { VIEW[curMap] = { k: 1, tx: 0, ty: 0 }; applyView(); updateTiles(); });
+document.getElementById("satBtn").addEventListener("click", () => setSat(!satMode));
+
+document.getElementById("mapChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip[data-map]"); if (!c) return;
+  document.querySelectorAll("#mapChips .chip[data-map]").forEach(x =>
+    x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  selSpot = null; showDetail(null);
+  buildMap(c.dataset.map);
+});
+document.getElementById("mapDetail").addEventListener("click", e => {
+  const btn = e.target.closest("[data-mapeat]"); if (!btn) return;
+  const id = btn.dataset.mapeat;
+  eaten.has(id) ? eaten.delete(id) : eaten.add(id);
+  localStorage.setItem("jp-eaten", JSON.stringify([...eaten]));
+  render(); buildMap(curMap); showDetail(selSpot);
+});
+
+buildMap("tokyo");
+
+/* ================= LOCATION & HOTELS ================= */
+function distM(a, b) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+  const h = Math.sin(dLa / 2) ** 2 +
+    Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const distStr = m => m < 950 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
+const walkStr = m => m <= 4200 ? ` · <b>~${Math.max(1, Math.round(m / 75))} min walk</b>` : "";
+
+function locate(then) {
+  if (!navigator.geolocation) return then("Location isn't available in this browser.");
+  navigator.geolocation.getCurrentPosition(
+    p => { userLL = [p.coords.latitude, p.coords.longitude]; then(null); },
+    () => then("Couldn't get your location — check that location access is allowed and try again."),
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+}
+
+function nearSectionHTML() {
+  const rows = FOOD.filter(f => COORDS[f.name])
+    .map(f => ({ f, d: distM(userLL, COORDS[f.name]) }))
+    .sort((a, b) => a.d - b.d).slice(0, 8);
+  const far = rows[0].d > 8000;
+  let h = `<div class="nearwrap"><h3 class="area-head">📍 Closest to you right now</h3>
+    <p class="area-sub">${far
+      ? "You're outside the eating zones at the moment — these are the closest spots anyway."
+      : "Straight-line distances — the map link gives you the walking route."}</p>`;
+  for (const { f, d } of rows) {
+    h += `<div class="nearrow">
+      <span class="nname">${f.name}</span><span class="njp">${f.jp} · ${f.area}</span>
+      <span class="ndist">${distStr(d)}${walkStr(d)} ·
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.maps)}" target="_blank" rel="noopener">Map ↗</a></span>
+    </div>`;
+  }
+  return h + `</div>`;
+}
+
+const nearBtn = document.getElementById("nearBtn"), nearMsg = document.getElementById("nearMsg");
+nearBtn.addEventListener("click", () => {
+  nearMsg.hidden = true;
+  if (nearMode) { nearMode = false; nearBtn.setAttribute("aria-pressed", "false"); render(); return; }
+  nearBtn.textContent = "📍 Locating…";
+  locate(err => {
+    nearBtn.textContent = "📍 Food near me";
+    if (err) { nearMsg.textContent = err; nearMsg.hidden = false; return; }
+    nearMode = true;
+    nearBtn.setAttribute("aria-pressed", "true");
+    render();
+  });
+});
+
+document.getElementById("locBtn").addEventListener("click", () => {
+  const msg = document.getElementById("mapMsg");
+  msg.hidden = true;
+  locate(err => {
+    if (err) { msg.textContent = err; msg.hidden = false; return; }
+    let best = curMap, bd = Infinity;
+    for (const city of ["tokyo", "osaka", "trip"]) {
+      for (const f of mapSpots(city)) {
+        const d = distM(userLL, COORDS[f.name]);
+        if (d < bd) { bd = d; best = city; }
+      }
+    }
+    if (best !== curMap) {
+      document.querySelectorAll("#mapChips .chip").forEach(x =>
+        x.setAttribute("aria-pressed", x.dataset.map === best ? "true" : "false"));
+      buildMap(best);
+    } else drawUserDot();
+    const dot = document.getElementById("udot");
+    if (dot) {
+      const v = VIEW[curMap];
+      v.k = Math.max(v.k, 2.2);
+      v.tx = W / 2 - dot.dataset.x * v.k;
+      v.ty = H / 2 - dot.dataset.y * v.k;
+      applyView();
+    } else {
+      msg.textContent = `You're ${distStr(bd)} from the nearest spot — the dot will appear once you're near one of the maps.`;
+      msg.hidden = false;
+    }
+  });
+});
+
+/* landing-day hotel box */
+function hotelBlockHTML(city, dateLabel, advice, open) {
+  const h = HOTELS[city];
+  const near = FOOD.filter(f => COORDS[f.name])
+    .map(f => ({ f, d: distM(h.ll, COORDS[f.name]) }))
+    .sort((a, b) => a.d - b.d).slice(0, 8)
+    .filter(x => x.d < 2600);
+  return `<details class="hblock"${open ? " open" : ""}>
+    <summary><span class="hdate">${dateLabel}</span><span class="htitle">${h.name}</span>
+      <a class="hmaps" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.maps)}" target="_blank" rel="noopener">Map ↗</a></summary>
+    <div class="hbody">
+      <p>${advice}</p>
+      <div class="hchips">${near.map(({ f, d }) =>
+        `<button class="hchip" data-goto="${f.id}">${f.name} <span class="wmin">· ~${Math.max(1, Math.round(d / 75))} min</span></button>`).join("")}
+      </div>
+    </div>
+  </details>`;
+}
+(function buildHotelBox() {
+  const inOsaka = isTripMonth && today.getDate() >= 5 && today.getDate() <= 10;
+  document.getElementById("hotelBox").innerHTML =
+    hotelBlockHTML("tokyo", "🛬 Land Aug 2",
+      `You're in Shinkawa — a quiet riverside pocket by Hatchobori station (Mom's Hibiya-line routes work from Hatchobori or Kayabacho, both ~5 min away). <b>Landing-night plan:</b> walk over the Sumida bridge to <b>Monja Street</b> and cook monjayaki at the table — short, fun, and it keeps everyone awake till bedtime. Landing late and wrecked? <b>Sushizanmai</b> in Tsukiji never closes. Tap a chip for the full card:`, !inOsaka) +
+    hotelBlockHTML("osaka", "🚄 Aug 5 check-in",
+      `You're moving into the best street-food square kilometer in Japan — everything below is a stroll from the lobby. <b>First-evening plan:</b> <b>551 Horai</b> pork buns → <b>Wanaka</b> takoyaki → neon photos at the Glico sign → a warm <b>Rikuro's</b> cheesecake back at the hotel. Save <b>Kuromon Market</b> for tomorrow's breakfast.`, inOsaka);
+})();
+document.getElementById("hotelBox").addEventListener("click", e => {
+  const chip = e.target.closest("[data-goto]"); if (!chip) return;
+  cityFilter = "all"; tagFilters.clear(); query = ""; ASK = null; nearMode = false;
+  nearBtn.setAttribute("aria-pressed", "false");
+  document.getElementById("search").value = "";
+  document.querySelectorAll("#cityChips .chip").forEach(x =>
+    x.setAttribute("aria-pressed", x.dataset.city === "all" ? "true" : "false"));
+  document.querySelectorAll("#tagChips .chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+  render();
+  const card = list.querySelector(`.rcard[data-id="${chip.dataset.goto}"]`);
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("flash");
+    setTimeout(() => card.classList.remove("flash"), 2200);
+  }
+});
+</script>
